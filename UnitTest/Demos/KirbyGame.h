@@ -15,4 +15,5 @@ private:
     class AnimationRect* p1 = nullptr;
     class Sound* s = nullptr;
     class HUD* hud = nullptr;
+    class World* world = nullptr;
 };

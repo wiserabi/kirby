@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "Kirby.h"
+#include "KirbyGame.h"
 
 #include "Geomatries/AnimationRect.h"
 #include "KirbyCharacter.h"
-
+#include "World.h"
 #include "UI/HUD.h"
 
 void KirbyGame::Init()
@@ -14,18 +14,19 @@ void KirbyGame::Init()
 	Sounds::Get()->Play("Vegetable-Valley.mp3");
 
 	hud = new HUD();
+	world = new World();
 }
 
 void KirbyGame::Destroy()
 {
-	SAFE_DELETE(hud);
 	SAFE_DELETE(kirby);
+	SAFE_DELETE(hud);
+	SAFE_DELETE(world);
 }
 
 void KirbyGame::Update()
 {
-	kirby->Move();
-	kirby->Update();
+
 	if (Keyboard::Get()->Down(VK_F2)) {
 		if (Sounds::Get()->IsPaused("Vegetable-Valley.mp3")) {
 			Sounds::Get()->Play("Vegetable-Valley.mp3");
@@ -35,11 +36,17 @@ void KirbyGame::Update()
 			Sounds::Get()->Pause("Vegetable-Valley.mp3");
 		}
 	}
+	world->Update();
+
+	kirby->Move();
+	kirby->Update();
+
 	hud->Update();
 }
 
 void KirbyGame::Render()
 {
+	world->Render();
 	kirby->Render();
 	hud->Render();
 }

@@ -106,11 +106,11 @@ void AnimationRect::Move()
 	float delta = Time::Delta();
 	int pressed = 0;
 
-	if (key->Press('D')) {
+	if (key->Press(VK_RIGHT)) {
 		position.x += 100 * delta;
 		pressed += 1;
 	}
-	else if (key->Press('A')) {
+	else if (key->Press(VK_LEFT)) {
 		position.x -= 100 * delta;
 		pressed += 1;
 	}

@@ -9,7 +9,7 @@
     <ClInclude Include="Demos\04_RenderTargetDemo.h" />
     <ClInclude Include="Demos\05_CollisionDemo.h" />
     <ClInclude Include="Demos\06_AnimationDemo.h" />
-    <ClInclude Include="Demos\Kirby.h" />
+    <ClInclude Include="Demos\KirbyGame.h" />
     <ClInclude Include="Demos\World.h" />
     <ClInclude Include="UI\HUD.h" />
     <ClInclude Include="Demos\Level.h" />
@@ -23,7 +23,7 @@
     <ClCompile Include="Demos\04_RenderTargetDemo.cpp" />
     <ClCompile Include="Demos\05_CollisionDemo.cpp" />
     <ClCompile Include="Demos\06_AnimationDemo.cpp" />
-    <ClCompile Include="Demos\Kirby.cpp" />
+    <ClCompile Include="Demos\KirbyGame.cpp" />
     <ClCompile Include="Demos\World.cpp" />
     <ClCompile Include="UI\HUD.cpp" />
     <ClCompile Include="Demos\Level.cpp" />

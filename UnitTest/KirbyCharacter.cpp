@@ -5,7 +5,7 @@
 
 KirbyCharacter::KirbyCharacter()
 {
-	kirbyAnimation = new AnimationRect({ 720, 360, 0 }, { 45, 45, 1 });
+	kirbyAnimation = new AnimationRect({ 720, 360, 1.0 }, { 45, 45, 1 });
 
 }
 

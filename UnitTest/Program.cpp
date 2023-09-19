@@ -11,7 +11,7 @@
 #include "Demos/05_CollisionDemo.h"
 #include "Demos/06_AnimationDemo.h"
 */
-#include "Demos/Kirby.h"
+#include "Demos/KirbyGame.h"
 
 void Program::Init()
 {
