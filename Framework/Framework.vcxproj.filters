@@ -29,6 +29,9 @@
     <ClCompile Include="Geomatries\AnimationRect.cpp" />
     <ClCompile Include="Systems\Camera.cpp" />
     <ClCompile Include="Systems\Sounds.cpp" />
+    <ClCompile Include="UI\ProgressBar.cpp" />
+    <ClCompile Include="Systems\SRV.cpp" />
+    <ClCompile Include="Utilities\UI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Systems\Graphics.h" />
@@ -63,5 +66,8 @@
     <ClInclude Include="Geomatries\AnimationRect.h" />
     <ClInclude Include="Systems\Camera.h" />
     <ClInclude Include="Systems\Sounds.h" />
+    <ClInclude Include="UI\ProgressBar.h" />
+    <ClInclude Include="Systems\SRV.h" />
+    <ClInclude Include="Utilities\UI.h" />
   </ItemGroup>
 </Project>

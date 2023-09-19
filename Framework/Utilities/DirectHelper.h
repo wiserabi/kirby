@@ -57,11 +57,17 @@ namespace DXMath
     {
         return Scaling(Vector3(x, y, z));
     }
-
+    //Radian
     static Matrix Rotation(const float& rotation)
     {
         Matrix m;
         D3DXMatrixRotationZ(&m, rotation);
+        return m;
+    }
+    static Matrix RotationInDegree(const float& rotation)
+    {
+        Matrix m;
+        D3DXMatrixRotationZ(&m, (float)D3DXToRadian(rotation));
         return m;
     }
 }

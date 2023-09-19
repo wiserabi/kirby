@@ -89,6 +89,7 @@ WPARAM Window::Run(IObject* mainObj)
 	Gui::Create();
 	States::Create();
 	Sounds::Create();
+	SRV::Create();
 
 	this->mainObj->Init();
 
@@ -112,6 +113,7 @@ WPARAM Window::Run(IObject* mainObj)
 	}
 	this->mainObj->Destroy();
 
+	SRV::Delete();
 	Sounds::Delete();
 	Gui::Delete();
 	Time::Delete();

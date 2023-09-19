@@ -13,6 +13,7 @@ public:
 	void UpdateView();
 
 	void Unprojection(Vector3* out, Vector3 source, Matrix world = Values::Identity);
+	const Vector3 GetPosition() { return position; }
 
 private:
 	Camera();

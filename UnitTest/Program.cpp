@@ -3,12 +3,15 @@
 
 #include "Systems/Window.h"
 
-#include "Demos/01_RectDemo.h"
+/*
+* #include "Demos/01_RectDemo.h"
 #include "Demos/02_TextureDemo.h"
 #include "Demos/03_ShadedDemo.h"
 #include "Demos/04_RenderTargetDemo.h"
 #include "Demos/05_CollisionDemo.h"
 #include "Demos/06_AnimationDemo.h"
+*/
+#include "Demos/Kirby.h"
 
 void Program::Init()
 {
@@ -19,7 +22,8 @@ void Program::Init()
 	//Push(new ShadedDemo);
 	//Push(new RenderTargetDemo);
 	//Push(new CollisionDemo);
-	Push(new AnimationDemo);
+	//Push(new AnimationDemo);
+	Push(new KirbyGame);
 }
 
 void Program::Destroy()

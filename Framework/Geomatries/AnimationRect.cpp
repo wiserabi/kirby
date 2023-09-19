@@ -17,27 +17,15 @@ AnimationRect::AnimationRect(Vector3 position, Vector3 size)
 		//	Vector2(0, srcTex->GetHeight() * 0.5f),
 		//	Vector2(srcTex->GetWidth(), srcTex->GetHeight()));
 
-		Texture2D* srcTex = new Texture2D(TexturePath + L"jelda.png");
-		AnimationClip* RunR = new AnimationClip(L"RunR", srcTex, 10,
-			Vector2(0, srcTex->GetHeight() * 0.75f),
+		Texture2D* srcTex = new Texture2D(TexturePath + L"kirbyAnim/kirbywalkright.png");
+		AnimationClip* RunR = new AnimationClip(L"RunR", srcTex, 4,
+			Vector2(0, srcTex->GetHeight() * 0.0f),
+			Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 1.0f));
+		AnimationClip* RunL = new AnimationClip(L"RunL", srcTex, 4,
+			Values::ZeroVec2,
 			Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 1.0f));
 
-		AnimationClip* RunL = new AnimationClip(L"RunL", srcTex, 10,
-			Vector2(0, srcTex->GetHeight() * 0.25f),
-			Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 0.5f));
-
-		AnimationClip* RunD = new AnimationClip(L"RunD", srcTex, 10,
-			Values::ZeroVec2,
-			Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 0.25f));
-
-		AnimationClip* RunU = new AnimationClip(L"RunU", srcTex, 10,
-			Vector2(0, srcTex->GetHeight() * 0.5f),
-			Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 0.75f));
-
 		animator->AddAnimClip(RunR);
-		animator->AddAnimClip(RunL);
-		animator->AddAnimClip(RunD);
-		animator->AddAnimClip(RunU);
 		animator->SetCurrentAnimClip(L"RunR");
 		SAFE_DELETE(srcTex);
 	}
@@ -124,34 +112,11 @@ void AnimationRect::Move()
 	}
 	else if (key->Press('A')) {
 		position.x -= 100 * delta;
-		pressed += 2;
-	}
-	
-	if (key->Press('W')) {
-		position.y += 100 * delta;
-		pressed += 4;
-	}
-	else if (key->Press('S')) {
-		position.y -= 100 * delta;
-		pressed += 8;
+		pressed += 1;
 	}
 
 	if (pressed == 1) {
 		animator->SetCurrentAnimClip(L"RunR");
 	}
-	else if (pressed == 2) {
-		animator->SetCurrentAnimClip(L"RunL");
-	}
-	else if (pressed == 4) {
-		animator->SetCurrentAnimClip(L"RunU");
-	}
-	else if (pressed == 8) {
-		animator->SetCurrentAnimClip(L"RunD");
-	}
-	else if (pressed == 9 || pressed == 10) {
-		animator->SetCurrentAnimClip(L"RunD");
-	}
-	else if (pressed == 5 || pressed == 6) {
-		animator->SetCurrentAnimClip(L"RunU");
-	}
+
 }

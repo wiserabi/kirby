@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31624.102
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "UnitTest\UnitTest.vcxproj", "{BD7C5D97-DA38-4E99-BB47-52EF1DA335B3}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -17,6 +17,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Shaders", "_Shaders", "{A7
 		_Shaders\TextureFilter.hlsl = _Shaders\TextureFilter.hlsl
 		_Shaders\VertexColor.hlsl = _Shaders\VertexColor.hlsl
 		_Shaders\VertexTexture.hlsl = _Shaders\VertexTexture.hlsl
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tile", "Tile", "{1AD6D091-B4DC-439A-AAFE-921D75A13876}"
+	ProjectSection(SolutionItems) = preProject
+		VertexTile.hlsl = VertexTile.hlsl
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{E2075F85-63C9-40C9-AB1E-3A499EBC55A7}"
+	ProjectSection(SolutionItems) = preProject
+		ColorUI.hlsl = ColorUI.hlsl
+		TextureUI.hlsl = TextureUI.hlsl
 	EndProjectSection
 EndProject
 Global
@@ -46,6 +57,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1AD6D091-B4DC-439A-AAFE-921D75A13876} = {A76BE2CD-A57C-4A02-A6C8-56B7D9CBF88C}
+		{E2075F85-63C9-40C9-AB1E-3A499EBC55A7} = {A76BE2CD-A57C-4A02-A6C8-56B7D9CBF88C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D6D4ED3D-CEFA-42A1-911B-B5F0E2FF39F4}

@@ -172,8 +172,10 @@
     <ClCompile Include="Systems\Keyboard.cpp" />
     <ClCompile Include="Systems\Mouse.cpp" />
     <ClCompile Include="Systems\Sounds.cpp" />
+    <ClCompile Include="Systems\SRV.cpp" />
     <ClCompile Include="Systems\Time.cpp" />
     <ClCompile Include="Systems\Window.cpp" />
+    <ClCompile Include="UI\ProgressBar.cpp" />
     <ClCompile Include="Utilities\Animator.cpp" />
     <ClCompile Include="Utilities\BoundingBox.cpp" />
     <ClCompile Include="Utilities\DirectHelper.cpp" />
@@ -181,6 +183,7 @@
     <ClCompile Include="Utilities\Path.cpp" />
     <ClCompile Include="Utilities\RenderTexture.cpp" />
     <ClCompile Include="Utilities\String.cpp" />
+    <ClCompile Include="Utilities\UI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Framework.h" />
@@ -205,8 +208,10 @@
     <ClInclude Include="Systems\Keyboard.h" />
     <ClInclude Include="Systems\Mouse.h" />
     <ClInclude Include="Systems\Sounds.h" />
+    <ClInclude Include="Systems\SRV.h" />
     <ClInclude Include="Systems\Time.h" />
     <ClInclude Include="Systems\Window.h" />
+    <ClInclude Include="UI\ProgressBar.h" />
     <ClInclude Include="Utilities\Animator.h" />
     <ClInclude Include="Utilities\BoundingBox.h" />
     <ClInclude Include="Utilities\DirectHelper.h" />
@@ -215,6 +220,7 @@
     <ClInclude Include="Utilities\RenderTexture.h" />
     <ClInclude Include="Utilities\SingletonBase.h" />
     <ClInclude Include="Utilities\String.h" />
+    <ClInclude Include="Utilities\UI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

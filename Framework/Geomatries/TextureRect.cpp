@@ -15,6 +15,11 @@ TextureRect::TextureRect(Vector3 position, Vector3 size, float rotation, wstring
     vertices[1].uv = Vector2(1, 0);
     vertices[2].uv = Vector2(1, 1);
     vertices[3].uv = Vector2(0, 0);
+    
+    //vertices[2].uv = Vector2(0, 1);
+    //vertices[1].uv = Vector2(0, 0);
+    //vertices[3].uv = Vector2(1, 0);
+    //vertices[0].uv = Vector2(1, 1);
 
     vb = new VertexBuffer();
     vb->Create(vertices, D3D11_USAGE_DYNAMIC);
@@ -56,8 +61,8 @@ TextureRect::TextureRect(Vector3 position, Vector3 size, float rotation)
     vertices[2].position = Vector3(+0.5f, -0.5f, 0.0f);
     vertices[3].position = Vector3(-0.5f, +0.5f, 0.0f);
 
-    vertices[0].uv = Vector2(0, 1);
     vertices[1].uv = Vector2(1, 0);
+    vertices[0].uv = Vector2(0, 1);
     vertices[2].uv = Vector2(1, 1);
     vertices[3].uv = Vector2(0, 0);
 
