@@ -15,6 +15,8 @@ public:
 
     void MapVertexBuffer();
     void UnmapVertexBuffer();
+    Vector3 GetPosition();
+    void SetPosition(Vector3 position);
 
 protected:
     vector<VertexTexture> vertices;

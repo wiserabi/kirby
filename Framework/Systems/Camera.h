@@ -12,6 +12,7 @@ public:
 	void Move();
 	void UpdateView();
 	void SetBound(Vector3 topLeft, Vector3 bottomRight);
+	void SetKirbyPosition(Vector3 kirbyPos);
 
 	void Unprojection(Vector3* out, Vector3 source, Matrix world = Values::Identity);
 	const Vector3 GetPosition() { return position; }
@@ -28,4 +29,5 @@ private:
 	float cameraSpeed = 100.0f;
 	Vector3 topLeft = Values::ZeroVec3;
 	Vector3 bottomRight = Values::ZeroVec3;
+	Vector3 kirbyPos = Values::ZeroVec3;
 };

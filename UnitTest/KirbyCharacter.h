@@ -20,6 +20,7 @@ enum State {
 	gethit,
 	attacking,
 	flying,
+	flyup,
 	inhale,
 	exhale,
 	slide,
@@ -43,15 +44,18 @@ public:
 	void Exhale();
 	void Swallow();
 	void Attack();
+	boolean isKirbyInWorld() { return kirbyInWorld; }
+	Vector3 GetPosition();
 
 private:
 	int health;
 	int lifeCount;
 	Ability ability;
-	State state;
+	State state = idle;
 
 	ID3D11SamplerState* point[2];
 	ID3D11BlendState* bpoint[2];
 	wstring current = L"WalkR";
+	boolean kirbyInWorld = true;
 };
 

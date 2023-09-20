@@ -14,6 +14,7 @@ public:
 	void Move();
 
 	void SetAnimator(class Animator* animator) { this->animator = animator; }
+	class Animator* GetAnimator() { return animator; }
 	void SetLeft(boolean left) { this->left = left; }
 	
 	void SetPosition(Vector3 position) { this->position = position; }

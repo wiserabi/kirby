@@ -141,3 +141,12 @@ void TextureRect::UnmapVertexBuffer()
     memcpy(subResource.pData, vertices.data(), sizeof(vertices[0]) * vertices.size());
     DC->Unmap(vb->GetResource(), 0);
 }
+
+Vector3 TextureRect::GetPosition()
+{
+    return Vector3();
+}
+
+void TextureRect::SetPosition(Vector3 position)
+{
+}

@@ -3,11 +3,6 @@
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Program.h" />
-    <ClInclude Include="Demos\01_RectDemo.h" />
-    <ClInclude Include="Demos\02_TextureDemo.h" />
-    <ClInclude Include="Demos\03_ShadedDemo.h" />
-    <ClInclude Include="Demos\04_RenderTargetDemo.h" />
-    <ClInclude Include="Demos\05_CollisionDemo.h" />
     <ClInclude Include="Demos\KirbyGame.h" />
     <ClInclude Include="Demos\World.h" />
     <ClInclude Include="UI\HUD.h" />
@@ -16,11 +11,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Program.cpp" />
-    <ClCompile Include="Demos\01_RectDemo.cpp" />
-    <ClCompile Include="Demos\02_TextureDemo.cpp" />
-    <ClCompile Include="Demos\03_ShadedDemo.cpp" />
-    <ClCompile Include="Demos\04_RenderTargetDemo.cpp" />
-    <ClCompile Include="Demos\05_CollisionDemo.cpp" />
     <ClCompile Include="Demos\KirbyGame.cpp" />
     <ClCompile Include="Demos\World.cpp" />
     <ClCompile Include="UI\HUD.cpp" />

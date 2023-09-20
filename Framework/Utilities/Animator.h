@@ -26,6 +26,7 @@ public:
 	void Update();
 
 	Vector2 GetCurrentFrame() { return currentFrame; }
+	uint GetCurrentFrameIndex() { return currentFrameIndex; }
 	Vector2 GetTexelFrameSize() { return currentClip->texelFrameSize; }
 	ID3D11ShaderResourceView* GetCurrentSRV() { return currentClip->srv; }
 

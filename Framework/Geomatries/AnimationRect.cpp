@@ -5,6 +5,7 @@
 AnimationRect::AnimationRect(Vector3 position, Vector3 size, boolean left)
 	:TextureRect(position, size, 0.0f)
 {
+	this->position = position;
 	this->left = left;
 	{
 		D3D11_SAMPLER_DESC desc;
@@ -91,5 +92,5 @@ void AnimationRect::Render()
 
 void AnimationRect::Move()
 {
-	position += direction * velocity;
+	this->position += direction * velocity;
 }

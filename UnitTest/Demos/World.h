@@ -14,10 +14,10 @@ public:
 	virtual void PostRender() override;
 	virtual void GUI() override;
 	Vector3 getWorldSize() { return worldSize; }
-	Vector3 getWorldTranslation() { return worldMove; }
+	Vector3 getWorldPosition() { return worldPos; }
 
 private:
 	Vector3 worldSize;
-	Vector3 worldMove;
+	Vector3 worldPos;
 	class TextureRect* worldMap;
 };

@@ -50,16 +50,36 @@ void Camera::Move()
 	float delta = Time::Delta();
 
 	if (key->Press(VK_RIGHT)) {
-		position.x += cameraSpeed * delta;
+		if (WinMaxWidth / 2 < kirbyPos.x) {
+			position.x += cameraSpeed * delta;
+		}
 	}
 	if (key->Press(VK_LEFT)) {
-		position.x -= cameraSpeed * delta;
+		if (this->bottomRight.x + WinMaxWidth / 2 > kirbyPos.x) {
+			position.x -= cameraSpeed * delta;
+		}
 	}
 	if (key->Press(VK_UP)) {
-		position.y+= cameraSpeed * delta;
+		if (this->bottomRight.y < kirbyPos.y) {
+			position.y += cameraSpeed * delta;
+		}
 	}
 	if (key->Press(VK_DOWN)) {
-		position.y -= cameraSpeed * delta;
+		if (this->topLeft.y - WinMaxHeight / 2 > kirbyPos.y) {
+			position.y -= cameraSpeed * delta;
+		}
+	}
+	if (position.x < topLeft.x) {
+		position.x = topLeft.x;
+	}
+	if (position.x > bottomRight.x) {
+		position.x = bottomRight.x;
+	}
+	if (position.y < bottomRight.y) {
+		position.y = bottomRight.y;
+	}
+	if (position.y > topLeft.y) {
+		position.y = topLeft.y;
 	}
 }
 
@@ -71,7 +91,13 @@ void Camera::UpdateView()
 
 void Camera::SetBound(Vector3 topLeft, Vector3 bottomRight)
 {
-	
+	this->topLeft = topLeft;
+	this->bottomRight = bottomRight;
+}
+
+void Camera::SetKirbyPosition(Vector3 kirbyPos)
+{
+	this->kirbyPos = kirbyPos;
 }
 
 void Camera::Unprojection(Vector3* out, Vector3 source, Matrix world)
