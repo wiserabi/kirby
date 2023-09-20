@@ -69,6 +69,11 @@ void Camera::UpdateView()
 	vpb->SetView(view);
 }
 
+void Camera::SetBound(Vector3 topLeft, Vector3 bottomRight)
+{
+	
+}
+
 void Camera::Unprojection(Vector3* out, Vector3 source, Matrix world)
 {
 	Vector3 position = source;

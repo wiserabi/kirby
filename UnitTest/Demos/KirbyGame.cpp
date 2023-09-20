@@ -8,7 +8,7 @@
 
 void KirbyGame::Init()
 {
-	kirby = new KirbyCharacter();
+	kirby = new KirbyCharacter({ 720, 360, 1.0 }, { 128, 128, 1 });
 	Sounds::Get()->AddSound("Vegetable-Valley.mp3",
 		SoundPath + L"Vegetable-Valley.mp3", true);
 	Sounds::Get()->Play("Vegetable-Valley.mp3");

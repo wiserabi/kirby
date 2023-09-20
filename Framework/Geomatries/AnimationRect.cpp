@@ -2,35 +2,10 @@
 #include "AnimationRect.h"
 
 #include "Utilities/Animator.h"
-AnimationRect::AnimationRect(Vector3 position, Vector3 size)
+AnimationRect::AnimationRect(Vector3 position, Vector3 size, boolean left)
 	:TextureRect(position, size, 0.0f)
 {
-	animator = new Animator();
-
-	{
-		//Texture2D* srcTex = new Texture2D(TexturePath + L"player.png");
-		//AnimationClip* RunR = new AnimationClip(L"RunR", srcTex, 10,
-		//	Values::ZeroVec2,
-		//	Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 0.5f));
-		//
-		//AnimationClip* RunL = new AnimationClip(L"RunL", srcTex, 10,
-		//	Vector2(0, srcTex->GetHeight() * 0.5f),
-		//	Vector2(srcTex->GetWidth(), srcTex->GetHeight()));
-
-		Texture2D* srcTex = new Texture2D(TexturePath + L"kirbyAnim/kirbywalkright.png");
-		AnimationClip* RunR = new AnimationClip(L"RunR", srcTex, 4,
-			Vector2(0, srcTex->GetHeight() * 0.0f),
-			Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 1.0f));
-		AnimationClip* RunL = new AnimationClip(L"RunL", srcTex, 4,
-			Values::ZeroVec2,
-			Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 1.0f));
-
-		animator->AddAnimClip(RunR);
-		animator->SetCurrentAnimClip(L"RunR");
-		SAFE_DELETE(srcTex);
-	}
-
-
+	this->left = left;
 	{
 		D3D11_SAMPLER_DESC desc;
 		States::GetSamplerDesc(&desc);
@@ -63,18 +38,32 @@ void AnimationRect::Update()
 
 	MapVertexBuffer();
 	{
-		vertices[0].uv.x = animator->GetCurrentFrame().x;
-		vertices[0].uv.y = animator->GetCurrentFrame().y + animator->GetTexelFrameSize().y;
+		if (!left) {
+			vertices[0].uv.y = animator->GetCurrentFrame().y + animator->GetTexelFrameSize().y;
+			vertices[0].uv.x = animator->GetCurrentFrame().x;
 
-		vertices[1].uv.x = animator->GetCurrentFrame().x + animator->GetTexelFrameSize().x;
-		vertices[1].uv.y = animator->GetCurrentFrame().y;
+			vertices[1].uv.x = animator->GetCurrentFrame().x + animator->GetTexelFrameSize().x;
+			vertices[1].uv.y = animator->GetCurrentFrame().y;
 
-		vertices[2].uv.x = animator->GetCurrentFrame().x + animator->GetTexelFrameSize().x;
-		vertices[2].uv.y = animator->GetCurrentFrame().y + animator->GetTexelFrameSize().y;
+			vertices[2].uv.x = animator->GetCurrentFrame().x + animator->GetTexelFrameSize().x;
+			vertices[2].uv.y = animator->GetCurrentFrame().y + animator->GetTexelFrameSize().y;
 
-		vertices[3].uv.x = animator->GetCurrentFrame().x;
-		vertices[3].uv.y = animator->GetCurrentFrame().y;
+			vertices[3].uv.x = animator->GetCurrentFrame().x;
+			vertices[3].uv.y = animator->GetCurrentFrame().y;
+		}
+		else if (left) {
+			vertices[0].uv.x = animator->GetCurrentFrame().x + animator->GetTexelFrameSize().x;
+			vertices[0].uv.y = animator->GetCurrentFrame().y + animator->GetTexelFrameSize().y;
 
+			vertices[1].uv.x = animator->GetCurrentFrame().x;
+			vertices[1].uv.y = animator->GetCurrentFrame().y;
+
+			vertices[2].uv.x = animator->GetCurrentFrame().x;
+			vertices[2].uv.y = animator->GetCurrentFrame().y + animator->GetTexelFrameSize().y;
+
+			vertices[3].uv.x = animator->GetCurrentFrame().x + animator->GetTexelFrameSize().x;
+			vertices[3].uv.y = animator->GetCurrentFrame().y;
+		}
 	}
 	UnmapVertexBuffer();
 
@@ -102,21 +91,5 @@ void AnimationRect::Render()
 
 void AnimationRect::Move()
 {
-	auto key = Keyboard::Get();
-	float delta = Time::Delta();
-	int pressed = 0;
-
-	if (key->Press(VK_RIGHT)) {
-		position.x += 100 * delta;
-		pressed += 1;
-	}
-	else if (key->Press(VK_LEFT)) {
-		position.x -= 100 * delta;
-		pressed += 1;
-	}
-
-	if (pressed == 1) {
-		animator->SetCurrentAnimClip(L"RunR");
-	}
-
+	position += direction * velocity;
 }

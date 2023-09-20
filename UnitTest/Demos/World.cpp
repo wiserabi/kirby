@@ -5,9 +5,10 @@
 
 World::World()
 {
-	worldMap = new TextureRect(Vector3(300, 800, 0), Vector3(2000, 2000, 0), 0.0f,
+	worldMove = Vector3(1000, 800, 0);
+	worldSize = Vector3(2000, 2000, 0);
+	worldMap = new TextureRect(Vector3(1000, 800, 0), worldSize, 0.0f,
 		TexturePath + L"backGround/world1.png");
-
 }
 
 void World::Render()
