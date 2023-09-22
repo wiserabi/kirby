@@ -151,6 +151,7 @@
     <ClInclude Include="Demos\World.h" />
     <ClInclude Include="KirbyCharacter.h" />
     <ClInclude Include="Program.h" />
+    <ClInclude Include="ReadCoordinate.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="UI\HUD.h" />
   </ItemGroup>
@@ -160,6 +161,7 @@
     <ClCompile Include="Demos\World.cpp" />
     <ClCompile Include="KirbyCharacter.cpp" />
     <ClCompile Include="Program.cpp" />
+    <ClCompile Include="ReadCoordinate.cpp" />
     <ClCompile Include="UI\HUD.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

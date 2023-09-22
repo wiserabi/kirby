@@ -108,3 +108,21 @@ void Rect::Move()
     if (key->Press('A'))
         position.x -= 15;
 }
+
+string Rect::MakeLabel(string preFix)
+{
+    string label = preFix + "##" + to_string((uint)this);
+    return label;
+}
+void Rect::GUI()
+{
+    ImGui::Begin("Rect", &bOpen);
+    {
+        ImGui::InputFloat3(MakeLabel("Pos").c_str(), position, 2);
+        ImGui::InputFloat3(MakeLabel("Size").c_str(), size, 2);
+        ImGui::SliderAngle(MakeLabel("Rot").c_str(), &rotation);
+        if (ImGui::ColorPicker4("Color", color))
+            UpdateColor();
+    }
+    ImGui::End();
+}

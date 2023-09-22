@@ -20,4 +20,7 @@ private:
 	Vector3 worldSize;
 	Vector3 worldPos;
 	class TextureRect* worldMap;
+	class Rect* rect;
+	class BoundingBox *boxes[10];
+	class Rect* rects[10];
 };

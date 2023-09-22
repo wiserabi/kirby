@@ -14,6 +14,8 @@ public:
 
     void Move();
 
+    void GUI();
+    string MakeLabel(string preFix);
     BoundingBox* GetBox() { return box; }
 
 private:
@@ -36,7 +38,8 @@ private:
 
     WorldBuffer* wb = nullptr;
 
-    Color color = Values::Magenta;
+    Color color = Color(0.5, 0.5, 0.5, 0.7);
 
     BoundingBox* box = nullptr;
+    bool bOpen = true;
 };

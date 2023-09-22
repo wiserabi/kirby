@@ -40,6 +40,7 @@ public:
 
 	virtual void SetAnimator(class Animator* animator);
 
+	BoundingBox* GetBox() { return box; }
 	void Inhale();
 	void Exhale();
 	void Swallow();
@@ -57,5 +58,6 @@ private:
 	ID3D11BlendState* bpoint[2];
 	wstring current = L"WalkR";
 	boolean kirbyInWorld = true;
+	class BoundingBox* box = nullptr;
 };
 

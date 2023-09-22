@@ -8,6 +8,7 @@
     <ClInclude Include="UI\HUD.h" />
     <ClInclude Include="Demos\Level.h" />
     <ClInclude Include="KirbyCharacter.h" />
+    <ClInclude Include="ReadCoordinate.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Program.cpp" />
@@ -16,5 +17,6 @@
     <ClCompile Include="UI\HUD.cpp" />
     <ClCompile Include="Demos\Level.cpp" />
     <ClCompile Include="KirbyCharacter.cpp" />
+    <ClCompile Include="ReadCoordinate.cpp" />
   </ItemGroup>
 </Project>

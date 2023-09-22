@@ -38,6 +38,7 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 		SAFE_DELETE(srcTex1);
 		SAFE_DELETE(srcTex);
 	}
+	box = new BoundingBox(position, size, 0.0f);
 }
 
 KirbyCharacter::~KirbyCharacter()

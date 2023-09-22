@@ -57,6 +57,7 @@ void KirbyGame::PostRender()
 
 void KirbyGame::GUI()
 {
+	world->GUI();
 }
 
 void KirbyGame::SetCameraBound()
