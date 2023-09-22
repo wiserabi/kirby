@@ -11,6 +11,7 @@
 #include "Demos/05_CollisionDemo.h"
 #include "Demos/06_AnimationDemo.h"
 */
+
 #include "Demos/KirbyGame.h"
 
 void Program::Init()
@@ -23,6 +24,7 @@ void Program::Init()
 	//Push(new RenderTargetDemo);
 	//Push(new CollisionDemo);
 	//Push(new AnimationDemo);
+	
 	Push(new KirbyGame);
 }
 

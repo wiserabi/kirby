@@ -9,6 +9,8 @@ public:
     void Update();
     void Render();
 
+    void SetPosition(Vector3 pos);
+
     void SetColor(Color color);
     void UpdateColor();
 

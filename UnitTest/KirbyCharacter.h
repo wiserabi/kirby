@@ -1,5 +1,4 @@
 #pragma once
-#include "Geomatries/AnimationRect.h"
 
 enum Ability
 {
@@ -40,13 +39,13 @@ public:
 
 	virtual void SetAnimator(class Animator* animator);
 
-	BoundingBox* GetBox() { return box; }
 	void Inhale();
 	void Exhale();
 	void Swallow();
 	void Attack();
-	boolean isKirbyInWorld() { return kirbyInWorld; }
 	Vector3 GetPosition();
+	boolean isKirbyInWorld() { return kirbyInWorld; }
+	class Rect* GetRect();
 
 private:
 	int health;
@@ -58,6 +57,6 @@ private:
 	ID3D11BlendState* bpoint[2];
 	wstring current = L"WalkR";
 	boolean kirbyInWorld = true;
-	class BoundingBox* box = nullptr;
+	class Rect* rect = nullptr;
 };
 

@@ -17,10 +17,14 @@ World::World()
 	for (int i = 0; i < tmp.size() / 2; i++) {
 		Vector3 pos = tmp[2 * i];
 		Vector3 size = tmp[2 * i + 1];
-		boxes[i] = new BoundingBox(pos, size, pos.z);
-		rects[i] = new Rect(pos, size, pos.z);
+		rects.push_back(new Rect(pos, size, pos.z));
 	}
 	
+}
+
+World::~World()
+{
+	rects.clear();
 }
 
 void World::Render()
@@ -39,6 +43,11 @@ void World::PostRender()
 void World::GUI()
 {
 	//rect->GUI();
+}
+
+void World::SetColor(int index, Color color)
+{
+	rects[index]->SetColor(color);
 }
 
 void World::Init()

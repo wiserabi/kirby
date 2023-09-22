@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "Geomatries/Rect.h"
+#include "Geomatries/AnimationRect.h"
 #include "KirbyCharacter.h"
 #include "Utilities/Animator.h"
 #include "UI/HUD.h"
@@ -38,20 +40,25 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 		SAFE_DELETE(srcTex1);
 		SAFE_DELETE(srcTex);
 	}
-	box = new BoundingBox(position, size, 0.0f);
+	rect = new Rect(position, size, 0.0f);
+	rect->SetColor(Color(0.5, 0.5, 0.5, 0.7));
 }
 
 KirbyCharacter::~KirbyCharacter()
 {
+	SAFE_DELETE(rect);
 }
 
 void KirbyCharacter::Update()
 {
+	rect->SetPosition(position);
+	rect->Update();
 	__super::Update();
 }
 
 void KirbyCharacter::Render()
 {
+	rect->Render();
 	__super::Render();
 }
 
@@ -129,4 +136,9 @@ void KirbyCharacter::Attack()
 Vector3 KirbyCharacter::GetPosition()
 {
 	return __super::GetPosition();
+}
+
+class Rect* KirbyCharacter::GetRect()
+{
+	return this->rect;
 }

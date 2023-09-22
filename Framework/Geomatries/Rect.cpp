@@ -76,6 +76,11 @@ void Rect::Render()
     DC->DrawIndexed(ib->GetCount(), 0, 0);
 }
 
+void Rect::SetPosition(Vector3 pos)
+{
+    this->position = pos;
+}
+
 void Rect::SetColor(Color color)
 {
     this->color = color;

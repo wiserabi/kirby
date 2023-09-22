@@ -5,6 +5,7 @@
 #include "KirbyCharacter.h"
 #include "World.h"
 #include "UI/HUD.h"
+#include "Geomatries/Rect.h"
 
 void KirbyGame::Init()
 {
@@ -39,6 +40,21 @@ void KirbyGame::Update()
 
 	kirby->Move();
 	kirby->Update();
+	//if kirby is in the world
+	if (kirby->isKirbyInWorld()) {
+		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
+		vector<Rect*> worldRects = world->GetRects();
+		for (int i = 0; i < worldRects.size(); i++) {
+			//if there is collision
+			if (BoundingBox::OBB(kirbyBox, worldRects[i]->GetBox())) {
+				world->SetColor(i, Values::Blue);
+			}
+			else {
+				//transparent gray
+				world->SetColor(i, Color(0.5,0.5,0.5,0.7));
+			}
+		}
+	}
 
 	hud->Update();
 	SetCameraBound();

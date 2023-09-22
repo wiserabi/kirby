@@ -5,6 +5,7 @@ class World : IObject
 public:
 	int currentLevel = 1;
 	World();
+	~World();
 	//Enemy
 	//Items
 	virtual void Init() override;
@@ -15,12 +16,14 @@ public:
 	virtual void GUI() override;
 	Vector3 getWorldSize() { return worldSize; }
 	Vector3 getWorldPosition() { return worldPos; }
+	vector<class Rect*> GetRects(){ return rects; }
+	void SetColor(int index, Color color);
+
 
 private:
 	Vector3 worldSize;
 	Vector3 worldPos;
 	class TextureRect* worldMap;
 	class Rect* rect;
-	class BoundingBox *boxes[10];
-	class Rect* rects[10];
+	vector<class Rect*> rects;
 };
