@@ -48,6 +48,7 @@ void KirbyGame::Update()
 			//if there is collision
 			if (BoundingBox::OBB(kirbyBox, worldRects[i]->GetBox())) {
 				world->SetColor(i, Values::Blue);
+				FixKirbyPosition(worldRects[i]);
 			}
 			else {
 				//transparent gray
@@ -94,5 +95,75 @@ void KirbyGame::SetCameraBound()
 	}
 	else {
 		//get level pos
+	}
+}
+
+void IntersectRect(Rect* kirbyRect, Rect* worldRect, pair<Vector3, Vector3>& intersection) {
+	Vector3 kirbyLT = kirbyRect->GetLT();
+	Vector3 worldLT = worldRect->GetLT();
+	Vector3 kirbyRB = kirbyRect->GetRB();
+	Vector3 worldRB = worldRect->GetRB();
+
+
+	float left = max(kirbyLT.x, worldLT.x);
+	float top = min(kirbyLT.y, worldLT.y);
+	float right = min(kirbyRB.x, worldRB.x);
+	float bottom = max(kirbyRB.y, worldRB.y);
+	if (left >= right || top <= bottom) {
+		intersection = make_pair(Values::ZeroVec3, Values::ZeroVec3);
+		return;
+	}
+	intersection = make_pair(Vector3(left, top, 0), Vector3(right, bottom, 0));
+	return;
+}
+void KirbyGame::FixKirbyPosition(class Rect* worldRect)
+{
+	pair<Vector3, Vector3> intersection;
+	IntersectRect(kirby->GetRect(), worldRect, intersection);
+
+	Vector3 kirbyPos = kirby->GetRect()->GetPosition();
+	Vector3 kirbySize = kirby->GetRect()->GetSize();
+
+	Vector3 kirbyLT = kirby->GetRect()->GetLT();
+	Vector3 kirbyRB = kirby->GetRect()->GetRB();
+
+	Vector3 worldRectPos = worldRect->GetPosition();
+	Vector3 worldLT = worldRect->GetLT();
+	Vector3 worldRB = worldRect->GetRB();
+
+	Vector3 tmp = kirbyPos - worldRectPos;
+	if (intersection.first == Values::ZeroVec3 &&
+		intersection.second == Values::ZeroVec3) {
+		return;
+	}
+	// Determine the collision direction based on the intersection size
+	if (intersection.first.x - intersection.second.x > 
+		intersection.second.y - intersection.first.y) {
+		if (kirbyLT.x < worldLT.x) {
+			// Right collision
+			kirbyPos.x = worldLT.x - kirbySize.x / 2;
+			kirby->SetPosition(kirbyPos);
+			return;
+		}
+		else {
+			// Left collision
+			kirbyPos.x = worldRB.x + kirbySize.x / 2;
+			kirby->SetPosition(kirbyPos);
+			return;
+		}
+	}
+	else {
+		if (kirbyLT.y > worldLT.y) {
+			// Down collision
+			kirbyPos.y = worldLT.y + kirbySize.y / 2;
+			kirby->SetPosition(kirbyPos);
+			return;
+		}
+		else {
+			// Up collision
+			kirbyPos.y = worldRB.y - kirbySize.y / 2;
+			kirby->SetPosition(kirbyPos);
+			return;
+		}
 	}
 }

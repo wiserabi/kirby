@@ -147,6 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Demos\05_CollisionDemo.h" />
+    <ClInclude Include="Demos\Gravity.h" />
     <ClInclude Include="Demos\KirbyGame.h" />
     <ClInclude Include="Demos\Level.h" />
     <ClInclude Include="Demos\World.h" />
@@ -158,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Demos\05_CollisionDemo.cpp" />
+    <ClCompile Include="Demos\Gravity.cpp" />
     <ClCompile Include="Demos\KirbyGame.cpp" />
     <ClCompile Include="Demos\Level.cpp" />
     <ClCompile Include="Demos\World.cpp" />

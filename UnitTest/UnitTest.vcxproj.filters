@@ -10,6 +10,7 @@
     <ClInclude Include="KirbyCharacter.h" />
     <ClInclude Include="ReadCoordinate.h" />
     <ClInclude Include="Demos\05_CollisionDemo.h" />
+    <ClInclude Include="Demos\Gravity.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Program.cpp" />
@@ -20,5 +21,6 @@
     <ClCompile Include="KirbyCharacter.cpp" />
     <ClCompile Include="ReadCoordinate.cpp" />
     <ClCompile Include="Demos\05_CollisionDemo.cpp" />
+    <ClCompile Include="Demos\Gravity.cpp" />
   </ItemGroup>
 </Project>

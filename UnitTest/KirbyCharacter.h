@@ -20,7 +20,8 @@ enum State {
 	attacking,
 	flying,
 	flyup,
-	inhale,
+	falldown,
+	inhaled,
 	exhale,
 	slide,
 	swallowed
@@ -43,6 +44,7 @@ public:
 	void Exhale();
 	void Swallow();
 	void Attack();
+	void ApplyGravity();
 	Vector3 GetPosition();
 	boolean isKirbyInWorld() { return kirbyInWorld; }
 	class Rect* GetRect();

@@ -10,6 +10,7 @@ public:
     virtual void PostRender() override;
     virtual void GUI() override;
     void SetCameraBound();
+    void FixKirbyPosition(class Rect* worldRect);
 
 private:
     class KirbyCharacter* kirby = nullptr;

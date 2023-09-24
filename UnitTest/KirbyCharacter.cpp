@@ -4,6 +4,7 @@
 #include "KirbyCharacter.h"
 #include "Utilities/Animator.h"
 #include "UI/HUD.h"
+#define VELOCITY 200
 
 KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 	:AnimationRect(position, size, false)
@@ -29,10 +30,16 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 			Values::ZeroVec2,
 			Vector2(srcTex2->GetWidth(), srcTex2->GetHeight() * 1.0f));
 
+		Texture2D* srcTex3 = new Texture2D(TexturePath + L"kirbyAnim/kirbyfly.png");
+		AnimationClip* inhaled = new AnimationClip(L"inhaled", srcTex3, 2,
+			Values::ZeroVec2,
+			Vector2(srcTex3->GetWidth(), srcTex3->GetHeight() * 1.0f));
+
 		tempAnimator->AddAnimClip(WalkR);
 		tempAnimator->AddAnimClip(WalkL);
 		tempAnimator->AddAnimClip(Idle);
 		tempAnimator->AddAnimClip(flyUp);
+		tempAnimator->AddAnimClip(inhaled);
 
 		tempAnimator->SetCurrentAnimClip(L"WalkR");
 		SetAnimator(tempAnimator);
@@ -40,7 +47,7 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 		SAFE_DELETE(srcTex1);
 		SAFE_DELETE(srcTex);
 	}
-	rect = new Rect(position, size, 0.0f);
+	rect = new Rect(position, size / 2, 0.0f);
 	rect->SetColor(Color(0.5, 0.5, 0.5, 0.7));
 }
 
@@ -67,35 +74,40 @@ void KirbyCharacter::Move()
 	auto key = Keyboard::Get();
 	float delta = Time::Delta();
 
-	Vector3 dir = Vector3(0, 0, 0);
+	Vector3 dir = Values::ZeroVec3;
 
 	if (key->Press(VK_RIGHT)) {
-		dir += Vector3(1, 0, 0);
-		__super::SetVelocity(100 * delta);
+		dir += Values::RightVec;
+		__super::SetVelocity(VELOCITY * delta);
 		current = L"WalkR";
 		__super::SetLeft(false);
 		state = walking;
 		
 	}
 	else if (key->Press(VK_LEFT)) {
-		dir += Vector3(-1, 0, 0);
-		__super::SetVelocity(100 * delta);
+		dir += Values::LeftVec;
+		__super::SetVelocity(VELOCITY * delta);
 		current = L"WalkL";
 		__super::SetLeft(true);
 		state = walking;
 	}
-	if (state == inhale) {
-
+	if (state == inhaled && key->Press(VK_UP)) {
+		current = L"inhaled";
+		dir += Values::UpVec;
+		__super::SetVelocity(VELOCITY * delta);
+	}
+	else if (state == inhaled) {
+		current = L"inhaled";
+		dir += Values::DownVec;
+		__super::SetVelocity(VELOCITY * delta);
 	}
 	else if (key->Press(VK_UP)) {
-		dir += Vector3(0, 1, 0);
-		__super::SetVelocity(100 * delta);
+		dir += Values::UpVec;
+		__super::SetVelocity(VELOCITY * delta);
 		current = L"flyUp";
-		__super::SetLeft(true);
-		state = flyup;
 		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
 		if (curframe == 3) {
-			state = inhale;
+			state = inhaled;
 		}
 	}
 
@@ -130,6 +142,10 @@ void KirbyCharacter::Swallow()
 }
 
 void KirbyCharacter::Attack()
+{
+}
+
+void KirbyCharacter::ApplyGravity()
 {
 }
 
