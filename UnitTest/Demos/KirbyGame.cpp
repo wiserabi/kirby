@@ -24,7 +24,6 @@ void KirbyGame::Destroy()
 	SAFE_DELETE(hud);
 	SAFE_DELETE(world);
 }
-
 void KirbyGame::Update()
 {
 	if (Keyboard::Get()->Down(VK_F2)) {
@@ -40,6 +39,8 @@ void KirbyGame::Update()
 
 	kirby->Move();
 	kirby->Update();
+
+	kirby->SetHitGround(false);
 	//if kirby is in the world
 	if (kirby->isKirbyInWorld()) {
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
@@ -143,27 +144,25 @@ void KirbyGame::FixKirbyPosition(class Rect* worldRect)
 			// Right collision
 			kirbyPos.x = worldLT.x - kirbySize.x / 2;
 			kirby->SetPosition(kirbyPos);
-			return;
 		}
 		else {
 			// Left collision
 			kirbyPos.x = worldRB.x + kirbySize.x / 2;
 			kirby->SetPosition(kirbyPos);
-			return;
 		}
 	}
-	else {
+	else
+	{
 		if (kirbyLT.y > worldLT.y) {
 			// Down collision
 			kirbyPos.y = worldLT.y + kirbySize.y / 2;
 			kirby->SetPosition(kirbyPos);
-			return;
+			kirby->SetHitGround(true);
 		}
 		else {
 			// Up collision
 			kirbyPos.y = worldRB.y - kirbySize.y / 2;
 			kirby->SetPosition(kirbyPos);
-			return;
 		}
 	}
 }

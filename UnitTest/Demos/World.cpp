@@ -12,6 +12,7 @@ World::World()
 	worldMap = new TextureRect(worldPos, worldSize, 0.0f,
 		TexturePath + L"backGround/world1.png");
 	rect = new Rect(worldPos - Vector3(950, 100, 0), Vector3(100, 600, 0), 0.0f);
+	rect->SetColor(Values::Magenta);
 	FileReader fr;
 	vector<Vector3> tmp = fr.ReadFile(CoordPath + "world1.txt");
 	for (int i = 0; i < tmp.size() / 2; i++) {
@@ -30,7 +31,7 @@ World::~World()
 void World::Render()
 {
 	worldMap->Render();
-	//rect->Render();
+	rect->Render();
 	for (int i = 0; i < 10; i++) {
 		rects[i]->Render();
 	}

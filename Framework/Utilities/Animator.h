@@ -4,7 +4,7 @@ class AnimationClip
 {
 public:
 	friend class Animator;
-
+	void SetPlayRate(float playRate) { this->playRate = playRate; }
 	AnimationClip(wstring clipName, Texture2D* srcTex, 
 		uint frameCount, Vector2 startPos, Vector2 endPos, 
 		bool bReversed = false, float playRate = 1.0f/10.0f);
@@ -31,7 +31,9 @@ public:
 	ID3D11ShaderResourceView* GetCurrentSRV() { return currentClip->srv; }
 
 	void AddAnimClip(AnimationClip* animClip);
+	void SetCurrentFrame(uint currentFrameIndex);
 	void SetCurrentAnimClip(wstring clipName);
+	void SetPlayRate(wstring clipName, float playRate);
 
 private:
 	bool CheckExist(wstring clipName) { return animClips.find(clipName) != animClips.end(); }

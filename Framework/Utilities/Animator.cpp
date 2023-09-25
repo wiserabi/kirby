@@ -84,6 +84,14 @@ void Animator::AddAnimClip(AnimationClip* animClip)
 {
 	animClips.insert(make_pair(animClip->clipName, animClip));
 }
+void Animator::SetCurrentFrame(uint currentFrameIndex)
+{
+	this->currentFrameIndex = currentFrameIndex;
+}
+
+void Animator::SetPlayRate(wstring clipName, float playRate) {
+	animClips[clipName]->SetPlayRate(playRate);
+}
 
 void Animator::SetCurrentAnimClip(wstring clipName)
 {

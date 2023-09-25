@@ -22,7 +22,8 @@ enum State {
 	flyup,
 	falldown,
 	inhaled,
-	exhale,
+	exhale, 
+	exhaling,
 	slide,
 	swallowed
 };
@@ -39,12 +40,15 @@ public:
 	virtual void Move();
 
 	virtual void SetAnimator(class Animator* animator);
+	virtual void SetPosition(Vector3 pos);
 
 	void Inhale();
 	void Exhale();
 	void Swallow();
 	void Attack();
 	void ApplyGravity();
+	void SetHitGround(bool hitGround) { this->hitGround = hitGround; }
+
 	Vector3 GetPosition();
 	boolean isKirbyInWorld() { return kirbyInWorld; }
 	class Rect* GetRect();
@@ -60,5 +64,7 @@ private:
 	wstring current = L"WalkR";
 	boolean kirbyInWorld = true;
 	class Rect* rect = nullptr;
+	bool hitGround = false;
+	float startFalling = 0.0f;
 };
 

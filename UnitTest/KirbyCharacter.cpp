@@ -35,11 +35,23 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 			Values::ZeroVec2,
 			Vector2(srcTex3->GetWidth(), srcTex3->GetHeight() * 1.0f));
 
+		Texture2D* srcTex4 = new Texture2D(TexturePath + L"kirbyAnim/kirbydown.png");
+		AnimationClip* exhaling = new AnimationClip(L"exhaling", srcTex4, 4,
+			Values::ZeroVec2,
+			Vector2(srcTex4->GetWidth(), srcTex4->GetHeight() * 1.0f));
+
+		Texture2D* srcTex5 = new Texture2D(TexturePath + L"kirbyAnim/kirbyroll.png");
+		AnimationClip* roll = new AnimationClip(L"roll", srcTex5, 6,
+			Values::ZeroVec2,
+			Vector2(srcTex5->GetWidth(), srcTex5->GetHeight() * 1.0f));
+
 		tempAnimator->AddAnimClip(WalkR);
 		tempAnimator->AddAnimClip(WalkL);
 		tempAnimator->AddAnimClip(Idle);
 		tempAnimator->AddAnimClip(flyUp);
 		tempAnimator->AddAnimClip(inhaled);
+		tempAnimator->AddAnimClip(exhaling);
+		tempAnimator->AddAnimClip(roll);
 
 		tempAnimator->SetCurrentAnimClip(L"WalkR");
 		SetAnimator(tempAnimator);
@@ -79,27 +91,41 @@ void KirbyCharacter::Move()
 	if (key->Press(VK_RIGHT)) {
 		dir += Values::RightVec;
 		__super::SetVelocity(VELOCITY * delta);
-		current = L"WalkR";
 		__super::SetLeft(false);
-		state = walking;
-		
+		if (state != inhaled) {
+			current = L"WalkR";
+			state = walking;
+		}
 	}
 	else if (key->Press(VK_LEFT)) {
 		dir += Values::LeftVec;
 		__super::SetVelocity(VELOCITY * delta);
-		current = L"WalkL";
 		__super::SetLeft(true);
-		state = walking;
+		if (state != inhaled) {
+			current = L"WalkL";
+			state = walking;
+		}
 	}
-	if (state == inhaled && key->Press(VK_UP)) {
+
+	if (state == exhaling) {
+		current = L"exhaling";
+		state == exhaling;
+		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
+		if (curframe == 3) {
+			state = falldown;//finish exhale motion
+			startFalling = Time::Get()->Running();
+		}
+	}
+	//press s when inhaled
+	else if (state == inhaled && key->Press('S')) {
+		current = L"exhaling";
+		state = exhaling;
+	}
+	else if (state == inhaled && key->Press(VK_UP)) {
 		current = L"inhaled";
 		dir += Values::UpVec;
 		__super::SetVelocity(VELOCITY * delta);
-	}
-	else if (state == inhaled) {
-		current = L"inhaled";
-		dir += Values::DownVec;
-		__super::SetVelocity(VELOCITY * delta);
+		__super::GetAnimator()->SetPlayRate(current, 1.0/20.0);
 	}
 	else if (key->Press(VK_UP)) {
 		dir += Values::UpVec;
@@ -110,7 +136,44 @@ void KirbyCharacter::Move()
 			state = inhaled;
 		}
 	}
+	else if (state == inhaled) {
+		current = L"inhaled";
+		dir += Values::DownVec;
+		__super::SetVelocity(VELOCITY * delta);
+		__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
+	}
 
+	else if (state == falldown) {
+		state = falldown;
+		dir += Values::DownVec;
+
+		if (hitGround) {
+			dir = Values::ZeroVec3;
+			state = idle;
+			current = L"idle";
+			__super::SetDirection(dir);
+			__super::SetVelocity(VELOCITY * delta);
+			__super::GetAnimator()->SetCurrentAnimClip(current);
+			__super::Move();
+			return;
+		}
+
+		current = L"roll";
+		__super::SetDirection(dir);
+		__super::SetVelocity(VELOCITY * delta);
+		__super::GetAnimator()->SetCurrentAnimClip(current);
+
+
+		if (Time::Get()->Running() - startFalling < 1.4f) {
+			__super::GetAnimator()->SetCurrentFrame(4);
+
+		}
+		else {
+			__super::GetAnimator()->SetCurrentFrame(5);
+		}
+		__super::Move();
+	}
+	
 	if(state == idle) 
 	{
 		__super::SetVelocity(0);
@@ -127,6 +190,12 @@ void KirbyCharacter::Move()
 void KirbyCharacter::SetAnimator(Animator* animator)
 {
 	__super::SetAnimator(animator);
+}
+
+void KirbyCharacter::SetPosition(Vector3 pos)
+{
+	rect->SetPosition(pos);
+	__super::SetPosition(pos);
 }
 
 void KirbyCharacter::Inhale()
