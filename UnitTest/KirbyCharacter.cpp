@@ -5,6 +5,7 @@
 #include "Utilities/Animator.h"
 #include "UI/HUD.h"
 #define VELOCITY 200
+#define FALLMOTIONCHANGE 1.2f
 
 KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 	:AnimationRect(position, size, false)
@@ -40,8 +41,8 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 			Values::ZeroVec2,
 			Vector2(srcTex4->GetWidth(), srcTex4->GetHeight() * 1.0f));
 
-		Texture2D* srcTex5 = new Texture2D(TexturePath + L"kirbyAnim/kirbyroll.png");
-		AnimationClip* roll = new AnimationClip(L"roll", srcTex5, 6,
+		Texture2D* srcTex5 = new Texture2D(TexturePath + L"kirbyAnim/kirbyjump.png");
+		AnimationClip* jump = new AnimationClip(L"jump", srcTex5, 6,
 			Values::ZeroVec2,
 			Vector2(srcTex5->GetWidth(), srcTex5->GetHeight() * 1.0f));
 		//kirbyslidedown
@@ -56,7 +57,7 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 		tempAnimator->AddAnimClip(flyUp);
 		tempAnimator->AddAnimClip(inhaled);
 		tempAnimator->AddAnimClip(exhaling);
-		tempAnimator->AddAnimClip(roll);
+		tempAnimator->AddAnimClip(jump);
 		tempAnimator->AddAnimClip(slide);
 
 		tempAnimator->SetCurrentAnimClip(L"WalkR");
@@ -102,7 +103,7 @@ void KirbyCharacter::Move()
 			current = L"WalkR";
 			state = walking;
 		}
-		else if (!hitGround && state != inhaled) {
+		else if (!hitGround && state != inhaled && state != falldown) {
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
@@ -115,13 +116,14 @@ void KirbyCharacter::Move()
 			current = L"WalkL";
 			state = walking;
 		}
-		else if (!hitGround && state != inhaled) {
+		else if (!hitGround && state != inhaled && state != falldown) {
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
 	}
 	else if(state!=inhaled && state!= flyup && 
-		state!= slide && state != falldown && hitGround){
+		state!= flat && state != falldown && 
+		state != bounce && hitGround){
 		state = idle;
 		current = L"idle";
 	}
@@ -136,15 +138,41 @@ void KirbyCharacter::Move()
 			startFalling = Time::Get()->Running();
 		}
 	}
-	else if (state == slide) {
+	else if (state == flat) {
 		dir = Values::ZeroVec3;
 		current = L"slide";
-		if (Time::Get()->Running() - startSqueeze > 0.1) {
+		if (Time:: Get()->Running() - startSqueeze > 0.1) {
 			state = idle;
 		}
 		__super::SetDirection(dir);
 		__super::GetAnimator()->SetCurrentAnimClip(current);
 		__super::GetAnimator()->SetCurrentFrame(0);
+		__super::Move();
+		return;
+	}
+	else if (state == bounce) {
+		float elapsed = Time::Get()->Running() - startBounce;
+		dir.y = 0;
+		if (elapsed <= 0.3) {
+			dir += Values::UpVec;
+			__super::SetVelocity(VELOCITY * delta);
+		}
+		else if (elapsed <= 0.6) {
+			dir -= Values::UpVec;
+			__super::SetVelocity(VELOCITY * delta);
+		}
+		else if (elapsed <= 0.9) {
+			dir += Values::DownVec;
+			__super::SetVelocity(VELOCITY * delta);
+		}
+		else {
+			state = flat;
+			startSqueeze = Time::Get()->Running();
+		}
+		current = L"jump";
+		__super::SetDirection(dir);
+		__super::GetAnimator()->SetCurrentAnimClip(current);
+		__super::GetAnimator()->SetCurrentFrame(4);
 		__super::Move();
 		return;
 	}
@@ -183,20 +211,29 @@ void KirbyCharacter::Move()
 		state = falldown;
 		dir += Values::DownVec;
 
+		//when you hit ground while falling
 		if (hitGround) {
-			state = slide;
-			current = L"slide";
-			startSqueeze = Time::Get()->Running();
-			return;
+			//when you fall from higher up bounce once
+			if (Time::Get()->Running() - startFalling > FALLMOTIONCHANGE) {
+				state = bounce;
+				current = L"jump";
+				startBounce = Time::Get()->Running();
+			}
+			else {
+				state = flat;
+				current = L"slide";
+				startSqueeze = Time::Get()->Running();
+				return;
+			}
 		}
 
-		current = L"roll";
+		current = L"jump";
 		__super::SetDirection(dir);
 		__super::SetVelocity(VELOCITY * delta);
 		__super::GetAnimator()->SetCurrentAnimClip(current);
 
 
-		if (Time::Get()->Running() - startFalling < 1.4f) {
+		if (Time::Get()->Running() - startFalling < FALLMOTIONCHANGE) {
 			__super::GetAnimator()->SetCurrentFrame(3);
 		}
 		else {
