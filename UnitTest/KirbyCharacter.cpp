@@ -92,7 +92,7 @@ void KirbyCharacter::Move()
 		dir += Values::RightVec;
 		__super::SetVelocity(VELOCITY * delta);
 		__super::SetLeft(false);
-		if (state != inhaled) {
+		if (state == idle) {
 			current = L"WalkR";
 			state = walking;
 		}
@@ -101,7 +101,7 @@ void KirbyCharacter::Move()
 		dir += Values::LeftVec;
 		__super::SetVelocity(VELOCITY * delta);
 		__super::SetLeft(true);
-		if (state != inhaled) {
+		if (state == idle) {
 			current = L"WalkL";
 			state = walking;
 		}
@@ -127,14 +127,19 @@ void KirbyCharacter::Move()
 		__super::SetVelocity(VELOCITY * delta);
 		__super::GetAnimator()->SetPlayRate(current, 1.0/20.0);
 	}
-	else if (key->Press(VK_UP)) {
+	else if (state == flyup) {
 		dir += Values::UpVec;
 		__super::SetVelocity(VELOCITY * delta);
 		current = L"flyUp";
+		state = flyup;
 		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
 		if (curframe == 3) {
 			state = inhaled;
 		}
+	}
+	else if (key->Press(VK_UP)) {
+		current = L"flyUp";
+		state = flyup;
 	}
 	else if (state == inhaled) {
 		current = L"inhaled";
@@ -165,11 +170,10 @@ void KirbyCharacter::Move()
 
 
 		if (Time::Get()->Running() - startFalling < 1.4f) {
-			__super::GetAnimator()->SetCurrentFrame(4);
-
+			__super::GetAnimator()->SetCurrentFrame(3);
 		}
 		else {
-			__super::GetAnimator()->SetCurrentFrame(5);
+			__super::GetAnimator()->SetCurrentFrame(4);
 		}
 		__super::Move();
 	}
