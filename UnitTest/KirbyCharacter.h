@@ -66,5 +66,6 @@ private:
 	class Rect* rect = nullptr;
 	bool hitGround = false;
 	float startFalling = 0.0f;
+	float startSqueeze = 0.0f;
 };
 

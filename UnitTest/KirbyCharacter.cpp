@@ -44,6 +44,11 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 		AnimationClip* roll = new AnimationClip(L"roll", srcTex5, 6,
 			Values::ZeroVec2,
 			Vector2(srcTex5->GetWidth(), srcTex5->GetHeight() * 1.0f));
+		//kirbyslidedown
+		Texture2D* srcTex6 = new Texture2D(TexturePath + L"kirbyAnim/kirbyslidedown.png");
+		AnimationClip* slide = new AnimationClip(L"slide", srcTex6, 2,
+			Values::ZeroVec2,
+			Vector2(srcTex6->GetWidth(), srcTex6->GetHeight() * 1.0f));
 
 		tempAnimator->AddAnimClip(WalkR);
 		tempAnimator->AddAnimClip(WalkL);
@@ -52,6 +57,7 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 		tempAnimator->AddAnimClip(inhaled);
 		tempAnimator->AddAnimClip(exhaling);
 		tempAnimator->AddAnimClip(roll);
+		tempAnimator->AddAnimClip(slide);
 
 		tempAnimator->SetCurrentAnimClip(L"WalkR");
 		SetAnimator(tempAnimator);
@@ -96,6 +102,10 @@ void KirbyCharacter::Move()
 			current = L"WalkR";
 			state = walking;
 		}
+		else if (!hitGround && state != inhaled) {
+			state = falldown;
+			startFalling = Time::Get()->Running();
+		}
 	}
 	else if (key->Press(VK_LEFT)) {
 		dir += Values::LeftVec;
@@ -105,7 +115,17 @@ void KirbyCharacter::Move()
 			current = L"WalkL";
 			state = walking;
 		}
+		else if (!hitGround && state != inhaled) {
+			state = falldown;
+			startFalling = Time::Get()->Running();
+		}
 	}
+	else if(state!=inhaled && state!= flyup && 
+		state!= slide && state != falldown && hitGround){
+		state = idle;
+		current = L"idle";
+	}
+
 
 	if (state == exhaling) {
 		current = L"exhaling";
@@ -115,6 +135,18 @@ void KirbyCharacter::Move()
 			state = falldown;//finish exhale motion
 			startFalling = Time::Get()->Running();
 		}
+	}
+	else if (state == slide) {
+		dir = Values::ZeroVec3;
+		current = L"slide";
+		if (Time::Get()->Running() - startSqueeze > 0.1) {
+			state = idle;
+		}
+		__super::SetDirection(dir);
+		__super::GetAnimator()->SetCurrentAnimClip(current);
+		__super::GetAnimator()->SetCurrentFrame(0);
+		__super::Move();
+		return;
 	}
 	//press s when inhaled
 	else if (state == inhaled && key->Press('S')) {
@@ -147,19 +179,14 @@ void KirbyCharacter::Move()
 		__super::SetVelocity(VELOCITY * delta);
 		__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
 	}
-
 	else if (state == falldown) {
 		state = falldown;
 		dir += Values::DownVec;
 
 		if (hitGround) {
-			dir = Values::ZeroVec3;
-			state = idle;
-			current = L"idle";
-			__super::SetDirection(dir);
-			__super::SetVelocity(VELOCITY * delta);
-			__super::GetAnimator()->SetCurrentAnimClip(current);
-			__super::Move();
+			state = slide;
+			current = L"slide";
+			startSqueeze = Time::Get()->Running();
 			return;
 		}
 
@@ -177,8 +204,7 @@ void KirbyCharacter::Move()
 		}
 		__super::Move();
 	}
-	
-	if(state == idle) 
+	else if (state == idle)
 	{
 		__super::SetVelocity(0);
 		current = L"Idle";
