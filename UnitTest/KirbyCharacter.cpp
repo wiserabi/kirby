@@ -6,6 +6,8 @@
 #include "UI/HUD.h"
 #define VELOCITY 200
 #define FALLMOTIONCHANGE 1.2f
+#define JUMPMIN 0.3
+#define JUMPMAX 0.8
 
 KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 	:AnimationRect(position, size, false)
@@ -103,7 +105,8 @@ void KirbyCharacter::Move()
 			current = L"WalkR";
 			state = walking;
 		}
-		else if (!hitGround && state != inhaled && state != falldown) {
+		else if (!hitGround && state != inhaled && state != falldown
+			&& state != jump && state != jumpmin && state != jumpdown) {
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
@@ -116,7 +119,8 @@ void KirbyCharacter::Move()
 			current = L"WalkL";
 			state = walking;
 		}
-		else if (!hitGround && state != inhaled && state != falldown) {
+		else if (!hitGround && state != inhaled && state != falldown 
+			&& state != jump && state != jumpmin && state != jumpdown) {
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
@@ -131,7 +135,6 @@ void KirbyCharacter::Move()
 		state = idle;
 		current = L"idle";
 	}
-
 
 	if (state == exhaling) {
 		current = L"exhaling";
@@ -182,6 +185,12 @@ void KirbyCharacter::Move()
 	}
 	//press s when down key pressed
 	else if (state == slide && key->Press('S')) {
+		//when sliding check if kirby is on the ground
+		if (!hitGround) {
+			state = falldown;
+			startFalling = Time::Get()->Running();
+			return;
+		}
 		dir = Values::ZeroVec3;
 		if (__super::GetLeft()) {
 			dir += Values::LeftVec;
@@ -189,7 +198,7 @@ void KirbyCharacter::Move()
 		else {
 			dir += Values::RightVec;
 		}
-		
+
 		current = L"slide";
 		state = slide;
 		__super::SetDirection(dir);
@@ -197,6 +206,7 @@ void KirbyCharacter::Move()
 		__super::GetAnimator()->SetCurrentAnimClip(current);
 		__super::GetAnimator()->SetCurrentFrame(0);
 		__super::Move();
+
 		return;
 	}
 	else if (state == slide) {
@@ -204,6 +214,71 @@ void KirbyCharacter::Move()
 		__super::GetAnimator()->SetCurrentFrame(1);
 		__super::Move();
 		state = idle;
+		return;
+	}
+	else if (state == jumpdown) {
+		__super::SetVelocity(2 * VELOCITY * delta);
+		dir += Values::DownVec;
+		current = L"jump";
+		if (hitGround) {
+			startSqueeze = Time::Get()->Running();
+			state = flat;
+			return;
+		}
+		__super::GetAnimator()->SetCurrentAnimClip(current);
+		uint curIdx = __super::GetAnimator()->GetCurrentFrameIndex();
+		if (curIdx == 4) {
+			__super::GetAnimator()->SetCurrentFrame(3);
+		}
+		__super::SetDirection(dir);
+		__super::Move();
+		return;
+	}
+	else if (state == jumpmin) {
+		if (Time::Get()->Running() - startJump < JUMPMIN) {
+			current = L"jump";
+			dir.y = 0;
+			dir += Values::UpVec;
+			__super::SetDirection(dir);
+			__super::SetVelocity(2 * VELOCITY * delta);
+			__super::GetAnimator()->SetCurrentAnimClip(current);
+			__super::GetAnimator()->SetCurrentFrame(5);
+			__super::Move();
+			return;
+		}
+		else {
+			state = jumpdown;
+		}
+	}
+	//if player pressed for too long, end the jump
+	else if (state == jump && (Time::Get()->Running() - startJump > JUMPMAX)) {
+		state = jumpdown;
+	}
+	//when user wants to end jump
+	else if (key->Up('Z')) {
+		//grant minimum jump for short press
+		if (state == jump && (Time::Get()->Running() - startJump < JUMPMIN)) {
+			state = jumpmin;
+		}
+		//end the jump if jump time is in range of jumpmin and jumpmax
+		else if (state == jump && (Time::Get()->Running() - startJump <= JUMPMAX)) {
+			state = jumpdown;
+		}
+	}
+	else if (key->Down('Z') && hitGround) {
+		state = jump;
+		current = L"jump";
+		startJump = Time::Get()->Running();
+	}
+	else if (state == jump) {
+		current = L"jump";
+		dir.y = 0;
+		dir += Values::UpVec;
+		__super::SetDirection(dir);
+		__super::SetVelocity(2 * VELOCITY* delta);
+		__super::GetAnimator()->SetCurrentAnimClip(current);
+		__super::GetAnimator()->SetCurrentFrame(5);
+		__super::Move();
 		return;
 	}
 	//press s when inhaled

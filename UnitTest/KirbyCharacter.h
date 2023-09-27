@@ -27,7 +27,10 @@ enum State {
 	slide,
 	swallowed,
 	bounce,
-	flat
+	flat,
+	jump,
+	jumpdown,
+	jumpmin
 };
 
 class KirbyCharacter : public AnimationRect
@@ -70,5 +73,6 @@ private:
 	float startFalling = 0.0f;
 	float startSqueeze = 0.0f;
 	float startBounce = 0.0f;
+	float startJump = 0.0f;
 };
 
