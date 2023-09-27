@@ -121,9 +121,13 @@ void KirbyCharacter::Move()
 			startFalling = Time::Get()->Running();
 		}
 	}
-	else if(state!=inhaled && state!= flyup && 
-		state!= flat && state != falldown && 
-		state != bounce && hitGround){
+	else if (hitGround && state != inhaled && key->Press(VK_DOWN)) {
+		dir = Values::ZeroVec3;
+		current = L"slide";
+		state = slide;
+		__super::SetDirection(dir);
+	}
+	else if(state == walking && hitGround){
 		state = idle;
 		current = L"idle";
 	}
@@ -174,6 +178,32 @@ void KirbyCharacter::Move()
 		__super::GetAnimator()->SetCurrentAnimClip(current);
 		__super::GetAnimator()->SetCurrentFrame(4);
 		__super::Move();
+		return;
+	}
+	//press s when down key pressed
+	else if (state == slide && key->Press('S')) {
+		dir = Values::ZeroVec3;
+		if (__super::GetLeft()) {
+			dir += Values::LeftVec;
+		}
+		else {
+			dir += Values::RightVec;
+		}
+		
+		current = L"slide";
+		state = slide;
+		__super::SetDirection(dir);
+		__super::SetVelocity(VELOCITY * delta * 2);
+		__super::GetAnimator()->SetCurrentAnimClip(current);
+		__super::GetAnimator()->SetCurrentFrame(0);
+		__super::Move();
+		return;
+	}
+	else if (state == slide) {
+		__super::GetAnimator()->SetCurrentAnimClip(current);
+		__super::GetAnimator()->SetCurrentFrame(1);
+		__super::Move();
+		state = idle;
 		return;
 	}
 	//press s when inhaled

@@ -7,7 +7,6 @@
 #include "UI/HUD.h"
 #include "Geomatries/Rect.h"
 
-#define THRESHOLD 2
 void KirbyGame::Init()
 {
 	kirby = new KirbyCharacter({ 720, 360, 1.0 }, { 128, 128, 1 });
@@ -47,13 +46,6 @@ void KirbyGame::Update()
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
 		vector<Rect*> worldRects = world->GetRects();
 		for (int i = 0; i < worldRects.size(); i++) {
-			//check if kirby is on the ground
-			if (worldRects[i]->GetLT().y + THRESHOLD > kirby->GetRect()->GetRB().y &&
-				worldRects[i]->GetLT().y - THRESHOLD < kirby->GetRect()->GetRB().y &&
-				!(worldRects[i]->GetLT().x > kirby->GetRect()->GetRB().x || 
-				worldRects[i]->GetRB().x < kirby->GetRect()->GetLT().x)) {
-				kirby->SetHitGround(true);
-			}
 			//if there is collision
 			if (BoundingBox::OBB(kirbyBox, worldRects[i]->GetBox())) {
 				world->SetColor(i, Values::Blue);
@@ -163,8 +155,9 @@ void KirbyGame::FixKirbyPosition(class Rect* worldRect)
 	{
 		if (kirbyLT.y > worldLT.y) {
 			// Down collision
-			kirbyPos.y = worldLT.y + kirbySize.y / 2;
+			kirbyPos.y = worldLT.y + kirbySize.y / 2 - 1;
 			kirby->SetPosition(kirbyPos);
+			kirby->SetHitGround(true);
 		}
 		else {
 			// Up collision
