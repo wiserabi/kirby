@@ -199,6 +199,73 @@ void KirbyCharacter::Move()
 		state = idle;
 		return;
 	}
+	//press s when inhaled
+	else if (state == inhaled && key->Press('S')) {
+		current = L"exhaling";
+		state = exhaling;
+		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
+		return;
+	}
+	else if (state == inhaled && (key->Press(VK_UP) || key->Press('Z'))) {
+		current = L"inhaled";
+		dir += Values::UpVec;
+		__super::GetAnimator()->SetPlayRate(current, 1.0/20.0);
+		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
+		return;
+	}
+	else if (state == flyup) {
+		dir += Values::UpVec;
+		current = L"flyUp";
+		state = flyup;
+		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
+		if (curframe == 3) {
+			state = inhaled;
+		}
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+		return;
+	}
+	else if (key->Press(VK_UP)) {
+		current = L"flyUp";
+		state = flyup;
+		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
+		return;
+	}
+	//kirby has inhaled air to float around
+	else if (state == inhaled) {
+		current = L"inhaled";
+		dir += Values::DownVec;
+		__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
+		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
+		return;
+	}
+	else if (state == falldown) {
+		//when you hit ground while falling
+		if (hitGround) {
+			//when you fall from higher up bounce once
+			if (Time::Get()->Running() - startFalling > FALLMOTIONCHANGE) {
+				state = bounce;
+				current = L"jump";
+				startBounce = Time::Get()->Running();
+				return;
+			}
+			else {
+				state = flat;
+				current = L"slide";
+				startSqueeze = Time::Get()->Running();
+				return;
+			}
+		}
+		dir += Values::DownVec;
+		current = L"jump";
+		if (Time::Get()->Running() - startFalling < FALLMOTIONCHANGE) {
+			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 3, true);
+			return;
+		}
+		else {
+			ChangeAnimation(current, 2 * VELOCITY* delta, dir, 4, true);
+			return;
+		}
+	}
 	else if (state == jumpdown) {
 		dir += Values::DownVec;
 		current = L"jump";
@@ -258,73 +325,6 @@ void KirbyCharacter::Move()
 		dir += Values::UpVec;
 		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 5, true);
 		return;
-	}
-	//press s when inhaled
-	else if (state == inhaled && key->Press('S')) {
-		current = L"exhaling";
-		state = exhaling;
-		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
-		return;
-	}
-	else if (state == inhaled && key->Press(VK_UP)) {
-		current = L"inhaled";
-		dir += Values::UpVec;
-		__super::GetAnimator()->SetPlayRate(current, 1.0/20.0);
-		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
-		return;
-	}
-	else if (state == flyup) {
-		dir += Values::UpVec;
-		current = L"flyUp";
-		state = flyup;
-		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
-		if (curframe == 3) {
-			state = inhaled;
-		}
-		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
-		return;
-	}
-	else if (key->Press(VK_UP)) {
-		current = L"flyUp";
-		state = flyup;
-		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
-		return;
-	}
-	//kirby has inhaled air to float around
-	else if (state == inhaled) {
-		current = L"inhaled";
-		dir += Values::DownVec;
-		__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
-		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
-		return;
-	}
-	else if (state == falldown) {
-		//when you hit ground while falling
-		if (hitGround) {
-			//when you fall from higher up bounce once
-			if (Time::Get()->Running() - startFalling > FALLMOTIONCHANGE) {
-				state = bounce;
-				current = L"jump";
-				startBounce = Time::Get()->Running();
-				return;
-			}
-			else {
-				state = flat;
-				current = L"slide";
-				startSqueeze = Time::Get()->Running();
-				return;
-			}
-		}
-		dir += Values::DownVec;
-		current = L"jump";
-		if (Time::Get()->Running() - startFalling < FALLMOTIONCHANGE) {
-			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 3, true);
-			return;
-		}
-		else {
-			ChangeAnimation(current, 2 * VELOCITY* delta, dir, 4, true);
-			return;
-		}
 	}
 	else if (state == idle)
 	{
