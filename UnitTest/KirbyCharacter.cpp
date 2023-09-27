@@ -99,7 +99,6 @@ void KirbyCharacter::Move()
 
 	if (key->Press(VK_RIGHT)) {
 		dir += Values::RightVec;
-		__super::SetVelocity(VELOCITY * delta);
 		__super::SetLeft(false);
 		if (state == idle) {
 			current = L"WalkR";
@@ -113,7 +112,6 @@ void KirbyCharacter::Move()
 	}
 	else if (key->Press(VK_LEFT)) {
 		dir += Values::LeftVec;
-		__super::SetVelocity(VELOCITY * delta);
 		__super::SetLeft(true);
 		if (state == idle) {
 			current = L"WalkL";
@@ -129,7 +127,6 @@ void KirbyCharacter::Move()
 		dir = Values::ZeroVec3;
 		current = L"slide";
 		state = slide;
-		__super::SetDirection(dir);
 	}
 	else if(state == walking && hitGround){
 		state = idle;
@@ -143,7 +140,10 @@ void KirbyCharacter::Move()
 		if (curframe == 3) {
 			state = falldown;//finish exhale motion
 			startFalling = Time::Get()->Running();
+			return;
 		}
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+		return;
 	}
 	else if (state == flat) {
 		dir = Values::ZeroVec3;
@@ -151,10 +151,7 @@ void KirbyCharacter::Move()
 		if (Time:: Get()->Running() - startSqueeze > 0.1) {
 			state = idle;
 		}
-		__super::SetDirection(dir);
-		__super::GetAnimator()->SetCurrentAnimClip(current);
-		__super::GetAnimator()->SetCurrentFrame(0);
-		__super::Move();
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, true);
 		return;
 	}
 	else if (state == bounce) {
@@ -162,25 +159,19 @@ void KirbyCharacter::Move()
 		dir.y = 0;
 		if (elapsed <= 0.3) {
 			dir += Values::UpVec;
-			__super::SetVelocity(VELOCITY * delta);
 		}
 		else if (elapsed <= 0.6) {
 			dir -= Values::UpVec;
-			__super::SetVelocity(VELOCITY * delta);
 		}
 		else if (elapsed <= 0.9) {
 			dir += Values::DownVec;
-			__super::SetVelocity(VELOCITY * delta);
 		}
 		else {
 			state = flat;
 			startSqueeze = Time::Get()->Running();
 		}
 		current = L"jump";
-		__super::SetDirection(dir);
-		__super::GetAnimator()->SetCurrentAnimClip(current);
-		__super::GetAnimator()->SetCurrentFrame(4);
-		__super::Move();
+		ChangeAnimation(current, VELOCITY * delta, dir, 4, true);
 		return;
 	}
 	//press s when down key pressed
@@ -198,26 +189,17 @@ void KirbyCharacter::Move()
 		else {
 			dir += Values::RightVec;
 		}
-
 		current = L"slide";
 		state = slide;
-		__super::SetDirection(dir);
-		__super::SetVelocity(VELOCITY * delta * 2);
-		__super::GetAnimator()->SetCurrentAnimClip(current);
-		__super::GetAnimator()->SetCurrentFrame(0);
-		__super::Move();
-
+		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 0, true);
 		return;
 	}
 	else if (state == slide) {
-		__super::GetAnimator()->SetCurrentAnimClip(current);
-		__super::GetAnimator()->SetCurrentFrame(1);
-		__super::Move();
+		ChangeAnimation(current, 0, dir, 1, true);
 		state = idle;
 		return;
 	}
 	else if (state == jumpdown) {
-		__super::SetVelocity(2 * VELOCITY * delta);
 		dir += Values::DownVec;
 		current = L"jump";
 		if (hitGround) {
@@ -225,13 +207,12 @@ void KirbyCharacter::Move()
 			state = flat;
 			return;
 		}
-		__super::GetAnimator()->SetCurrentAnimClip(current);
 		uint curIdx = __super::GetAnimator()->GetCurrentFrameIndex();
 		if (curIdx == 4) {
-			__super::GetAnimator()->SetCurrentFrame(3);
+			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 3, true);
+			return;
 		}
-		__super::SetDirection(dir);
-		__super::Move();
+		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 0, false);
 		return;
 	}
 	else if (state == jumpmin) {
@@ -239,20 +220,18 @@ void KirbyCharacter::Move()
 			current = L"jump";
 			dir.y = 0;
 			dir += Values::UpVec;
-			__super::SetDirection(dir);
-			__super::SetVelocity(2 * VELOCITY * delta);
-			__super::GetAnimator()->SetCurrentAnimClip(current);
-			__super::GetAnimator()->SetCurrentFrame(5);
-			__super::Move();
+			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 5, true);
 			return;
 		}
 		else {
 			state = jumpdown;
 		}
+		return;
 	}
 	//if player pressed for too long, end the jump
 	else if (state == jump && (Time::Get()->Running() - startJump > JUMPMAX)) {
 		state = jumpdown;
+		return;
 	}
 	//when user wants to end jump
 	else if (key->Up('Z')) {
@@ -264,58 +243,62 @@ void KirbyCharacter::Move()
 		else if (state == jump && (Time::Get()->Running() - startJump <= JUMPMAX)) {
 			state = jumpdown;
 		}
+		return;
 	}
+	//jump when kirby hits the ground
 	else if (key->Down('Z') && hitGround) {
 		state = jump;
 		current = L"jump";
 		startJump = Time::Get()->Running();
+		return;
 	}
 	else if (state == jump) {
 		current = L"jump";
 		dir.y = 0;
 		dir += Values::UpVec;
-		__super::SetDirection(dir);
-		__super::SetVelocity(2 * VELOCITY* delta);
-		__super::GetAnimator()->SetCurrentAnimClip(current);
-		__super::GetAnimator()->SetCurrentFrame(5);
-		__super::Move();
+		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 5, true);
 		return;
 	}
 	//press s when inhaled
 	else if (state == inhaled && key->Press('S')) {
 		current = L"exhaling";
 		state = exhaling;
+		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
+		return;
 	}
 	else if (state == inhaled && key->Press(VK_UP)) {
 		current = L"inhaled";
 		dir += Values::UpVec;
-		__super::SetVelocity(VELOCITY * delta);
 		__super::GetAnimator()->SetPlayRate(current, 1.0/20.0);
+		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
+		return;
 	}
 	else if (state == flyup) {
 		dir += Values::UpVec;
-		__super::SetVelocity(VELOCITY * delta);
 		current = L"flyUp";
 		state = flyup;
 		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
 		if (curframe == 3) {
 			state = inhaled;
 		}
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+		return;
 	}
 	else if (key->Press(VK_UP)) {
 		current = L"flyUp";
 		state = flyup;
+		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
+		return;
 	}
+	//kirby has inhaled air to float around
 	else if (state == inhaled) {
 		current = L"inhaled";
 		dir += Values::DownVec;
-		__super::SetVelocity(VELOCITY * delta);
 		__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
+		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
+		return;
 	}
 	else if (state == falldown) {
-		state = falldown;
-		dir += Values::DownVec;
-
 		//when you hit ground while falling
 		if (hitGround) {
 			//when you fall from higher up bounce once
@@ -323,6 +306,7 @@ void KirbyCharacter::Move()
 				state = bounce;
 				current = L"jump";
 				startBounce = Time::Get()->Running();
+				return;
 			}
 			else {
 				state = flat;
@@ -331,31 +315,37 @@ void KirbyCharacter::Move()
 				return;
 			}
 		}
-
+		dir += Values::DownVec;
 		current = L"jump";
-		__super::SetDirection(dir);
-		__super::SetVelocity(VELOCITY * delta);
-		__super::GetAnimator()->SetCurrentAnimClip(current);
-
-
 		if (Time::Get()->Running() - startFalling < FALLMOTIONCHANGE) {
-			__super::GetAnimator()->SetCurrentFrame(3);
+			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 3, true);
+			return;
 		}
 		else {
-			__super::GetAnimator()->SetCurrentFrame(4);
+			ChangeAnimation(current, 2 * VELOCITY* delta, dir, 4, true);
+			return;
 		}
-		__super::Move();
 	}
 	else if (state == idle)
 	{
-		__super::SetVelocity(0);
 		current = L"Idle";
 		state = idle;
+		ChangeAnimation(current, 0, dir, 0, false);
+		return;
 	}
+	ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
+}
 
+void KirbyCharacter::ChangeAnimation(wstring clipName, float speed, Vector3 dir, uint currentFrame, bool setFrame)
+{
+	if (clipName.compare(L"") != 0) {
+		__super::GetAnimator()->SetCurrentAnimClip(clipName);
+	}
+	if (setFrame) {
+		__super::GetAnimator()->SetCurrentFrame(currentFrame);
+	}
+	__super::SetVelocity(speed);
 	__super::SetDirection(dir);
-
-	__super::GetAnimator()->SetCurrentAnimClip(current);
 	__super::Move();
 }
 

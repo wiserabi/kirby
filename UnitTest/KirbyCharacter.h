@@ -53,6 +53,7 @@ public:
 	void Attack();
 	void ApplyGravity();
 	void SetHitGround(bool hitGround) { this->hitGround = hitGround; }
+	void ChangeAnimation(wstring clipName, float speed, Vector3 dir, uint currentFrame, bool setFrame);
 
 	Vector3 GetPosition();
 	boolean isKirbyInWorld() { return kirbyInWorld; }
