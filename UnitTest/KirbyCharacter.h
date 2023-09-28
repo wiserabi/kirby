@@ -27,10 +27,11 @@ enum State {
 	slide,
 	swallowed,
 	bounce,
-	flat,
+	flatten,
 	jump,
 	jumpdown,
-	jumpmin
+	jumpmin,
+	headdown
 };
 
 class KirbyCharacter : public AnimationRect
@@ -47,8 +48,32 @@ public:
 	virtual void SetAnimator(class Animator* animator);
 	virtual void SetPosition(Vector3 pos);
 
-	void Inhale();
-	void Exhale();
+	bool Inhale(float delta, class Keyboard* key);
+	bool Inhaled(float delta, class Keyboard* key);
+	bool Inhaling(float delta, class Keyboard* key);
+	bool Exhale(float delta, class Keyboard* key);
+	bool Exhaling(float delta, class Keyboard* key);
+	bool Jump(float delta, class Keyboard* key);
+	bool Walk(float delta, class Keyboard* key);
+	bool Run(float delta, class Keyboard* key);
+	bool HeadDown(float delta, class Keyboard* key);
+	bool Slide(float delta, class Keyboard* key);
+	bool WalkingToIdle(float delta, class Keyboard* key);
+	bool Flatten(float delta, class Keyboard* key);
+	bool Bounce(float delta, class Keyboard* key);
+	bool SquashDown(float delta, class Keyboard* key);
+	bool FloatUp(float delta, class Keyboard* key);
+	bool FlyUp(float delta, class Keyboard* key);
+	bool StartFly(float delta, class Keyboard* key);
+	bool FallDown(float delta, class Keyboard* key);
+	bool JumpDown(float delta, class Keyboard* key);
+	bool JumpMin(float delta, class Keyboard* key);
+	bool JumpLong(float delta, class Keyboard* key);
+	bool JumpEnd(float delta, class Keyboard* key);
+	bool JumpStart(float delta, class Keyboard* key);
+	bool JumpUp(float delta, class Keyboard* key);
+	bool Idle(float delta, class Keyboard* key);
+	
 	void Swallow();
 	void Attack();
 	void ApplyGravity();
@@ -75,5 +100,6 @@ private:
 	float startSqueeze = 0.0f;
 	float startBounce = 0.0f;
 	float startJump = 0.0f;
+	Vector3 dir = Values::ZeroVec3;
 };
 

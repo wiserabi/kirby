@@ -95,244 +95,79 @@ void KirbyCharacter::Move()
 	auto key = Keyboard::Get();
 	float delta = Time::Delta();
 
-	Vector3 dir = Values::ZeroVec3;
+	dir = Values::ZeroVec3;
 
-	if (key->Press(VK_RIGHT)) {
-		dir += Values::RightVec;
-		__super::SetLeft(false);
-		if (state == idle) {
-			current = L"WalkR";
-			state = walking;
-		}
-		else if (!hitGround && state != inhaled && state != falldown
-			&& state != jump && state != jumpmin && state != jumpdown) {
-			state = falldown;
-			startFalling = Time::Get()->Running();
-		}
+	bool checkWalk = Walk(delta, key);
+	bool checkHeadDown = false;
+	if (!checkWalk) {
+		checkHeadDown = HeadDown(delta, key);
 	}
-	else if (key->Press(VK_LEFT)) {
-		dir += Values::LeftVec;
-		__super::SetLeft(true);
-		if (state == idle) {
-			current = L"WalkL";
-			state = walking;
-		}
-		else if (!hitGround && state != inhaled && state != falldown 
-			&& state != jump && state != jumpmin && state != jumpdown) {
-			state = falldown;
-			startFalling = Time::Get()->Running();
-		}
-	}
-	else if (hitGround && state != inhaled && key->Press(VK_DOWN)) {
-		dir = Values::ZeroVec3;
-		current = L"slide";
-		state = slide;
-	}
-	else if(state == walking && hitGround){
-		state = idle;
-		current = L"idle";
+	//If not walking or head down state return to idle state
+	if (!checkWalk && (!checkHeadDown)){
+		WalkingToIdle(delta, key);
 	}
 
-	if (state == exhaling) {
-		current = L"exhaling";
-		state == exhaling;
-		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
-		if (curframe == 3) {
-			state = falldown;//finish exhale motion
-			startFalling = Time::Get()->Running();
-			return;
-		}
-		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+	if (Exhaling(delta, key)) {
 		return;
 	}
-	else if (state == flat) {
-		dir = Values::ZeroVec3;
-		current = L"slide";
-		if (Time:: Get()->Running() - startSqueeze > 0.1) {
-			state = idle;
-		}
-		ChangeAnimation(current, VELOCITY * delta, dir, 0, true);
+	if (Flatten(delta, key)) {
 		return;
 	}
-	else if (state == bounce) {
-		float elapsed = Time::Get()->Running() - startBounce;
-		dir.y = 0;
-		if (elapsed <= 0.3) {
-			dir += Values::UpVec;
-		}
-		else if (elapsed <= 0.6) {
-			dir -= Values::UpVec;
-		}
-		else if (elapsed <= 0.9) {
-			dir += Values::DownVec;
-		}
-		else {
-			state = flat;
-			startSqueeze = Time::Get()->Running();
-		}
-		current = L"jump";
-		ChangeAnimation(current, VELOCITY * delta, dir, 4, true);
+	if (Bounce(delta, key)) {
 		return;
 	}
-	//press s when down key pressed
-	else if (state == slide && key->Press('S')) {
-		//when sliding check if kirby is on the ground
-		if (!hitGround) {
-			state = falldown;
-			startFalling = Time::Get()->Running();
-			return;
-		}
-		dir = Values::ZeroVec3;
-		if (__super::GetLeft()) {
-			dir += Values::LeftVec;
-		}
-		else {
-			dir += Values::RightVec;
-		}
-		current = L"slide";
-		state = slide;
-		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 0, true);
+	//headdown state can change to squashdown or slide
+	//whether you press s key at the same time or not
+	if (Slide(delta, key)) {
 		return;
 	}
-	else if (state == slide) {
-		ChangeAnimation(current, 0, dir, 1, true);
-		state = idle;
+	if (SquashDown(delta, key)) {
 		return;
 	}
-	//press s when inhaled
-	else if (state == inhaled && key->Press('S')) {
-		current = L"exhaling";
-		state = exhaling;
-		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
+
+	if (Exhale(delta, key)) {
 		return;
 	}
-	else if (state == inhaled && (key->Press(VK_UP) || key->Press('Z'))) {
-		current = L"inhaled";
-		dir += Values::UpVec;
-		__super::GetAnimator()->SetPlayRate(current, 1.0/20.0);
-		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
+
+	if (FloatUp(delta, key)) {
 		return;
 	}
-	else if (state == flyup) {
-		dir += Values::UpVec;
-		current = L"flyUp";
-		state = flyup;
-		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
-		if (curframe == 3) {
-			state = inhaled;
-		}
-		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+
+	if (FlyUp(delta, key)) {
 		return;
 	}
-	else if (key->Press(VK_UP)) {
-		current = L"flyUp";
-		state = flyup;
-		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
+
+	if (StartFly(delta, key)) {
 		return;
 	}
-	//kirby has inhaled air to float around
-	else if (state == inhaled) {
-		current = L"inhaled";
-		dir += Values::DownVec;
-		__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
-		ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
+	if (Inhaled(delta, key)) {
 		return;
 	}
-	else if (state == falldown) {
-		//when you hit ground while falling
-		if (hitGround) {
-			//when you fall from higher up bounce once
-			if (Time::Get()->Running() - startFalling > FALLMOTIONCHANGE) {
-				state = bounce;
-				current = L"jump";
-				startBounce = Time::Get()->Running();
-				return;
-			}
-			else {
-				state = flat;
-				current = L"slide";
-				startSqueeze = Time::Get()->Running();
-				return;
-			}
-		}
-		dir += Values::DownVec;
-		current = L"jump";
-		if (Time::Get()->Running() - startFalling < FALLMOTIONCHANGE) {
-			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 3, true);
-			return;
-		}
-		else {
-			ChangeAnimation(current, 2 * VELOCITY* delta, dir, 4, true);
-			return;
-		}
-	}
-	else if (state == jumpdown) {
-		dir += Values::DownVec;
-		current = L"jump";
-		if (hitGround) {
-			startSqueeze = Time::Get()->Running();
-			state = flat;
-			return;
-		}
-		uint curIdx = __super::GetAnimator()->GetCurrentFrameIndex();
-		if (curIdx == 4) {
-			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 3, true);
-			return;
-		}
-		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 0, false);
+	if (FallDown(delta, key)) {
 		return;
 	}
-	else if (state == jumpmin) {
-		if (Time::Get()->Running() - startJump < JUMPMIN) {
-			current = L"jump";
-			dir.y = 0;
-			dir += Values::UpVec;
-			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 5, true);
-			return;
-		}
-		else {
-			state = jumpdown;
-		}
+	if (JumpDown(delta, key)) {
 		return;
 	}
-	//if player pressed for too long, end the jump
-	else if (state == jump && (Time::Get()->Running() - startJump > JUMPMAX)) {
-		state = jumpdown;
+	if (JumpMin(delta, key)) {
 		return;
 	}
-	//when user wants to end jump
-	else if (key->Up('Z')) {
-		//grant minimum jump for short press
-		if (state == jump && (Time::Get()->Running() - startJump < JUMPMIN)) {
-			state = jumpmin;
-		}
-		//end the jump if jump time is in range of jumpmin and jumpmax
-		else if (state == jump && (Time::Get()->Running() - startJump <= JUMPMAX)) {
-			state = jumpdown;
-		}
+	if (JumpLong(delta, key)) {
 		return;
 	}
-	//jump when kirby hits the ground
-	else if (key->Down('Z') && hitGround) {
-		state = jump;
-		current = L"jump";
-		startJump = Time::Get()->Running();
+	if (JumpEnd(delta, key)) {
 		return;
 	}
-	else if (state == jump) {
-		current = L"jump";
-		dir.y = 0;
-		dir += Values::UpVec;
-		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 5, true);
+	if (JumpStart(delta, key)) {
 		return;
 	}
-	else if (state == idle)
-	{
-		current = L"Idle";
-		state = idle;
-		ChangeAnimation(current, 0, dir, 0, false);
+	if (JumpUp(delta, key)) {
 		return;
 	}
+	if (Idle (delta, key)) {
+		return;
+	}
+
 	ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
 }
 
@@ -360,13 +195,371 @@ void KirbyCharacter::SetPosition(Vector3 pos)
 	__super::SetPosition(pos);
 }
 
-void KirbyCharacter::Inhale()
+bool KirbyCharacter::Inhale(float delta, Keyboard* key)
 {
+	return false;
 }
 
-void KirbyCharacter::Exhale()
+bool KirbyCharacter::Inhaled(float delta, Keyboard* key)
 {
+	//kirby has inhaled air to float around
+	if (state == inhaled) {
+		current = L"inhaled";
+		dir += Values::DownVec;
+		__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+		return true;
+	}
+	return false;
 }
+
+bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
+{
+	return false;
+}
+
+bool KirbyCharacter::Exhale(float delta, Keyboard* key)
+{
+	//press s when inhaled, change to exhaling state
+	if (state == inhaled && key->Press('S')) {
+		current = L"exhaling";
+		state = exhaling;
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::Exhaling(float delta, Keyboard* key)
+{
+	if (state == exhaling) {
+		current = L"exhaling";
+		state == exhaling;
+		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
+		if (curframe == 3) {
+			state = falldown;//finish exhale motion
+			startFalling = Time::Get()->Running();
+			return true;
+		}
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::Jump(float delta, Keyboard* key)
+{
+	return false;
+}
+
+bool KirbyCharacter::Walk(float delta, Keyboard* key)
+{
+	if (key->Press(VK_RIGHT)) {
+		dir += Values::RightVec;
+		__super::SetLeft(false);
+		if (state == idle) {
+			current = L"WalkR";
+			state = walking;
+		}
+		else if (!hitGround && state != inhaled && state != falldown
+			&& state != jump && state != jumpmin && state != jumpdown) {
+			state = falldown;
+			startFalling = Time::Get()->Running();
+		}
+		return true;
+	}
+	else if (key->Press(VK_LEFT)) {
+		dir += Values::LeftVec;
+		__super::SetLeft(true);
+		if (state == idle) {
+			current = L"WalkL";
+			state = walking;
+		}
+		else if (!hitGround && state != inhaled && state != falldown
+			&& state != jump && state != jumpmin && state != jumpdown) {
+			state = falldown;
+			startFalling = Time::Get()->Running();
+		}
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::Run(float delta, Keyboard* key)
+{
+	return false;
+}
+
+bool KirbyCharacter::HeadDown(float delta, Keyboard* key)
+{
+	if (hitGround && state != inhaled && key->Press(VK_DOWN)) {
+		dir = Values::ZeroVec3;
+		current = L"slide";
+		state = headdown;
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::Slide(float delta, Keyboard* key)
+{
+	//slide when s pressed during heads down state
+	if (state == headdown && key->Press('S')) {
+		//when sliding check if kirby is on the ground
+		if (!hitGround) {
+			state = falldown;
+			startFalling = Time::Get()->Running();
+			return true;
+		}
+		dir = Values::ZeroVec3;
+		if (__super::GetLeft()) {
+			dir += Values::LeftVec;
+		}
+		else {
+			dir += Values::RightVec;
+		}
+		current = L"slide";
+		state = headdown;
+		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 0, true);
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::WalkingToIdle(float delta, Keyboard* key)
+{
+	if (state == walking && hitGround) {
+		state = idle;
+		current = L"idle";
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::Flatten(float delta, Keyboard* key)
+{
+	if (state == flatten) {
+		dir = Values::ZeroVec3;
+		current = L"slide";
+		if (Time::Get()->Running() - startSqueeze > 0.1) {
+			state = idle;
+		}
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, true);
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::Bounce(float delta, Keyboard* key)
+{
+	if (state == bounce) {
+		float elapsed = Time::Get()->Running() - startBounce;
+		dir.y = 0;
+		if (elapsed <= 0.3) {
+			dir += Values::UpVec;
+		}
+		else if (elapsed <= 0.6) {
+			dir -= Values::UpVec;
+		}
+		else if (elapsed <= 0.9) {
+			dir += Values::DownVec;
+		}
+		else {
+			state = flatten;
+			startSqueeze = Time::Get()->Running();
+		}
+		current = L"jump";
+		ChangeAnimation(current, VELOCITY * delta, dir, 4, true);
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::SquashDown(float delta, Keyboard* key)
+{
+	if (state == headdown) {
+		ChangeAnimation(current, 0, dir, 1, true);
+		state = idle;
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::FloatUp(float delta, Keyboard* key)
+{	
+	//while inhaled kirby can float upwards
+	if (state == inhaled && (key->Press(VK_UP) || key->Press('Z'))) {
+		current = L"inhaled";
+		dir += Values::UpVec;
+		__super::GetAnimator()->SetPlayRate(current, 1.0 / 20.0);
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::FlyUp(float delta, Keyboard* key)
+{
+	if (state == flyup) {
+		dir += Values::UpVec;
+		current = L"flyUp";
+		state = flyup;
+		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
+		if (curframe == 3) {
+			state = inhaled;
+		}
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::StartFly(float delta, Keyboard* key)
+{
+	if (key->Press(VK_UP)) {
+		current = L"flyUp";
+		state = flyup;
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::FallDown(float delta, Keyboard* key)
+{
+	if (state == falldown) {
+		//when you hit ground while falling
+		if (hitGround) {
+			//when you fall from higher up bounce once
+			if (Time::Get()->Running() - startFalling > FALLMOTIONCHANGE) {
+				state = bounce;
+				current = L"jump";
+				startBounce = Time::Get()->Running();
+				return true;
+			}
+			else {
+				state = flatten;
+				current = L"slide";
+				startSqueeze = Time::Get()->Running();
+				return true;
+			}
+		}
+		dir += Values::DownVec;
+		current = L"jump";
+		if (Time::Get()->Running() - startFalling < FALLMOTIONCHANGE) {
+			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 3, true);
+			return true;
+		}
+		else {
+			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 4, true);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool KirbyCharacter::JumpDown(float delta, Keyboard* key)
+{
+	if (state == jumpdown) {
+		dir += Values::DownVec;
+		current = L"jump";
+		if (hitGround) {
+			startSqueeze = Time::Get()->Running();
+			state = flatten;
+			return true;
+		}
+		uint curIdx = __super::GetAnimator()->GetCurrentFrameIndex();
+		if (curIdx == 4) {
+			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 3, true);
+			return true;
+		}
+		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 0, false);
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::JumpMin(float delta, Keyboard* key)
+{
+	if (state == jumpmin) {
+		if (Time::Get()->Running() - startJump < JUMPMIN) {
+			current = L"jump";
+			dir.y = 0;
+			dir += Values::UpVec;
+			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 5, true);
+			return true;
+		}
+		else {
+			state = jumpdown;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool KirbyCharacter::JumpLong(float delta, Keyboard* key)
+{
+	//if player pressed for too long, end the jump
+	if (state == jump && (Time::Get()->Running() - startJump > JUMPMAX)) {
+		state = jumpdown;
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::JumpEnd(float delta, Keyboard* key)
+{
+	//when user wants to end jump
+	if (key->Up('Z')) {
+		//grant minimum jump for short press
+		if (state == jump && (Time::Get()->Running() - startJump < JUMPMIN)) {
+			state = jumpmin;
+		}
+		//end the jump if jump time is in range of jumpmin and jumpmax
+		else if (state == jump && (Time::Get()->Running() - startJump <= JUMPMAX)) {
+			state = jumpdown;
+		}
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::JumpStart(float delta, Keyboard* key)
+{
+	//jump when kirby hits the ground
+	if (key->Down('Z') && hitGround) {
+		state = jump;
+		current = L"jump";
+		startJump = Time::Get()->Running();
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::JumpUp(float delta, Keyboard* key)
+{
+	if (state == jump) {
+		current = L"jump";
+		dir.y = 0;
+		dir += Values::UpVec;
+		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 5, true);
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::Idle(float delta, Keyboard* key)
+{
+	if (state == idle)
+	{
+		current = L"Idle";
+		state = idle;
+		ChangeAnimation(current, 0, dir, 0, false);
+		return true;
+	}
+	return false;
+}
+
 
 void KirbyCharacter::Swallow()
 {
