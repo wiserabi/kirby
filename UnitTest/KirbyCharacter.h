@@ -15,7 +15,8 @@ enum Ability
 enum State {
 	idle,
 	walking,
-	running,
+	dash,
+	endDash,
 	gethit,
 	attacking,
 	flying,
@@ -48,9 +49,9 @@ public:
 	virtual void SetAnimator(class Animator* animator);
 	virtual void SetPosition(Vector3 pos);
 
-	bool Move1();
-	bool Move2();
-	bool Move3();
+	bool Move1(float delta, class Keyboard* key);
+	bool Move2(float delta, class Keyboard* key);
+	bool Move3(float delta, class Keyboard* key);
 
 	bool Inhale(float delta, class Keyboard* key);
 	bool Inhaled(float delta, class Keyboard* key);
@@ -78,6 +79,8 @@ public:
 	bool JumpStart(float delta, class Keyboard* key);
 	bool JumpUp(float delta, class Keyboard* key);
 	bool Idle(float delta, class Keyboard* key);
+	bool Dash(float delta, class Keyboard* key);
+	bool EndDash(float delta, class Keyboard* key);
 	
 	void Swallow();
 	void Attack();
@@ -108,5 +111,8 @@ private:
 	float startInhaled = 0.0f;
 	float delayAfterExhale = 0.0f;
 	Vector3 dir = Values::ZeroVec3;
+	bool prevRight = false, prevLeft = false;
+	float prevRightTime = 0.0f, prevLeftTime = 0.0f;
+	float endDashTime = 0.0f;
 };
 

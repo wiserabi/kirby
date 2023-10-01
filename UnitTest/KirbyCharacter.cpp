@@ -92,17 +92,16 @@ void KirbyCharacter::Render()
 
 void KirbyCharacter::Move()
 {
-	dir = Values::ZeroVec3;
-	Move1();//right left walk, idle
-	if (Move2()) {//s key exhale, slide, squash down
-		return;
-	}
-	if (Move3()) {//fly up, jump
-		return;
-	}
-
 	auto key = Keyboard::Get();
 	float delta = Time::Delta();
+	dir = Values::ZeroVec3;
+	Move1(Time::Delta(), key);//right left walk, idle
+	if (Move2(Time::Delta(), key)) {//s key exhale, slide, squash down
+		return;
+	}
+	if (Move3(Time::Delta(), key)) {//fly up, jump
+		return;
+	}
 	ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
 }
 
@@ -130,28 +129,32 @@ void KirbyCharacter::SetPosition(Vector3 pos)
 	__super::SetPosition(pos);
 }
 
-bool KirbyCharacter::Move1()
+bool KirbyCharacter::Move1(float delta, class Keyboard* key)
 {
-	auto key = Keyboard::Get();
-	float delta = Time::Delta();
-
-	bool checkWalk = Walk(delta, key);
+	bool endDash = EndDash(delta, key);
+	bool checkDash = false;
+	bool checkWalk = false;
 	bool checkHeadDown = false;
-	if (!checkWalk) {
+
+	if (!endDash) {
+		checkDash = Dash(delta, key);
+	}
+	if (!endDash && !checkDash) {
+		checkWalk = Walk(delta, key);
+	}
+	
+	if (!endDash && !checkDash && !checkWalk) {
 		checkHeadDown = HeadDown(delta, key);
 	}
 	//If not walking or head down state return to idle state
-	if (!checkWalk && (!checkHeadDown)) {
+	if (!endDash && !checkDash && !checkWalk && (!checkHeadDown)) {
 		WalkingToIdle(delta, key);
 	}
 	return false;
 }
 
-bool KirbyCharacter::Move2()
+bool KirbyCharacter::Move2(float delta, class Keyboard* key)
 {
-	auto key = Keyboard::Get();
-	float delta = Time::Delta();
-
 	if (Exhaled(delta, key)) {
 		return true;
 	}
@@ -179,11 +182,8 @@ bool KirbyCharacter::Move2()
 	return false;
 }
 
-bool KirbyCharacter::Move3()
+bool KirbyCharacter::Move3(float delta, class Keyboard* key)
 {
-	auto key = Keyboard::Get();
-	float delta = Time::Delta();
-
 	if (FloatUp(delta, key)) {
 		return true;
 	}
@@ -302,6 +302,7 @@ bool KirbyCharacter::Jump(float delta, Keyboard* key)
 bool KirbyCharacter::Walk(float delta, Keyboard* key)
 {
 	if (key->Press(VK_RIGHT)) {
+		__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
 		dir += Values::RightVec;
 		__super::SetLeft(false);
 		if (state == idle) {
@@ -315,6 +316,7 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 		return true;
 	}
 	else if (key->Press(VK_LEFT)) {
+		__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
 		dir += Values::LeftVec;
 		__super::SetLeft(true);
 		if (state == idle) {
@@ -375,7 +377,7 @@ bool KirbyCharacter::WalkingToIdle(float delta, Keyboard* key)
 {
 	if (state == walking && hitGround) {
 		state = idle;
-		current = L"idle";
+		current = L"Idle";
 		return true;
 	}
 	return false;
@@ -480,12 +482,14 @@ bool KirbyCharacter::FallDown(float delta, Keyboard* key)
 			if (Time::Get()->Running() - startFalling > FALLMOTIONCHANGE) {
 				state = bounce;
 				current = L"jump";
+				__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
 				startBounce = Time::Get()->Running();
 				return true;
 			}
 			else {
 				state = flatten;
 				current = L"slide";
+				__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
 				startSqueeze = Time::Get()->Running();
 				return true;
 			}
@@ -600,8 +604,115 @@ bool KirbyCharacter::Idle(float delta, Keyboard* key)
 	{
 		current = L"Idle";
 		state = idle;
+		__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
 		ChangeAnimation(current, 0, dir, 0, false);
 		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::Dash(float delta, Keyboard* key)
+{
+	if (hitGround && state != inhaled) {
+		//if there was a right key down before
+		if (prevRight && Time::Get()->Running() - prevRightTime < 0.3f && 
+			key->Down(VK_RIGHT)) {
+			state = dash;
+			return true;
+		}
+		//if there was a left key down before
+		else if (prevLeft && Time::Get()->Running() - prevLeftTime < 0.3f && 
+			key->Down(VK_LEFT)) {
+			state = dash;
+			return true;
+		}
+		//first time pressing right key
+		else if (key->Down(VK_RIGHT)) {
+			prevRightTime = Time::Get()->Running();
+			prevRight = true;
+			prevLeft = false;
+		}
+		//first time pressing left key
+		else if (key->Down(VK_LEFT)) {
+			prevLeftTime = Time::Get()->Running();
+			prevLeft = true;
+			prevRight = false;
+		}
+	}
+	else {
+		//if kirby is not on the ground reset
+		prevRight = false;
+		prevLeft = false;
+		if (state == dash) {
+			//reset animation speed
+			state = falldown;
+			startFalling = Time::Get()->Running();
+			return true;
+		}
+	}
+
+	if (state == dash) {
+		__super::GetAnimator()->SetPlayRate(current, 1.0 / 20.0);
+		if (prevRight) {
+			//right dash
+			__super::SetLeft(false);
+			current = L"WalkR";
+			
+			//when key press up finish dash slowly
+			if (key->Up(VK_RIGHT)) {
+				state = endDash;
+				endDashTime = Time::Get()->Running();
+				return true;
+			}
+			dir += Values::RightVec;
+			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 0, false);
+		}
+		else {
+			//left dash
+			__super::SetLeft(true);
+			current = L"WalkL";
+
+			//when key press up finish dash slowly
+			if (key->Up(VK_LEFT)) {
+				state = endDash;
+				endDashTime = Time::Get()->Running();
+				return true;
+			}
+			dir += Values::LeftVec;
+			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 0, false);
+		}
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::EndDash(float delta, Keyboard* key)
+{
+	//slow down at the end of dash	
+	if (state == endDash) {
+		float elapsed = Time::Get()->Running() - endDashTime;
+		//first walk for 0.2 second reducing velocity
+		if (elapsed < 0.2f) {
+			if (prevRight) {
+				current = L"WalkR";
+				__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
+				ChangeAnimation(current, 2 * VELOCITY * delta * (0.2f - elapsed), dir, 0, false);
+			}
+			else if (prevLeft) {
+				current = L"WalkL";
+				__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
+				ChangeAnimation(current, 2 * VELOCITY * delta * (0.2f - elapsed), dir, 0, false);
+			}
+			return true;
+		}
+		//then change to idle motion
+		else {
+			prevLeft = false;
+			prevRight = false;
+			state = idle;
+			current = L"Idle";
+			return true;
+		}
 	}
 	return false;
 }
