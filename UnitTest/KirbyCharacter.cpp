@@ -92,82 +92,17 @@ void KirbyCharacter::Render()
 
 void KirbyCharacter::Move()
 {
+	dir = Values::ZeroVec3;
+	Move1();//right left walk, idle
+	if (Move2()) {//s key exhale, slide, squash down
+		return;
+	}
+	if (Move3()) {//fly up, jump
+		return;
+	}
+
 	auto key = Keyboard::Get();
 	float delta = Time::Delta();
-
-	dir = Values::ZeroVec3;
-
-	bool checkWalk = Walk(delta, key);
-	bool checkHeadDown = false;
-	if (!checkWalk) {
-		checkHeadDown = HeadDown(delta, key);
-	}
-	//If not walking or head down state return to idle state
-	if (!checkWalk && (!checkHeadDown)){
-		WalkingToIdle(delta, key);
-	}
-
-	if (Exhaling(delta, key)) {
-		return;
-	}
-	if (Flatten(delta, key)) {
-		return;
-	}
-	if (Bounce(delta, key)) {
-		return;
-	}
-	//headdown state can change to squashdown or slide
-	//whether you press s key at the same time or not
-	if (Slide(delta, key)) {
-		return;
-	}
-	if (SquashDown(delta, key)) {
-		return;
-	}
-
-	if (Exhale(delta, key)) {
-		return;
-	}
-
-	if (FloatUp(delta, key)) {
-		return;
-	}
-
-	if (FlyUp(delta, key)) {
-		return;
-	}
-
-	if (StartFly(delta, key)) {
-		return;
-	}
-	if (Inhaled(delta, key)) {
-		return;
-	}
-	if (FallDown(delta, key)) {
-		return;
-	}
-	if (JumpDown(delta, key)) {
-		return;
-	}
-	if (JumpMin(delta, key)) {
-		return;
-	}
-	if (JumpLong(delta, key)) {
-		return;
-	}
-	if (JumpEnd(delta, key)) {
-		return;
-	}
-	if (JumpStart(delta, key)) {
-		return;
-	}
-	if (JumpUp(delta, key)) {
-		return;
-	}
-	if (Idle (delta, key)) {
-		return;
-	}
-
 	ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
 }
 
@@ -195,6 +130,101 @@ void KirbyCharacter::SetPosition(Vector3 pos)
 	__super::SetPosition(pos);
 }
 
+bool KirbyCharacter::Move1()
+{
+	auto key = Keyboard::Get();
+	float delta = Time::Delta();
+
+	bool checkWalk = Walk(delta, key);
+	bool checkHeadDown = false;
+	if (!checkWalk) {
+		checkHeadDown = HeadDown(delta, key);
+	}
+	//If not walking or head down state return to idle state
+	if (!checkWalk && (!checkHeadDown)) {
+		WalkingToIdle(delta, key);
+	}
+	return false;
+}
+
+bool KirbyCharacter::Move2()
+{
+	auto key = Keyboard::Get();
+	float delta = Time::Delta();
+
+	if (Exhaled(delta, key)) {
+		return true;
+	}
+	if (Exhaling(delta, key)) {
+		return true;
+	}
+	if (Flatten(delta, key)) {
+		return true;
+	}
+	if (Bounce(delta, key)) {
+		return true;
+	}
+	//headdown state can change to squashdown or slide
+	//whether you press s key at the same time or not
+	if (Slide(delta, key)) {
+		return true;
+	}
+	if (SquashDown(delta, key)) {
+		return true;
+	}
+
+	if (Exhale(delta, key)) {
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::Move3()
+{
+	auto key = Keyboard::Get();
+	float delta = Time::Delta();
+
+	if (FloatUp(delta, key)) {
+		return true;
+	}
+
+	if (FlyUp(delta, key)) {
+		return true;
+	}
+
+	if (StartFly(delta, key)) {
+		return true;
+	}
+	if (Inhaled(delta, key)) {
+		return true;
+	}
+	if (FallDown(delta, key)) {
+		return true;
+	}
+	if (JumpDown(delta, key)) {
+		return true;
+	}
+	if (JumpMin(delta, key)) {
+		return true;
+	}
+	if (JumpLong(delta, key)) {
+		return true;
+	}
+	if (JumpEnd(delta, key)) {
+		return true;
+	}
+	if (JumpStart(delta, key)) {
+		return true;
+	}
+	if (JumpUp(delta, key)) {
+		return true;
+	}
+	if (Idle(delta, key)) {
+		return true;
+	}
+	return false;
+}
+
 bool KirbyCharacter::Inhale(float delta, Keyboard* key)
 {
 	return false;
@@ -220,11 +250,28 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 
 bool KirbyCharacter::Exhale(float delta, Keyboard* key)
 {
-	//press s when inhaled, change to exhaling state
-	if (state == inhaled && key->Press('S')) {
+	//press s when inhaled for 0.1 second, change to exhaling state
+	if (state == inhaled && Time::Get()->Running() - startInhaled > 0.1f
+		&& key->Press('S')) {
 		current = L"exhaling";
 		state = exhaling;
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::Exhaled(float delta, Keyboard* key)
+{
+	if (state == exhaled) {
+		current = L"exhaling";
+		dir += Values::DownVec / 1.6f;
+		if (Time::Get()->Running() - delayAfterExhale > 0.1f) {
+			state = falldown;//finish exhale motion
+			startFalling = Time::Get()->Running();
+			return true;
+		}
+		ChangeAnimation(current, VELOCITY * delta, dir, 2, true);
 		return true;
 	}
 	return false;
@@ -237,8 +284,8 @@ bool KirbyCharacter::Exhaling(float delta, Keyboard* key)
 		state == exhaling;
 		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
 		if (curframe == 3) {
-			state = falldown;//finish exhale motion
-			startFalling = Time::Get()->Running();
+			state = exhaled;
+			delayAfterExhale = Time::Get()->Running();
 			return true;
 		}
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
@@ -261,8 +308,7 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 			current = L"WalkR";
 			state = walking;
 		}
-		else if (!hitGround && state != inhaled && state != falldown
-			&& state != jump && state != jumpmin && state != jumpdown) {
+		else if (!hitGround && state == walking) {
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
@@ -275,8 +321,7 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 			current = L"WalkL";
 			state = walking;
 		}
-		else if (!hitGround && state != inhaled && state != falldown
-			&& state != jump && state != jumpmin && state != jumpdown) {
+		else if (!hitGround && state == walking) {
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
@@ -407,6 +452,7 @@ bool KirbyCharacter::FlyUp(float delta, Keyboard* key)
 		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
 		if (curframe == 3) {
 			state = inhaled;
+			startInhaled = Time::Get()->Running();
 		}
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
 		return true;
@@ -416,7 +462,7 @@ bool KirbyCharacter::FlyUp(float delta, Keyboard* key)
 
 bool KirbyCharacter::StartFly(float delta, Keyboard* key)
 {
-	if (key->Press(VK_UP)) {
+	if (state != exhaling && key->Press(VK_UP)) {
 		current = L"flyUp";
 		state = flyup;
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);

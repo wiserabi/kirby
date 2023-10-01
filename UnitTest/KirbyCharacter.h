@@ -24,14 +24,14 @@ enum State {
 	inhaled,
 	exhale, 
 	exhaling,
-	slide,
 	swallowed,
 	bounce,
 	flatten,
 	jump,
 	jumpdown,
 	jumpmin,
-	headdown
+	headdown,
+	exhaled
 };
 
 class KirbyCharacter : public AnimationRect
@@ -48,10 +48,15 @@ public:
 	virtual void SetAnimator(class Animator* animator);
 	virtual void SetPosition(Vector3 pos);
 
+	bool Move1();
+	bool Move2();
+	bool Move3();
+
 	bool Inhale(float delta, class Keyboard* key);
 	bool Inhaled(float delta, class Keyboard* key);
 	bool Inhaling(float delta, class Keyboard* key);
 	bool Exhale(float delta, class Keyboard* key);
+	bool Exhaled(float delta, class Keyboard* key);
 	bool Exhaling(float delta, class Keyboard* key);
 	bool Jump(float delta, class Keyboard* key);
 	bool Walk(float delta, class Keyboard* key);
@@ -100,6 +105,8 @@ private:
 	float startSqueeze = 0.0f;
 	float startBounce = 0.0f;
 	float startJump = 0.0f;
+	float startInhaled = 0.0f;
+	float delayAfterExhale = 0.0f;
 	Vector3 dir = Values::ZeroVec3;
 };
 
