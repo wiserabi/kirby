@@ -74,8 +74,21 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 		SAFE_DELETE(srcTex1);
 		SAFE_DELETE(srcTex);
 	}
-	rect = new Rect(position, size / 2, 0.0f);
-	rect->SetColor(Color(0.5f, 0.5f, 0.5f, 0.7f));
+	list.push_back(new Rect(position, size/2, 0.0f));//idle, default
+	list.push_back(new Rect(position, size * 3 / 4, 0.0f));//floating
+
+	list.push_back(new Rect(position + Values::UpVec * 8, Vector3(size.x / 2.0f, size.y * 0.6875f, size.z), 0.0f));//flyup2
+	list.push_back(new Rect(position + Values::UpVec * 8, Vector3(size.x * 0.6875f, size.y * 0.6875f, size.z), 0.0f));//flyup3
+
+	list.push_back(new Rect(position, Vector3(size.x / 2.0f, size.y / 4.0f, size.z), 0.0f));//flat
+	list.push_back(new Rect(position, Vector3(size.x / 4.0f, size.y / 2.0f, size.z), 0.0f));//sandwich
+
+	for (size_t i = 0; i < list.size(); i++)
+	{
+		list[i]->SetColor(Color(0.5f, 0.5f, 0.5f, 0.7f));
+	}
+
+	rect = list[0];
 }
 
 KirbyCharacter::~KirbyCharacter()
@@ -101,6 +114,7 @@ void KirbyCharacter::Move()
 	auto key = Keyboard::Get();
 	float delta = Time::Delta();
 	dir = Values::ZeroVec3;
+	ChangeBoundingBox();
 	Move1(Time::Delta(), key);//right left walk, idle
 	if (Move2(Time::Delta(), key)) {//s key exhale, slide, squash down
 		return;
@@ -124,6 +138,40 @@ void KirbyCharacter::ChangeAnimation(wstring clipName, float speed, Vector3 dir,
 	__super::SetVelocity(speed);
 	__super::SetDirection(dir);
 	__super::Move();
+}
+
+void KirbyCharacter::ChangeBoundingBox()
+{
+	if (state == inhaled) {
+		rect = list[1];
+	}
+	else if (state == flyup) {
+		uint curFrame = __super::GetAnimator()->GetCurrentFrameIndex();
+		if (curFrame == 2) {
+			rect = list[2];
+		}
+		else if (curFrame == 3) {
+			rect = list[3];
+		}
+		else {
+			rect = list[0];
+		}
+	}
+	else if (state == exhaling) {
+		uint curFrame = __super::GetAnimator()->GetCurrentFrameIndex();
+		if (curFrame == 0) {
+			rect = list[3];
+		}
+		else if (curFrame == 1) {
+			rect = list[2];
+		}
+		else {
+			rect = list[0];
+		}
+	}
+	else {
+		rect = list[0];
+	}
 }
 
 void KirbyCharacter::SetAnimator(Animator* animator)
@@ -326,7 +374,8 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
-		else if (hitGround && hitRight && (prevkirbyX != position.x)) {
+		else if (hitGround && hitRight && 
+			(prevkirbyX != position.x) && state == walking) {
 			state = sandwiched;
 			startSandwich = Time::Get()->Running();
 			prevkirbyX = position.x;
@@ -345,7 +394,8 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
-		else if (hitGround && hitLeft && (prevkirbyX != position.x)) {
+		else if (hitGround && hitLeft && 
+			(prevkirbyX != position.x) && state == walking) {
 			state = sandwiched;
 			startSandwich = Time::Get()->Running();
 			prevkirbyX = position.x;

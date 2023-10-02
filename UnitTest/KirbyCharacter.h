@@ -94,6 +94,7 @@ public:
 	void SetHitLeft(bool hitLeft) { this->hitLeft = hitLeft; }
 	void SetHitRight(bool hitRight) { this->hitRight = hitRight; }
 	void ChangeAnimation(wstring clipName, float speed, Vector3 dir, uint currentFrame, bool setFrame);
+	void ChangeBoundingBox();
 
 	Vector3 GetPosition();
 	boolean isKirbyInWorld() { return kirbyInWorld; }
@@ -110,6 +111,7 @@ private:
 	wstring current = L"WalkR";
 	boolean kirbyInWorld = true;
 	class Rect* rect = nullptr;
+	vector<class Rect*> list;
 	bool hitGround = false;
 	bool hitLeft = false, hitRight = false;
 	float startFalling = 0.0f;
