@@ -326,9 +326,10 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
-		else if (hitGround && hitRight) {
+		else if (hitGround && hitRight && (prevkirbyX != position.x)) {
 			state = sandwiched;
 			startSandwich = Time::Get()->Running();
+			prevkirbyX = position.x;
 		}
 		return true;
 	}
@@ -344,11 +345,15 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
-		else if (hitGround && hitLeft) {
+		else if (hitGround && hitLeft && (prevkirbyX != position.x)) {
 			state = sandwiched;
 			startSandwich = Time::Get()->Running();
+			prevkirbyX = position.x;
 		}
 		return true;
+	}
+	if (!hitLeft || !hitRight) {
+		prevkirbyX = position.x;
 	}
 	return false;
 }

@@ -123,5 +123,6 @@ private:
 	float prevRightTime = 0.0f, prevLeftTime = 0.0f;
 	float endDashTime = 0.0f;
 	float startSandwich = 0.0f;
+	float prevkirbyX;
 };
 
