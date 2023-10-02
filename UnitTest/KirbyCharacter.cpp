@@ -98,7 +98,31 @@ KirbyCharacter::~KirbyCharacter()
 
 void KirbyCharacter::Update()
 {
-	rect->SetPosition(position);
+	//if flatten state adjust rect position
+	Vector3 rectPos = position;
+	if (state == flatten) {
+		rectPos += Values::DownVec * 15;
+	}
+	else if (state == flyup) {
+		uint curFrame = __super::GetAnimator()->GetCurrentFrameIndex();
+		if (curFrame == 2) {
+			rectPos += Values::UpVec * 12;
+		}
+		else if (curFrame == 3) {
+			rectPos += Values::UpVec * 12;
+		}
+	}
+	else if (state == exhaling) {
+		uint curFrame = __super::GetAnimator()->GetCurrentFrameIndex();
+		if (curFrame == 0) {
+			rectPos += Values::UpVec * 12;
+		}
+		else if (curFrame == 1) {
+			rectPos += Values::UpVec * 12;
+		}
+	}
+
+	rect->SetPosition(rectPos);
 	rect->Update();
 	__super::Update();
 }
@@ -114,6 +138,7 @@ void KirbyCharacter::Move()
 	auto key = Keyboard::Get();
 	float delta = Time::Delta();
 	dir = Values::ZeroVec3;
+	
 	ChangeBoundingBox();
 	Move1(Time::Delta(), key);//right left walk, idle
 	if (Move2(Time::Delta(), key)) {//s key exhale, slide, squash down
@@ -173,14 +198,17 @@ void KirbyCharacter::ChangeBoundingBox()
 		rect = list[5];
 		float tmp = position.x;
 		if (hitLeft) {
-			position.x -= 12;
+			position.x -= 15;
 		}
 		else if (hitRight) {
-			position.x += 12;
+			position.x += 15;
 		}
 		else {
 			position.x = tmp;
 		}
+	}
+	else if (state == flatten) {
+		rect = list[4];
 	}
 	else {
 		rect = list[0];
