@@ -32,7 +32,8 @@ enum State {
 	jumpdown,
 	jumpmin,
 	headdown,
-	exhaled
+	exhaled,
+	drift
 };
 
 class KirbyCharacter : public AnimationRect
@@ -81,6 +82,8 @@ public:
 	bool Idle(float delta, class Keyboard* key);
 	bool Dash(float delta, class Keyboard* key);
 	bool EndDash(float delta, class Keyboard* key);
+	bool Drift(float delta, class Keyboard* key);
+
 	
 	void Swallow();
 	void Attack();

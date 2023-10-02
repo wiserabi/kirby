@@ -45,7 +45,7 @@ private:
 
     WorldBuffer* wb = nullptr;
 
-    Color color = Color(0.5, 0.5, 0.5, 0.7);
+    Color color = Color(0.5f, 0.5f, 0.5f, 0.7f);
 
     BoundingBox* box = nullptr;
     bool bOpen = true;

@@ -45,7 +45,7 @@ void KirbyGame::Update()
 	if (kirby->isKirbyInWorld()) {
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
 		vector<Rect*> worldRects = world->GetRects();
-		for (int i = 0; i < worldRects.size(); i++) {
+		for (size_t i = 0; i < worldRects.size(); i++) {
 			//if there is collision
 			if (BoundingBox::OBB(kirbyBox, worldRects[i]->GetBox())) {
 				world->SetColor(i, Values::Blue);
@@ -53,7 +53,7 @@ void KirbyGame::Update()
 			}
 			else {
 				//transparent gray
-				world->SetColor(i, Color(0.5,0.5,0.5,0.7));
+				world->SetColor(i, Color(0.5f,0.5f,0.5f,0.7f));
 			}
 		}
 	}

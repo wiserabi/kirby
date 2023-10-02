@@ -69,7 +69,7 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 		SAFE_DELETE(srcTex);
 	}
 	rect = new Rect(position, size / 2, 0.0f);
-	rect->SetColor(Color(0.5, 0.5, 0.5, 0.7));
+	rect->SetColor(Color(0.5f, 0.5f, 0.5f, 0.7f));
 }
 
 KirbyCharacter::~KirbyCharacter()
@@ -102,7 +102,9 @@ void KirbyCharacter::Move()
 	if (Move3(Time::Delta(), key)) {//fly up, jump
 		return;
 	}
-	ChangeAnimation(current, VELOCITY* delta, dir, 0, false);
+	if (state != endDash) {
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+	}
 }
 
 void KirbyCharacter::ChangeAnimation(wstring clipName, float speed, Vector3 dir, uint currentFrame, bool setFrame)
@@ -155,6 +157,9 @@ bool KirbyCharacter::Move1(float delta, class Keyboard* key)
 
 bool KirbyCharacter::Move2(float delta, class Keyboard* key)
 {
+	if (Drift(delta, key)) {
+		return true;
+	}
 	if (Exhaled(delta, key)) {
 		return true;
 	}
@@ -236,7 +241,7 @@ bool KirbyCharacter::Inhaled(float delta, Keyboard* key)
 	if (state == inhaled) {
 		current = L"inhaled";
 		dir += Values::DownVec;
-		__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
+		__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
 		return true;
 	}
@@ -281,7 +286,6 @@ bool KirbyCharacter::Exhaling(float delta, Keyboard* key)
 {
 	if (state == exhaling) {
 		current = L"exhaling";
-		state == exhaling;
 		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
 		if (curframe == 3) {
 			state = exhaled;
@@ -302,7 +306,7 @@ bool KirbyCharacter::Jump(float delta, Keyboard* key)
 bool KirbyCharacter::Walk(float delta, Keyboard* key)
 {
 	if (key->Press(VK_RIGHT)) {
-		__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
+		__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 		dir += Values::RightVec;
 		__super::SetLeft(false);
 		if (state == idle) {
@@ -316,7 +320,7 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 		return true;
 	}
 	else if (key->Press(VK_LEFT)) {
-		__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
+		__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 		dir += Values::LeftVec;
 		__super::SetLeft(true);
 		if (state == idle) {
@@ -438,7 +442,7 @@ bool KirbyCharacter::FloatUp(float delta, Keyboard* key)
 	if (state == inhaled && (key->Press(VK_UP) || key->Press('Z'))) {
 		current = L"inhaled";
 		dir += Values::UpVec;
-		__super::GetAnimator()->SetPlayRate(current, 1.0 / 20.0);
+		__super::GetAnimator()->SetPlayRate(current, 1.0f / 20.0f);
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
 		return true;
 	}
@@ -482,14 +486,14 @@ bool KirbyCharacter::FallDown(float delta, Keyboard* key)
 			if (Time::Get()->Running() - startFalling > FALLMOTIONCHANGE) {
 				state = bounce;
 				current = L"jump";
-				__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
+				__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 				startBounce = Time::Get()->Running();
 				return true;
 			}
 			else {
 				state = flatten;
 				current = L"slide";
-				__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
+				__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 				startSqueeze = Time::Get()->Running();
 				return true;
 			}
@@ -604,7 +608,7 @@ bool KirbyCharacter::Idle(float delta, Keyboard* key)
 	{
 		current = L"Idle";
 		state = idle;
-		__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
+		__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 		ChangeAnimation(current, 0, dir, 0, false);
 		return true;
 	}
@@ -652,7 +656,7 @@ bool KirbyCharacter::Dash(float delta, Keyboard* key)
 	}
 
 	if (state == dash) {
-		__super::GetAnimator()->SetPlayRate(current, 1.0 / 20.0);
+		__super::GetAnimator()->SetPlayRate(current, 1.0f / 20.0f);
 		if (prevRight) {
 			//right dash
 			__super::SetLeft(false);
@@ -691,17 +695,29 @@ bool KirbyCharacter::EndDash(float delta, Keyboard* key)
 	//slow down at the end of dash	
 	if (state == endDash) {
 		float elapsed = Time::Get()->Running() - endDashTime;
+
 		//first walk for 0.2 second reducing velocity
 		if (elapsed < 0.2f) {
 			if (prevRight) {
-				current = L"WalkR";
-				__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
-				ChangeAnimation(current, 2 * VELOCITY * delta * (0.2f - elapsed), dir, 0, false);
+				//drift if press left key while dashing right
+				if (key->Down(VK_LEFT)) {
+					state = drift;
+				}
+				else {
+					current = L"WalkR";
+					__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
+					ChangeAnimation(current, 2 * VELOCITY * delta * (0.2f - elapsed), dir, 0, false);
+				}
 			}
 			else if (prevLeft) {
-				current = L"WalkL";
-				__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
-				ChangeAnimation(current, 2 * VELOCITY * delta * (0.2f - elapsed), dir, 0, false);
+				if (key->Down(VK_RIGHT)) {
+					state = drift;
+				}
+				else {
+					current = L"WalkL";
+					__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
+					ChangeAnimation(current, 2 * VELOCITY * delta * (0.2f - elapsed), dir, 0, false);
+				}
 			}
 			return true;
 		}
@@ -711,6 +727,34 @@ bool KirbyCharacter::EndDash(float delta, Keyboard* key)
 			prevRight = false;
 			state = idle;
 			current = L"Idle";
+			return true;
+		}
+	}
+	return false;
+}
+
+bool KirbyCharacter::Drift(float delta, Keyboard* key)
+{
+	if (state == drift) {
+		float elapsed = Time::Get()->Running() - endDashTime;
+		if (elapsed < 0.3f) {
+			if (prevLeft) {
+				__super::SetLeft(true);
+				dir.x = 0;
+				dir += Values::LeftVec;
+			}
+			else {
+				__super::SetLeft(false);
+				dir.x = 0;
+				dir += Values::RightVec;
+			}
+			current = L"jump";
+			__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
+			ChangeAnimation(current, 2 * VELOCITY * delta * (0.3f - elapsed), dir, 2, true);
+			return true;
+		}
+		else {
+			state = idle;
 			return true;
 		}
 	}
