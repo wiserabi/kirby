@@ -169,6 +169,19 @@ void KirbyCharacter::ChangeBoundingBox()
 			rect = list[0];
 		}
 	}
+	else if (state == sandwiched) {
+		rect = list[5];
+		float tmp = position.x;
+		if (hitLeft) {
+			position.x -= 12;
+		}
+		else if (hitRight) {
+			position.x += 12;
+		}
+		else {
+			position.x = tmp;
+		}
+	}
 	else {
 		rect = list[0];
 	}
