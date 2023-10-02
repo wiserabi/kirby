@@ -53,6 +53,11 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 			Values::ZeroVec2,
 			Vector2(srcTex6->GetWidth(), srcTex6->GetHeight() * 1.0f));
 
+		Texture2D* srcTex7 = new Texture2D(TexturePath + L"kirbyAnim/kirbySandwiched.png");
+		AnimationClip* sandwiched = new AnimationClip(L"sandwiched", srcTex7, 1,
+			Values::ZeroVec2,
+			Vector2(srcTex7->GetWidth(), srcTex7->GetHeight() * 1.0f));
+
 		tempAnimator->AddAnimClip(WalkR);
 		tempAnimator->AddAnimClip(WalkL);
 		tempAnimator->AddAnimClip(Idle);
@@ -61,6 +66,7 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 		tempAnimator->AddAnimClip(exhaling);
 		tempAnimator->AddAnimClip(jump);
 		tempAnimator->AddAnimClip(slide);
+		tempAnimator->AddAnimClip(sandwiched);
 
 		tempAnimator->SetCurrentAnimClip(L"WalkR");
 		SetAnimator(tempAnimator);
@@ -157,6 +163,9 @@ bool KirbyCharacter::Move1(float delta, class Keyboard* key)
 
 bool KirbyCharacter::Move2(float delta, class Keyboard* key)
 {
+	if (SandWiched(delta, key)) {
+		return true;
+	}
 	if (Drift(delta, key)) {
 		return true;
 	}
@@ -317,6 +326,10 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
+		else if (hitGround && hitRight) {
+			state = sandwiched;
+			startSandwich = Time::Get()->Running();
+		}
 		return true;
 	}
 	else if (key->Press(VK_LEFT)) {
@@ -330,6 +343,10 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 		else if (!hitGround && state == walking) {
 			state = falldown;
 			startFalling = Time::Get()->Running();
+		}
+		else if (hitGround && hitLeft) {
+			state = sandwiched;
+			startSandwich = Time::Get()->Running();
 		}
 		return true;
 	}
@@ -661,7 +678,13 @@ bool KirbyCharacter::Dash(float delta, Keyboard* key)
 			//right dash
 			__super::SetLeft(false);
 			current = L"WalkR";
-			
+			//if hit the wall while dash
+			if (hitGround && hitRight) {
+				state = sandwiched;
+				startSandwich = Time::Get()->Running();
+				return true;
+			}
+
 			//when key press up finish dash slowly
 			if (key->Up(VK_RIGHT)) {
 				state = endDash;
@@ -676,6 +699,11 @@ bool KirbyCharacter::Dash(float delta, Keyboard* key)
 			__super::SetLeft(true);
 			current = L"WalkL";
 
+			if (hitGround && hitLeft) {
+				state = sandwiched;
+				startSandwich = Time::Get()->Running();
+				return true;
+			}
 			//when key press up finish dash slowly
 			if (key->Up(VK_LEFT)) {
 				state = endDash;
@@ -705,7 +733,7 @@ bool KirbyCharacter::EndDash(float delta, Keyboard* key)
 				}
 				else {
 					current = L"WalkR";
-					__super::GetAnimator()->SetPlayRate(current, 1.0 / 10.0);
+					__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 					ChangeAnimation(current, 2 * VELOCITY * delta * (0.2f - elapsed), dir, 0, false);
 				}
 			}
@@ -757,6 +785,21 @@ bool KirbyCharacter::Drift(float delta, Keyboard* key)
 			state = idle;
 			return true;
 		}
+	}
+	return false;
+}
+
+bool KirbyCharacter::SandWiched(float delta, Keyboard* key)
+{
+	if (state == sandwiched) {
+		if (Time::Get()->Running() - startSandwich > 0.1f) {
+			state = idle;
+			return true;
+		}
+		current = L"sandwiched";
+		__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
+		ChangeAnimation(current, 0, dir, 0, false);
+		return true;
 	}
 	return false;
 }

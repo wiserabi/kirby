@@ -33,7 +33,8 @@ enum State {
 	jumpmin,
 	headdown,
 	exhaled,
-	drift
+	drift,
+	sandwiched
 };
 
 class KirbyCharacter : public AnimationRect
@@ -83,12 +84,15 @@ public:
 	bool Dash(float delta, class Keyboard* key);
 	bool EndDash(float delta, class Keyboard* key);
 	bool Drift(float delta, class Keyboard* key);
+	bool SandWiched(float delta, class Keyboard* key);
 
 	
 	void Swallow();
 	void Attack();
 	void ApplyGravity();
 	void SetHitGround(bool hitGround) { this->hitGround = hitGround; }
+	void SetHitLeft(bool hitLeft) { this->hitLeft = hitLeft; }
+	void SetHitRight(bool hitRight) { this->hitRight = hitRight; }
 	void ChangeAnimation(wstring clipName, float speed, Vector3 dir, uint currentFrame, bool setFrame);
 
 	Vector3 GetPosition();
@@ -107,6 +111,7 @@ private:
 	boolean kirbyInWorld = true;
 	class Rect* rect = nullptr;
 	bool hitGround = false;
+	bool hitLeft = false, hitRight = false;
 	float startFalling = 0.0f;
 	float startSqueeze = 0.0f;
 	float startBounce = 0.0f;
@@ -117,5 +122,6 @@ private:
 	bool prevRight = false, prevLeft = false;
 	float prevRightTime = 0.0f, prevLeftTime = 0.0f;
 	float endDashTime = 0.0f;
+	float startSandwich = 0.0f;
 };
 

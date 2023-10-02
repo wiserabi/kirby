@@ -41,6 +41,8 @@ void KirbyGame::Update()
 	kirby->Update();
 
 	kirby->SetHitGround(false);
+	kirby->SetHitLeft(false);
+	kirby->SetHitRight(false);
 	//if kirby is in the world
 	if (kirby->isKirbyInWorld()) {
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
@@ -142,13 +144,15 @@ void KirbyGame::FixKirbyPosition(class Rect* worldRect)
 		intersection.second.y - intersection.first.y) {
 		if (kirbyLT.x < worldLT.x) {
 			// Right collision
-			kirbyPos.x = worldLT.x - kirbySize.x / 2;
+			kirbyPos.x = worldLT.x - kirbySize.x / 2 + 1;
 			kirby->SetPosition(kirbyPos);
+			kirby->SetHitRight(true);
 		}
 		else {
 			// Left collision
-			kirbyPos.x = worldRB.x + kirbySize.x / 2;
+			kirbyPos.x = worldRB.x + kirbySize.x / 2 - 1;
 			kirby->SetPosition(kirbyPos);
+			kirby->SetHitLeft(true);
 		}
 	}
 	else
