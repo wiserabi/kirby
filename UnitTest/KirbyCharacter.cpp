@@ -4,10 +4,21 @@
 #include "KirbyCharacter.h"
 #include "Utilities/Animator.h"
 #include "UI/HUD.h"
+
+#include <fstream>
+#include <iostream>
+#include "Utilities/String.h"
 #define VELOCITY 200
 #define FALLMOTIONCHANGE 1.2f
 #define JUMPMIN 0.3
 #define JUMPMAX 0.8
+
+void Log(const std::string& message)
+{
+	std::ofstream logFile("log.txt", std::ios_base::app);
+	logFile << message << "\n";
+	std::cout << message << "\n";
+}
 
 KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 	:AnimationRect(position, size, false)
@@ -147,13 +158,21 @@ void KirbyCharacter::Move()
 	if (Move3(Time::Delta(), key)) {//fly up, jump
 		return;
 	}
-	if (state != endDash) {
-		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
-	}
+	
+	ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
 }
 
 void KirbyCharacter::ChangeAnimation(wstring clipName, float speed, Vector3 dir, uint currentFrame, bool setFrame)
 {
+	string clipname = String::ToString(clipName);
+	
+	Log("clipname: " + clipname + " ,state: " + to_string(state) + 
+		",currentFrame: " + to_string(currentFrame));
+	auto myframe = __super::GetAnimator()->GetCurrentFrame();
+	Log("frame: " + to_string(myframe.x) + " " + to_string(myframe.y));
+	if (setFrame) {
+		__super::GetAnimator()->SetCurrentFrame(currentFrame);
+	}
 	if (clipName.compare(L"") != 0) {
 		__super::GetAnimator()->SetCurrentAnimClip(clipName);
 	}
@@ -836,22 +855,28 @@ bool KirbyCharacter::EndDash(float delta, Keyboard* key)
 				//drift if press left key while dashing right
 				if (key->Down(VK_LEFT)) {
 					state = drift;
+					current = L"jump";
+					__super::GetAnimator()->SetCurrentAnimClip(current);
+					__super::GetAnimator()->SetCurrentFrame(2);
 				}
 				else {
 					current = L"WalkR";
 					__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
-					ChangeAnimation(current, 2 * VELOCITY * delta * (0.2f - elapsed), dir, 0, false);
 				}
+				return true;
 			}
 			else if (prevLeft) {
 				if (key->Down(VK_RIGHT)) {
 					state = drift;
+					current = L"jump";
+					__super::GetAnimator()->SetCurrentAnimClip(current);
+					__super::GetAnimator()->SetCurrentFrame(2);
 				}
 				else {
 					current = L"WalkL";
 					__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
-					ChangeAnimation(current, 2 * VELOCITY * delta * (0.2f - elapsed), dir, 0, false);
 				}
+				return true;
 			}
 			return true;
 		}
@@ -885,6 +910,7 @@ bool KirbyCharacter::Drift(float delta, Keyboard* key)
 			current = L"jump";
 			__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 			ChangeAnimation(current, 2 * VELOCITY * delta * (0.3f - elapsed), dir, 2, true);
+
 			return true;
 		}
 		else {

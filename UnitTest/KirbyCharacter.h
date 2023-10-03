@@ -104,7 +104,7 @@ private:
 	int health;
 	int lifeCount;
 	Ability ability;
-	State state = idle;
+	State state = falldown;
 
 	ID3D11SamplerState* point[2];
 	ID3D11BlendState* bpoint[2];
