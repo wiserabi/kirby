@@ -351,6 +351,11 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 	return false;
 }
 
+Vector3 FindControlPoint(Vector3 p1, Vector3 p2)
+{
+	return Vector3((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, 0.0f);
+}
+
 bool KirbyCharacter::Exhale(float delta, Keyboard* key)
 {
 	//press s when inhaled for 0.1 second, change to exhaling state
@@ -519,13 +524,18 @@ bool KirbyCharacter::Bounce(float delta, Keyboard* key)
 	if (state == bounce) {
 		float elapsed = Time::Get()->Running() - startBounce;
 		dir.y = 0;
-		if (elapsed <= 0.3) {
+
+		if (elapsed <= 0.2f) {
 			dir += Values::UpVec;
 		}
-		else if (elapsed <= 0.6) {
+		else if (elapsed <= 0.5f) {
 			dir -= Values::UpVec;
 		}
-		else if (elapsed <= 0.9) {
+		else if (elapsed <= 0.7f) {
+			if (!hitGround) {
+				state = falldown;
+				return true;
+			}
 			dir += Values::DownVec;
 		}
 		else {
@@ -533,7 +543,7 @@ bool KirbyCharacter::Bounce(float delta, Keyboard* key)
 			startSqueeze = Time::Get()->Running();
 		}
 		current = L"jump";
-		ChangeAnimation(current, VELOCITY * delta, dir, 4, true);
+		ChangeAnimation(current, 1.5f * VELOCITY * delta, dir, 4, true);
 		return true;
 	}
 	return false;
