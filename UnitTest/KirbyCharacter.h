@@ -55,9 +55,8 @@ public:
 	bool Move2(float delta, class Keyboard* key);
 	bool Move3(float delta, class Keyboard* key);
 
-	bool Inhale(float delta, class Keyboard* key);
+	bool Inhale(float delta, class Keyboard* key);//for eating enemy
 	bool Inhaled(float delta, class Keyboard* key);
-	bool Inhaling(float delta, class Keyboard* key);
 	bool Exhale(float delta, class Keyboard* key);
 	bool Exhaled(float delta, class Keyboard* key);
 	bool Exhaling(float delta, class Keyboard* key);
@@ -85,7 +84,6 @@ public:
 	bool EndDash(float delta, class Keyboard* key);
 	bool Drift(float delta, class Keyboard* key);
 	bool SandWiched(float delta, class Keyboard* key);
-
 	
 	void Swallow();
 	void Attack();

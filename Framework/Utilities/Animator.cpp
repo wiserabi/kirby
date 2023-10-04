@@ -50,7 +50,10 @@ void Animator::Update()
 {
 	if (deltaTime > currentClip->playRate)
 	{
-		if (currentClip->bReversed == false) 
+		if (fixAnimation && currentFrameIndex < currentClip->frameCount) {
+			currentFrame = currentClip->keyFrames[currentFrameIndex];
+		}
+		else if (currentClip->bReversed == false) 
 		{
 			currentFrameIndex++;
 
@@ -87,10 +90,16 @@ void Animator::AddAnimClip(AnimationClip* animClip)
 void Animator::SetCurrentFrame(uint currentFrameIndex)
 {
 	this->currentFrameIndex = currentFrameIndex;
+	currentFrame = currentClip->keyFrames[currentFrameIndex];
 }
 
 void Animator::SetPlayRate(wstring clipName, float playRate) {
 	animClips[clipName]->SetPlayRate(playRate);
+}
+
+void Animator::SetFixAnimation(bool fixAnimation)
+{
+	this->fixAnimation = fixAnimation;
 }
 
 void Animator::SetCurrentAnimClip(wstring clipName)

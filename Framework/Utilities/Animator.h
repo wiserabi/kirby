@@ -34,6 +34,7 @@ public:
 	void SetCurrentFrame(uint currentFrameIndex);
 	void SetCurrentAnimClip(wstring clipName);
 	void SetPlayRate(wstring clipName, float playRate);
+	void SetFixAnimation(bool fixAnimation);
 
 private:
 	bool CheckExist(wstring clipName) { return animClips.find(clipName) != animClips.end(); }
@@ -45,4 +46,5 @@ private:
 	uint currentFrameIndex = 0;
 	Vector2 currentFrame = Values::ZeroVec2;
 	float deltaTime = 0.0f;
+	bool fixAnimation = false;
 };

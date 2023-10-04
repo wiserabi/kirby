@@ -166,13 +166,11 @@ void KirbyCharacter::ChangeAnimation(wstring clipName, float speed, Vector3 dir,
 {
 	string clipname = String::ToString(clipName);
 	
-	Log("clipname: " + clipname + " ,state: " + to_string(state) + 
-		",currentFrame: " + to_string(currentFrame));
-	auto myframe = __super::GetAnimator()->GetCurrentFrame();
-	Log("frame: " + to_string(myframe.x) + " " + to_string(myframe.y));
-	if (setFrame) {
-		__super::GetAnimator()->SetCurrentFrame(currentFrame);
-	}
+	//Log("clipname: " + clipname + " ,state: " + to_string(state) + ",currentFrame: " + to_string(currentFrame));
+	//auto myframe = __super::GetAnimator()->GetCurrentFrame();
+	//Log("frame: " + to_string(myframe.x) + " " + to_string(myframe.y));
+	
+	__super::GetAnimator()->SetFixAnimation(setFrame);
 	if (clipName.compare(L"") != 0) {
 		__super::GetAnimator()->SetCurrentAnimClip(clipName);
 	}
@@ -365,16 +363,6 @@ bool KirbyCharacter::Inhaled(float delta, Keyboard* key)
 	return false;
 }
 
-bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
-{
-	return false;
-}
-
-Vector3 FindControlPoint(Vector3 p1, Vector3 p2)
-{
-	return Vector3((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, 0.0f);
-}
-
 bool KirbyCharacter::Exhale(float delta, Keyboard* key)
 {
 	//press s when inhaled for 0.1 second, change to exhaling state
@@ -398,7 +386,7 @@ bool KirbyCharacter::Exhaled(float delta, Keyboard* key)
 			startFalling = Time::Get()->Running();
 			return true;
 		}
-		ChangeAnimation(current, VELOCITY * delta, dir, 2, true);
+		ChangeAnimation(current, VELOCITY * delta, dir, 3, true);
 		return true;
 	}
 	return false;
@@ -508,7 +496,7 @@ bool KirbyCharacter::Slide(float delta, Keyboard* key)
 		}
 		current = L"slide";
 		state = headdown;
-		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 0, true);
+		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 1, true);
 		return true;
 	}
 	return false;
@@ -562,7 +550,7 @@ bool KirbyCharacter::Bounce(float delta, Keyboard* key)
 			startSqueeze = Time::Get()->Running();
 		}
 		current = L"jump";
-		ChangeAnimation(current, 1.5f * VELOCITY * delta, dir, 4, true);
+		ChangeAnimation(current, 1.5f * VELOCITY * delta, dir, 5, true);
 		return true;
 	}
 	return false;
@@ -571,7 +559,7 @@ bool KirbyCharacter::Bounce(float delta, Keyboard* key)
 bool KirbyCharacter::SquashDown(float delta, Keyboard* key)
 {
 	if (state == headdown) {
-		ChangeAnimation(current, 0, dir, 1, true);
+		ChangeAnimation(current, 0, dir, 0, true);
 		state = idle;
 		return true;
 	}
@@ -643,11 +631,11 @@ bool KirbyCharacter::FallDown(float delta, Keyboard* key)
 		dir += Values::DownVec;
 		current = L"jump";
 		if (Time::Get()->Running() - startFalling < FALLMOTIONCHANGE) {
-			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 3, true);
+			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 4, true);
 			return true;
 		}
 		else {
-			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 4, true);
+			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 5, true);
 			return true;
 		}
 	}
@@ -666,7 +654,7 @@ bool KirbyCharacter::JumpDown(float delta, Keyboard* key)
 		}
 		uint curIdx = __super::GetAnimator()->GetCurrentFrameIndex();
 		if (curIdx == 4) {
-			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 3, true);
+			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 4, true);
 			return true;
 		}
 		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 0, false);
@@ -682,7 +670,7 @@ bool KirbyCharacter::JumpMin(float delta, Keyboard* key)
 			current = L"jump";
 			dir.y = 0;
 			dir += Values::UpVec;
-			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 5, true);
+			ChangeAnimation(current, 2 * VELOCITY * delta, dir, 4, true);
 			return true;
 		}
 		else {
@@ -738,7 +726,7 @@ bool KirbyCharacter::JumpUp(float delta, Keyboard* key)
 		current = L"jump";
 		dir.y = 0;
 		dir += Values::UpVec;
-		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 5, true);
+		ChangeAnimation(current, 2 * VELOCITY * delta, dir, 0, true);
 		return true;
 	}
 	return false;
@@ -909,7 +897,7 @@ bool KirbyCharacter::Drift(float delta, Keyboard* key)
 			}
 			current = L"jump";
 			__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
-			ChangeAnimation(current, 2 * VELOCITY * delta * (0.3f - elapsed), dir, 2, true);
+			ChangeAnimation(current, 2 * VELOCITY * delta * (0.3f - elapsed), dir, 3, true);
 
 			return true;
 		}
