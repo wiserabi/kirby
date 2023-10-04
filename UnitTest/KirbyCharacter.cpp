@@ -538,7 +538,8 @@ bool KirbyCharacter::Run(float delta, Keyboard* key)
 
 bool KirbyCharacter::HeadDown(float delta, Keyboard* key)
 {
-	if (hitGround && state != inhaled && key->Press(VK_DOWN)) {
+	if (hitGround && state != inhaled && 
+		state != inhaling && key->Press(VK_DOWN)) {
 		dir = Values::ZeroVec3;
 		current = L"slide";
 		state = headdown;
