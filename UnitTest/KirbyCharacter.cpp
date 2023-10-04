@@ -69,6 +69,11 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 			Values::ZeroVec2,
 			Vector2(srcTex7->GetWidth(), srcTex7->GetHeight() * 1.0f));
 
+		Texture2D* srcTex8 = new Texture2D(TexturePath + L"kirbyAnim/kirbyinhale.png");
+		AnimationClip* inhale = new AnimationClip(L"inhale", srcTex8, 2,
+			Values::ZeroVec2,
+			Vector2(srcTex8->GetWidth(), srcTex8->GetHeight() * 1.0f));
+
 		tempAnimator->AddAnimClip(WalkR);
 		tempAnimator->AddAnimClip(WalkL);
 		tempAnimator->AddAnimClip(Idle);
@@ -78,6 +83,7 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 		tempAnimator->AddAnimClip(jump);
 		tempAnimator->AddAnimClip(slide);
 		tempAnimator->AddAnimClip(sandwiched);
+		tempAnimator->AddAnimClip(inhale);
 
 		tempAnimator->SetCurrentAnimClip(L"WalkR");
 		SetAnimator(tempAnimator);
@@ -132,7 +138,12 @@ void KirbyCharacter::Update()
 			rectPos += Values::UpVec * 12;
 		}
 	}
-
+	else if (state == inhaling) {
+		rectPos += Values::UpVec * 12;
+	}
+	else if (state == stopInhaling) {
+		rectPos = Values::DownVec * 12;
+	}
 	rect->SetPosition(rectPos);
 	rect->Update();
 	__super::Update();
@@ -224,6 +235,13 @@ void KirbyCharacter::ChangeBoundingBox()
 			position.x = tmp;
 		}
 	}
+	else if (state == inhaling) {
+		rect = list[2];
+		position.y -= 12;
+	}
+	else if (state == stopInhaling) {
+		rect = list[0];
+	}
 	else if (state == flatten) {
 		rect = list[4];
 	}
@@ -269,6 +287,15 @@ bool KirbyCharacter::Move1(float delta, class Keyboard* key)
 
 bool KirbyCharacter::Move2(float delta, class Keyboard* key)
 {
+	if (StopInhaling(delta, key)) {
+		return true;
+	}
+	if (Inhaling(delta, key)) {
+		return true;
+	}
+	if (Inhale(delta, key)) {
+		return true;
+	}
 	if (SandWiched(delta, key)) {
 		return true;
 	}
@@ -347,6 +374,13 @@ bool KirbyCharacter::Move3(float delta, class Keyboard* key)
 
 bool KirbyCharacter::Inhale(float delta, Keyboard* key)
 {
+	if (state != inhale && hitGround && (state < 2 && key->Press('S'))) {
+		state = inhale;
+		current = L"inhale";
+		dir.x = 0;
+		startInhale = Time::Get()->Running();
+		return true;
+	}
 	return false;
 }
 
@@ -358,6 +392,42 @@ bool KirbyCharacter::Inhaled(float delta, Keyboard* key)
 		dir += Values::DownVec;
 		__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
+{
+	//inhaling first motion
+	if (hitGround && state == inhale) {
+		if (Time::Get()->Running() - startInhale > 0.1f) {
+			state = inhaling;
+			return true;
+		}
+		dir.x = 0;
+		dir.y = 0;
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, true);
+		return true;
+	}
+
+	//inhaling second motion
+	if (state == inhaling) {
+		current = L"inhale";
+		dir.x = 0;
+		dir.y = 0;
+
+		//if user is pressing the key extend the period of inhaling
+		if (key->Press('S')) {
+			startInhale = Time::Get()->Running();
+		}
+		
+		if (Time::Get()->Running() - startInhale > 0.1f) {
+			state = stopInhaling;
+			stopInhale = Time::Get()->Running();
+			return true;
+		}
+		ChangeAnimation(current, VELOCITY * delta, dir, 1, true);
 		return true;
 	}
 	return false;
@@ -920,6 +990,21 @@ bool KirbyCharacter::SandWiched(float delta, Keyboard* key)
 		__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 		ChangeAnimation(current, 0, dir, 0, false);
 		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::StopInhaling(float delta, Keyboard* key)
+{
+	if (state == stopInhaling) {
+		current = L"inhale";
+		//for next 0.1 second show second motion
+		if (Time::Get()->Running() - stopInhale < 0.1f) {
+			ChangeAnimation(current, 0, dir, 0, true);
+			return true;
+		}
+		//if over 0.15 second change to idle
+		state = idle;
 	}
 	return false;
 }

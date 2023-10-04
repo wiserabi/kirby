@@ -15,6 +15,7 @@ enum Ability
 enum State {
 	idle,
 	walking,
+	inhale,
 	dash,
 	endDash,
 	gethit,
@@ -23,7 +24,8 @@ enum State {
 	flyup,
 	falldown,
 	inhaled,
-	exhale, 
+	inhaling,
+	exhale,
 	exhaling,
 	swallowed,
 	bounce,
@@ -34,7 +36,8 @@ enum State {
 	headdown,
 	exhaled,
 	drift,
-	sandwiched
+	sandwiched,
+	stopInhaling
 };
 
 class KirbyCharacter : public AnimationRect
@@ -57,6 +60,8 @@ public:
 
 	bool Inhale(float delta, class Keyboard* key);//for eating enemy
 	bool Inhaled(float delta, class Keyboard* key);
+	bool Inhaling(float delta, class Keyboard* key);
+
 	bool Exhale(float delta, class Keyboard* key);
 	bool Exhaled(float delta, class Keyboard* key);
 	bool Exhaling(float delta, class Keyboard* key);
@@ -84,6 +89,7 @@ public:
 	bool EndDash(float delta, class Keyboard* key);
 	bool Drift(float delta, class Keyboard* key);
 	bool SandWiched(float delta, class Keyboard* key);
+	bool StopInhaling(float delta, class Keyboard* key);
 	
 	void Swallow();
 	void Attack();
@@ -123,6 +129,8 @@ private:
 	float prevRightTime = 0.0f, prevLeftTime = 0.0f;
 	float endDashTime = 0.0f;
 	float startSandwich = 0.0f;
-	float prevkirbyX;
+	float prevkirbyX = 0.0f;
+	float startInhale = 0.0f;
+	float stopInhale = 0.0f;
 };
 
