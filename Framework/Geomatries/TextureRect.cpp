@@ -149,4 +149,5 @@ Vector3 TextureRect::GetPosition()
 
 void TextureRect::SetPosition(Vector3 position)
 {
+    this->position = position;
 }

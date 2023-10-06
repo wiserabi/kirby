@@ -11,6 +11,8 @@
     <ClInclude Include="ReadCoordinate.h" />
     <ClInclude Include="Demos\05_CollisionDemo.h" />
     <ClInclude Include="Demos\Gravity.h" />
+    <ClInclude Include="BezierCurves.h" />
+    <ClInclude Include="KirbyEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Program.cpp" />
@@ -22,5 +24,7 @@
     <ClCompile Include="ReadCoordinate.cpp" />
     <ClCompile Include="Demos\05_CollisionDemo.cpp" />
     <ClCompile Include="Demos\Gravity.cpp" />
+    <ClCompile Include="BezierCurves.cpp" />
+    <ClCompile Include="KirbyEffect.cpp" />
   </ItemGroup>
 </Project>

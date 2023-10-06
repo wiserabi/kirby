@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TextureRect.h"
+#include "Utilities/Animator.h"
 
 class AnimationRect : public TextureRect
 {
@@ -10,6 +11,8 @@ public:
 
 	void Update();
 	void Render();
+	void Update(class Animator* anim);
+	void Render(class Animator* anim);
 
 	void Move();
 

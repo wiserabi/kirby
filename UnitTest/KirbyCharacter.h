@@ -109,6 +109,7 @@ private:
 	int lifeCount;
 	Ability ability;
 	State state = falldown;
+	class KirbyEffect* effect = nullptr;
 
 	ID3D11SamplerState* point[2];
 	ID3D11BlendState* bpoint[2];

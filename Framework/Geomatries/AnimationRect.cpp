@@ -1,7 +1,6 @@
 #include "Framework.h"
 #include "AnimationRect.h"
 
-#include "Utilities/Animator.h"
 AnimationRect::AnimationRect(Vector3 position, Vector3 size, boolean left)
 	:TextureRect(position, size, 0.0f)
 {
@@ -31,6 +30,44 @@ AnimationRect::AnimationRect(Vector3 position, Vector3 size, boolean left)
 
 AnimationRect::~AnimationRect()
 {
+}
+
+void AnimationRect::Update(class Animator* anim)
+{
+	anim->Update();
+
+	MapVertexBuffer();
+	{
+		if (!left) {
+			vertices[0].uv.y = anim->GetCurrentFrame().y + anim->GetTexelFrameSize().y;
+			vertices[0].uv.x = anim->GetCurrentFrame().x;
+
+			vertices[1].uv.x = anim->GetCurrentFrame().x + anim->GetTexelFrameSize().x;
+			vertices[1].uv.y = anim->GetCurrentFrame().y;
+
+			vertices[2].uv.x = anim->GetCurrentFrame().x + anim->GetTexelFrameSize().x;
+			vertices[2].uv.y = anim->GetCurrentFrame().y + anim->GetTexelFrameSize().y;
+
+			vertices[3].uv.x = anim->GetCurrentFrame().x;
+			vertices[3].uv.y = anim->GetCurrentFrame().y;
+		}
+		else if (left) {
+			vertices[0].uv.x = anim->GetCurrentFrame().x + anim->GetTexelFrameSize().x;
+			vertices[0].uv.y = anim->GetCurrentFrame().y + anim->GetTexelFrameSize().y;
+
+			vertices[1].uv.x = anim->GetCurrentFrame().x;
+			vertices[1].uv.y = anim->GetCurrentFrame().y;
+
+			vertices[2].uv.x = anim->GetCurrentFrame().x;
+			vertices[2].uv.y = anim->GetCurrentFrame().y + anim->GetTexelFrameSize().y;
+
+			vertices[3].uv.x = anim->GetCurrentFrame().x + anim->GetTexelFrameSize().x;
+			vertices[3].uv.y = anim->GetCurrentFrame().y;
+		}
+	}
+	UnmapVertexBuffer();
+
+	__super::Update();
 }
 
 void AnimationRect::Update()
@@ -69,6 +106,25 @@ void AnimationRect::Update()
 	UnmapVertexBuffer();
 
 	__super::Update();
+}
+
+void AnimationRect::Render(class Animator* anim)
+{
+	srv = anim->GetCurrentSRV();
+
+	/*
+	DC->PSSetSamplers(0, 1, &point[0]); // 선형보간
+	DC->OMSetBlendState(bpoint[0], nullptr, (UINT)0xFFFFFFFF);//블렌드 비활성화
+
+	DC->PSSetSamplers(0, 1, &point[1]); // 포인트 보간
+	DC->OMSetBlendState(bpoint[0], nullptr, (UINT)0xFFFFFFFF);//블렌드 비활성화
+
+	*/
+
+	DC->PSSetSamplers(0, 1, &point[1]);// 포인트 보간
+	DC->OMSetBlendState(bpoint[1], nullptr, (UINT)0xFFFFFFFF);//블렌드 활성화
+
+	__super::Render();
 }
 
 void AnimationRect::Render()

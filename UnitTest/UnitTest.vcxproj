@@ -151,19 +151,23 @@
     <ClInclude Include="Demos\KirbyGame.h" />
     <ClInclude Include="Demos\Level.h" />
     <ClInclude Include="Demos\World.h" />
+    <ClInclude Include="BezierCurves.h" />
     <ClInclude Include="KirbyCharacter.h" />
+    <ClInclude Include="KirbyEffect.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="ReadCoordinate.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="UI\HUD.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BezierCurves.cpp" />
     <ClCompile Include="Demos\05_CollisionDemo.cpp" />
     <ClCompile Include="Demos\Gravity.cpp" />
     <ClCompile Include="Demos\KirbyGame.cpp" />
     <ClCompile Include="Demos\Level.cpp" />
     <ClCompile Include="Demos\World.cpp" />
     <ClCompile Include="KirbyCharacter.cpp" />
+    <ClCompile Include="KirbyEffect.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="ReadCoordinate.cpp" />
     <ClCompile Include="UI\HUD.cpp" />

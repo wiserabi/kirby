@@ -8,6 +8,8 @@
 #include <fstream>
 #include <iostream>
 #include "Utilities/String.h"
+#include "KirbyEffect.h"
+
 #define VELOCITY 200
 #define FALLMOTIONCHANGE 1.2f
 #define JUMPMIN 0.3
@@ -16,7 +18,7 @@
 void Log(const std::string& message)
 {
 	std::ofstream logFile("log.txt", std::ios_base::app);
-	logFile << message << "\n";
+	//logFile << message << "\n";
 	std::cout << message << "\n";
 }
 
@@ -87,6 +89,13 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 
 		tempAnimator->SetCurrentAnimClip(L"WalkR");
 		SetAnimator(tempAnimator);
+
+		SAFE_DELETE(srcTex8);
+		SAFE_DELETE(srcTex7);
+		SAFE_DELETE(srcTex6);
+		SAFE_DELETE(srcTex5);
+		SAFE_DELETE(srcTex4);
+		SAFE_DELETE(srcTex3);
 		SAFE_DELETE(srcTex2);
 		SAFE_DELETE(srcTex1);
 		SAFE_DELETE(srcTex);
@@ -106,11 +115,18 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 	}
 
 	rect = list[0];
+	effect = new KirbyEffect();
 }
 
 KirbyCharacter::~KirbyCharacter()
 {
+	SAFE_DELETE(effect);
 	SAFE_DELETE(rect);
+
+	for (auto& tmp : list) {
+		SAFE_DELETE(tmp);
+	}
+	list.clear();
 }
 
 void KirbyCharacter::Update()
@@ -152,6 +168,7 @@ void KirbyCharacter::Update()
 void KirbyCharacter::Render()
 {
 	rect->Render();
+	effect->RenderEffect();
 	__super::Render();
 }
 
@@ -403,8 +420,10 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 	if (hitGround && state == inhale) {
 		if (Time::Get()->Running() - startInhale > 0.1f) {
 			state = inhaling;
+			effect->SetKirbyEat();
 			return true;
 		}
+		effect->SetKirbyPos(position);
 		dir.x = 0;
 		dir.y = 0;
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, true);
@@ -416,7 +435,10 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 		current = L"inhale";
 		dir.x = 0;
 		dir.y = 0;
-
+		//start kirby Effect of inhaling
+		
+		effect->SetKirbyPos(position);
+		effect->UpdateEffect(Time::Get()->Delta());
 		//if user is pressing the key extend the period of inhaling
 		if (key->Press('S')) {
 			startInhale = Time::Get()->Running();
@@ -425,6 +447,7 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 		if (Time::Get()->Running() - startInhale > 0.1f) {
 			state = stopInhaling;
 			stopInhale = Time::Get()->Running();
+			effect->StopEffect();
 			return true;
 		}
 		ChangeAnimation(current, VELOCITY * delta, dir, 1, true);
