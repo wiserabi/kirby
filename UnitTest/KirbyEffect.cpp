@@ -15,6 +15,12 @@ KirbyEffect::~KirbyEffect()
 
 }
 
+void KirbyEffect::SetKirbyPos(Vector3 kirbyPos, bool left)
+{
+	this->kirbyPos = kirbyPos;
+	this->left = left;
+}
+
 void KirbyEffect::LoadTextureList()
 {
 	for (size_t i = 0; i < 15; i++)
@@ -30,6 +36,7 @@ void KirbyEffect::LoadTextureList()
 			SAFE_DELETE(srcTex);
 		}
 	}
+
 }
 
 /*
@@ -56,16 +63,25 @@ void KirbyEffect::SetKirbyEat()
 	curves = new BezierCurves();
 	
 	curves->Clear();
-	//set bezeir curves for eat effect;
-	Vector2 p1 = Vector2(kirbyPos.x, kirbyPos.y);
-	Vector2 p2 = Vector2(kirbyPos.x + 100, kirbyPos.y + 50);
-	Vector2 p3 = Vector2(kirbyPos.x + 150, kirbyPos.y + 100);
-	curves->Add(p1, p2, p3);
+	
+	//add control points for bezier curve
+	if (controlPoints.size()) {
+		controlPoints.clear();
+	}
+	Vector2 tmpP1 = Vector2(kirbyPos.x, kirbyPos.y);
+	float xDistance[2] = { 100.0f, 150.0f };
+	float yDistance[2] = { 25.0f, 60.0f };
 
-	Vector2 p4 = Vector2(kirbyPos.x, kirbyPos.y);
-	Vector2 p5 = Vector2(kirbyPos.x + 100, kirbyPos.y - 50);
-	Vector2 p6 = Vector2(kirbyPos.x + 150, kirbyPos.y - 100);
-	curves->Add(p4, p5, p6);
+	if (left) {
+		xDistance[0] = -xDistance[0];
+		xDistance[1] = -xDistance[1];
+	}
+	//set bezeir curves for eat effect;
+	for (int i = 0; i < 4; i++) {
+		Vector2 tmpP2 = Vector2(tmpP1.x + xDistance[0], tmpP1.y + (2 - i) * yDistance[0]);
+		Vector2 tmpP3 = Vector2(tmpP1.x + xDistance[1], tmpP1.y + (2 - i) * yDistance[1]);
+		curves->Add(tmpP1, tmpP2, tmpP3);
+	}
 }
 
 void KirbyEffect::UpdateEatEffect(float deltaTime)

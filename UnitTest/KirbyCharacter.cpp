@@ -423,7 +423,7 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 			effect->SetKirbyEat();
 			return true;
 		}
-		effect->SetKirbyPos(position);
+		effect->SetKirbyPos(position, __super::GetLeft());
 		dir.x = 0;
 		dir.y = 0;
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, true);
@@ -437,7 +437,7 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 		dir.y = 0;
 		//start kirby Effect of inhaling
 		
-		effect->SetKirbyPos(position);
+		effect->SetKirbyPos(position, __super::GetLeft());
 		effect->UpdateEffect(Time::Get()->Delta());
 		//if user is pressing the key extend the period of inhaling
 		if (key->Press('S')) {

@@ -25,7 +25,7 @@ class KirbyEffect {
 public:
 	KirbyEffect();
 	~KirbyEffect();
-	void SetKirbyPos(Vector3 kirbyPos) { this->kirbyPos = kirbyPos; }
+	void SetKirbyPos(Vector3 kirbyPos, bool left); 
 	void LoadTextureList();
 	void SetKirbyEat();
 	void UpdateEatEffect(float deltaTime);
@@ -64,4 +64,6 @@ private:
 	int currentEffect = 0;
 	class BezierCurves* curves = nullptr;
 	int count = 0;
+	vector<Vector2> controlPoints;
+	bool left = true;
 };
