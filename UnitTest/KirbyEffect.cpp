@@ -84,7 +84,7 @@ void KirbyEffect::SetKirbyEat()
 	}
 }
 
-void KirbyEffect::UpdateEatEffect(float deltaTime)
+void KirbyEffect::UpdateEatEffect()
 {
 	curves->Update();
 	vector<Line> lines_ = curves->GetLines();
@@ -108,7 +108,7 @@ void KirbyEffect::UpdateEatEffect(float deltaTime)
 void KirbyEffect::UpdateEffect(float deltaTime)
 {
 	if (currentEffect == Effect::eat) {
-		UpdateEatEffect(deltaTime);
+		UpdateEatEffect();
 		return;
 	}
 }

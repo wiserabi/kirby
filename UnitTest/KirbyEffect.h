@@ -28,7 +28,7 @@ public:
 	void SetKirbyPos(Vector3 kirbyPos, bool left); 
 	void LoadTextureList();
 	void SetKirbyEat();
-	void UpdateEatEffect(float deltaTime);
+	void UpdateEatEffect();
 	void UpdateEffect(float deltaTime);
 	void RenderEffect();
 	void StopEffect();
