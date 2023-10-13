@@ -120,6 +120,11 @@ void Enemy::SetPosition(Vector3 pos)
 }
 
 
+Rect* Enemy::GetRect()
+{
+    return rect;
+}
+
 void Enemy::SetEnemyInfo(class EnemyInfo* infos)
 {
     this->infos = infos;
@@ -131,6 +136,10 @@ void Enemy::Walk()
     Vector3 dir = Values::RightVec;
     if (!__super::GetLeft()) {
         dir = Values::LeftVec;
+    }
+    //if not hit ground
+    if (!hitGround) {
+        dir += Values::DownVec;
     }
     ChangeAnimation(this->clipname, velocity, dir, 0, false);
 }
@@ -145,21 +154,13 @@ void Enemy::Fly()
 
 void Enemy::MoveIdle()
 {
-    if (Time::Get()->Running() - idleTimer < 1.0f) {
-        move = STOP;
+    if (hitLeft) {
+        move = WALKRIGHT;
     }
-    else {
-        int tmp = rand() % 2;
-        if (tmp == 0) {
-            //move right
-            move = WALKRIGHT;
-        }
-        else {
-            //move left
-            move = WALKLEFT;
-        }
+    else if(hitRight){
+        move = WALKLEFT;
     }
-    if (move = WALKLEFT) {
+    if (move == WALKLEFT) {
         __super::SetLeft(false);
         Walk();
     }

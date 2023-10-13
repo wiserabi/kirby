@@ -19,12 +19,15 @@ void KirbyGame::Init()
 	hud = new HUD();
 	world = new World();
 	enemyInfo = new EnemyInfo();
-	enemy = new Enemy({1000, 430, 0}, {128, 128, 1}, "waddledee", enemyInfo);
+	enemies.push_back(new Enemy({ 1000, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
 }
 
 void KirbyGame::Destroy()
 {
-	SAFE_DELETE(enemy);
+	for (int i = 0; i < enemies.size(); i++) {
+		SAFE_DELETE(enemies[i]);
+	}
+	enemies.clear();
 	SAFE_DELETE(enemyInfo);
 	SAFE_DELETE(kirby);
 	SAFE_DELETE(hud);
@@ -45,11 +48,19 @@ void KirbyGame::Update()
 
 	kirby->Move();
 	kirby->Update();
-	enemy->Update();
+	for (int i = 0; i < enemies.size(); i++) {
+		enemies[i]->Update();
+	}
 
 	kirby->SetHitGround(false);
 	kirby->SetHitLeft(false);
 	kirby->SetHitRight(false);
+
+	for (size_t j = 0; j < enemies.size(); j++) {
+		enemies[j]->SetHitGround(false);
+		enemies[j]->SetHitLeft(false);
+		enemies[j]->SetHitRight(false);
+	}
 	//if kirby is in the world
 	if (kirby->isKirbyInWorld()) {
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
@@ -64,6 +75,20 @@ void KirbyGame::Update()
 				//transparent gray
 				world->SetColor(i, Color(0.5f,0.5f,0.5f,0.7f));
 			}
+			
+			//assume there are enemies in the world
+			for (size_t j = 0; j < enemies.size(); j++)
+			{
+				BoundingBox* enemyBox = enemies[j]->GetRect()->GetBox();
+				if (BoundingBox::OBB(enemyBox, worldRects[i]->GetBox())) {
+					world->SetColor(i, Values::Red);
+					FixEnemyPosition(worldRects[i], j);
+				}
+				else {
+					//transparent gray
+					world->SetColor(i, Color(0.5f, 0.5f, 0.5f, 0.7f));
+				}
+			}
 		}
 	}
 
@@ -75,7 +100,10 @@ void KirbyGame::Render()
 {
 	world->Render();
 	kirby->Render();
-	enemy->Render();
+
+	for (int i = 0; i < enemies.size(); i++) {
+		enemies[i]->Render();
+	}
 	hud->Render();
 }
 
@@ -175,6 +203,58 @@ void KirbyGame::FixKirbyPosition(class Rect* worldRect)
 			// Up collision
 			kirbyPos.y = worldRB.y - kirbySize.y / 2;
 			kirby->SetPosition(kirbyPos);
+		}
+	}
+}
+
+void KirbyGame::FixEnemyPosition(Rect* worldRect, int idx)
+{
+	pair<Vector3, Vector3> intersection;
+	IntersectRect(enemies[idx]->GetRect(), worldRect, intersection);
+
+	Vector3 enemyPos = enemies[idx]->GetPosition();
+	Vector3 enemySize = enemies[idx]->GetRect()->GetSize();
+
+	Vector3 enemyLT = enemies[idx]->GetLT();
+	Vector3 enemyRB = enemies[idx]->GetRB();
+
+	Vector3 worldRectPos = worldRect->GetPosition();
+	Vector3 worldLT = worldRect->GetLT();
+	Vector3 worldRB = worldRect->GetRB();
+
+	Vector3 tmp = enemyPos - worldRectPos;
+	if (intersection.first == Values::ZeroVec3 &&
+		intersection.second == Values::ZeroVec3) {
+		return;
+	}
+	// Determine the collision direction based on the intersection size
+	if (intersection.first.x - intersection.second.x >
+		intersection.second.y - intersection.first.y) {
+		if (enemyLT.x < worldLT.x) {
+			// Right collision
+			enemyPos.x = worldLT.x - enemySize.x / 2 + 1;
+			enemies[idx]->SetPosition(enemyPos);
+			enemies[idx]->SetHitRight(true);
+		}
+		else {
+			// Left collision
+			enemyPos.x = worldRB.x + enemySize.x / 2 - 1;
+			enemies[idx]->SetPosition(enemyPos);
+			enemies[idx]->SetHitLeft(true);
+		}
+	}
+	else
+	{
+		if (enemyLT.y > worldLT.y) {
+			// Down collision
+			enemyPos.y = worldLT.y + enemySize.y / 2 - 1;
+			enemies[idx]->SetPosition(enemyPos);
+			enemies[idx]->SetHitGround(true);
+		}
+		else {
+			// Up collision
+			enemyPos.y = worldRB.y - enemySize.y / 2;
+			kirby->SetPosition(enemyPos);
 		}
 	}
 }

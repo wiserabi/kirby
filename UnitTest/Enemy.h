@@ -13,6 +13,7 @@ public:
     virtual void SetAnimator(class Animator* animator);
     virtual void SetPosition(Vector3 pos);
     
+    class Rect* GetRect();
     void SetEnemyInfo(class EnemyInfo* infos);
     void Walk();
     void Jump();
@@ -20,11 +21,16 @@ public:
     void MoveIdle();
     void AttackPlayer();
     void rangedAttackPlayer();
+
+    void SetHitGround(bool hitGround) { this->hitGround = hitGround; }
+    void SetHitLeft(bool hitLeft) { this->hitLeft = hitLeft; }
+    void SetHitRight(bool hitRight) { this->hitRight = hitRight; }
+
 private:
     enum State { IDLE, CHASE, ATTACK };
     State state = IDLE;
     enum Movement { STOP, WALKRIGHT, WALKLEFT};
-    Movement move = STOP;
+    Movement move = WALKLEFT;
     std::vector<std::vector<int>> Enemy::currentMap;
     Vector3 kirbyPos;
 
@@ -35,6 +41,10 @@ private:
     EnemyInfo* infos = nullptr;
     class Rect* rect = nullptr;
     wstring clipname;
+
+    bool hitGround = false;
+    bool hitLeft = false;
+    bool hitRight = false;
 
     void setKirbyPos(Vector3 pos);
     bool playerInRange(float range){ 

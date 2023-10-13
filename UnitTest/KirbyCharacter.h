@@ -117,7 +117,8 @@ private:
 	class Rect* rect = nullptr;
 	vector<class Rect*> list;
 	bool hitGround = false;
-	bool hitLeft = false, hitRight = false;
+	bool hitLeft = false;
+	bool hitRight = false;
 	float startFalling = 0.0f;
 	float startSqueeze = 0.0f;
 	float startBounce = 0.0f;

@@ -11,6 +11,8 @@ public:
     virtual void GUI() override;
     void SetCameraBound();
     void FixKirbyPosition(class Rect* worldRect);
+    void FixEnemyPosition(class Rect* worldRect, int idx);
+
 
 private:
     class KirbyCharacter* kirby = nullptr;
@@ -19,5 +21,5 @@ private:
     class HUD* hud = nullptr;
     class World* world = nullptr;
     class EnemyInfo* enemyInfo = nullptr;
-    class Enemy* enemy = nullptr;
+    vector<class Enemy*> enemies;
 };

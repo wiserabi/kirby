@@ -416,8 +416,9 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 		current = L"inhale";
 		dir.x = 0;
 		dir.y = 0;
-		//start kirby Effect of inhaling
+		//check whether enemy is in range in this state
 		
+		//start kirby Effect of inhaling
 		effect->SetKirbyPos(position, __super::GetLeft());
 		effect->UpdateEffect(Time::Get()->Delta());
 		//if user is pressing the key extend the period of inhaling
