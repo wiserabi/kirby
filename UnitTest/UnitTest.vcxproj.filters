@@ -13,6 +13,8 @@
     <ClInclude Include="Demos\Gravity.h" />
     <ClInclude Include="BezierCurves.h" />
     <ClInclude Include="KirbyEffect.h" />
+    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Program.cpp" />
@@ -26,5 +28,7 @@
     <ClCompile Include="Demos\Gravity.cpp" />
     <ClCompile Include="BezierCurves.cpp" />
     <ClCompile Include="KirbyEffect.cpp" />
+    <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyInfo.cpp" />
   </ItemGroup>
 </Project>

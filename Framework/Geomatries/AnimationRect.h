@@ -27,6 +27,7 @@ public:
 	void SetDirection(Vector3 direction) { this->direction = direction; }
 	
 	void SetVelocity(float velocity) { this->velocity = velocity; }
+	void ChangeAnimation(wstring clipName, float speed, Vector3 dir, uint currentFrame, bool setFrame);
 
 private:
 	class Animator* animator = nullptr;

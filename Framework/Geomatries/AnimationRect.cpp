@@ -150,3 +150,19 @@ void AnimationRect::Move()
 {
 	this->position += direction * velocity;
 }
+
+void AnimationRect::ChangeAnimation(wstring clipName, float speed, Vector3 dir, uint currentFrame, bool setFrame)
+{
+	string clipname = String::ToString(clipName);
+
+	GetAnimator()->SetFixAnimation(setFrame);
+	if (clipName.compare(L"") != 0) {
+		GetAnimator()->SetCurrentAnimClip(clipName);
+	}
+	if (setFrame) {
+		GetAnimator()->SetCurrentFrame(currentFrame);
+	}
+	SetVelocity(speed);
+	SetDirection(dir);
+	Move();
+}

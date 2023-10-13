@@ -84,6 +84,7 @@ const wstring ShaderPath = L"../_Shaders/";
 const wstring TexturePath = L"../_Resources/Texture/";
 const wstring SoundPath = L"../_Resources/Sounds/";
 const string CoordPath = "../_Resources/Coordinates/";
+const string EnemyListPath = "../_Resources/EnemyList/";
 
 extern HWND handle;
 

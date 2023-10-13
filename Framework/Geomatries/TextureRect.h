@@ -17,6 +17,8 @@ public:
     void UnmapVertexBuffer();
     Vector3 GetPosition();
     void SetPosition(Vector3 position);
+    Vector3 GetLT() { return Vector3(position.x - size.x / 2, position.y + size.y / 2, 0.0f); }
+    Vector3 GetRB() { return Vector3(position.x + size.x / 2, position.y - size.y / 2, 0.0f); }
 
 protected:
     vector<VertexTexture> vertices;

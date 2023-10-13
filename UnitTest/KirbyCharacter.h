@@ -97,7 +97,6 @@ public:
 	void SetHitGround(bool hitGround) { this->hitGround = hitGround; }
 	void SetHitLeft(bool hitLeft) { this->hitLeft = hitLeft; }
 	void SetHitRight(bool hitRight) { this->hitRight = hitRight; }
-	void ChangeAnimation(wstring clipName, float speed, Vector3 dir, uint currentFrame, bool setFrame);
 	void ChangeBoundingBox();
 
 	Vector3 GetPosition();

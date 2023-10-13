@@ -46,6 +46,16 @@ void World::GUI()
 	//rect->GUI();
 }
 
+Vector3 World::GetLT()
+{
+	return worldMap->GetLT();
+}
+
+Vector3 World::GetRB()
+{
+	return worldMap->GetRB();
+}
+
 void World::SetColor(int index, Color color)
 {
 	rects[index]->SetColor(color);

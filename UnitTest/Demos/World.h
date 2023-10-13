@@ -14,6 +14,9 @@ public:
 	virtual void Render() override;
 	virtual void PostRender() override;
 	virtual void GUI() override;
+	Vector3 GetLT();
+	Vector3 GetRB();
+
 	Vector3 getWorldSize() { return worldSize; }
 	Vector3 getWorldPosition() { return worldPos; }
 	vector<class Rect*> GetRects(){ return rects; }

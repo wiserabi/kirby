@@ -6,6 +6,8 @@
 #include "World.h"
 #include "UI/HUD.h"
 #include "Geomatries/Rect.h"
+#include "Enemy.h"
+#include "EnemyInfo.h"
 
 void KirbyGame::Init()
 {
@@ -16,10 +18,14 @@ void KirbyGame::Init()
 
 	hud = new HUD();
 	world = new World();
+	enemyInfo = new EnemyInfo();
+	enemy = new Enemy({1000, 430, 0}, {128, 128, 1}, "waddledee", enemyInfo);
 }
 
 void KirbyGame::Destroy()
 {
+	SAFE_DELETE(enemy);
+	SAFE_DELETE(enemyInfo);
 	SAFE_DELETE(kirby);
 	SAFE_DELETE(hud);
 	SAFE_DELETE(world);
@@ -39,6 +45,7 @@ void KirbyGame::Update()
 
 	kirby->Move();
 	kirby->Update();
+	enemy->Update();
 
 	kirby->SetHitGround(false);
 	kirby->SetHitLeft(false);
@@ -68,6 +75,7 @@ void KirbyGame::Render()
 {
 	world->Render();
 	kirby->Render();
+	enemy->Render();
 	hud->Render();
 }
 

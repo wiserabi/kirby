@@ -121,7 +121,7 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 KirbyCharacter::~KirbyCharacter()
 {
 	SAFE_DELETE(effect);
-	SAFE_DELETE(rect);
+	//SAFE_DELETE(rect);
 
 	for (auto& tmp : list) {
 		SAFE_DELETE(tmp);
@@ -190,25 +190,6 @@ void KirbyCharacter::Move()
 	ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
 }
 
-void KirbyCharacter::ChangeAnimation(wstring clipName, float speed, Vector3 dir, uint currentFrame, bool setFrame)
-{
-	string clipname = String::ToString(clipName);
-	
-	//Log("clipname: " + clipname + " ,state: " + to_string(state) + ",currentFrame: " + to_string(currentFrame));
-	//auto myframe = __super::GetAnimator()->GetCurrentFrame();
-	//Log("frame: " + to_string(myframe.x) + " " + to_string(myframe.y));
-	
-	__super::GetAnimator()->SetFixAnimation(setFrame);
-	if (clipName.compare(L"") != 0) {
-		__super::GetAnimator()->SetCurrentAnimClip(clipName);
-	}
-	if (setFrame) {
-		__super::GetAnimator()->SetCurrentFrame(currentFrame);
-	}
-	__super::SetVelocity(speed);
-	__super::SetDirection(dir);
-	__super::Move();
-}
 
 void KirbyCharacter::ChangeBoundingBox()
 {

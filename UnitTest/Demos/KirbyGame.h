@@ -18,4 +18,6 @@ private:
     class Sound* s = nullptr;
     class HUD* hud = nullptr;
     class World* world = nullptr;
+    class EnemyInfo* enemyInfo = nullptr;
+    class Enemy* enemy = nullptr;
 };

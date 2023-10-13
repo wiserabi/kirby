@@ -152,6 +152,8 @@
     <ClInclude Include="Demos\Level.h" />
     <ClInclude Include="Demos\World.h" />
     <ClInclude Include="BezierCurves.h" />
+    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyInfo.h" />
     <ClInclude Include="KirbyCharacter.h" />
     <ClInclude Include="KirbyEffect.h" />
     <ClInclude Include="Program.h" />
@@ -166,6 +168,8 @@
     <ClCompile Include="Demos\KirbyGame.cpp" />
     <ClCompile Include="Demos\Level.cpp" />
     <ClCompile Include="Demos\World.cpp" />
+    <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyInfo.cpp" />
     <ClCompile Include="KirbyCharacter.cpp" />
     <ClCompile Include="KirbyEffect.cpp" />
     <ClCompile Include="Program.cpp" />
