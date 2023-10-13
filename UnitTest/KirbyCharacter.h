@@ -91,6 +91,7 @@ public:
 	bool SandWiched(float delta, class Keyboard* key);
 	bool StopInhaling(float delta, class Keyboard* key);
 	
+	
 	void Swallow();
 	void Attack();
 	void ApplyGravity();
@@ -133,5 +134,6 @@ private:
 	float prevkirbyX = 0.0f;
 	float startInhale = 0.0f;
 	float stopInhale = 0.0f;
+	
 };
 

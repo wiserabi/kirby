@@ -46,11 +46,11 @@ void KirbyGame::Update()
 	}
 	world->Update();
 
-	kirby->Move();
-	kirby->Update();
 	for (int i = 0; i < enemies.size(); i++) {
 		enemies[i]->Update();
 	}
+	kirby->Move();
+	kirby->Update();
 
 	kirby->SetHitGround(false);
 	kirby->SetHitLeft(false);
@@ -99,11 +99,11 @@ void KirbyGame::Update()
 void KirbyGame::Render()
 {
 	world->Render();
-	kirby->Render();
-
 	for (int i = 0; i < enemies.size(); i++) {
 		enemies[i]->Render();
 	}
+	kirby->Render();
+
 	hud->Render();
 }
 
@@ -254,7 +254,7 @@ void KirbyGame::FixEnemyPosition(Rect* worldRect, int idx)
 		else {
 			// Up collision
 			enemyPos.y = worldRB.y - enemySize.y / 2;
-			kirby->SetPosition(enemyPos);
+			enemies[idx]->SetPosition(enemyPos);
 		}
 	}
 }
