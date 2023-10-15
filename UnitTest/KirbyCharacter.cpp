@@ -21,77 +21,18 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 	Animator* tempAnimator = new Animator();
 
 	{
-		Texture2D* srcTex = new Texture2D(TexturePath + L"kirbyAnim/kirbywalkright.png");
-		AnimationClip* WalkR = new AnimationClip(L"WalkR", srcTex, 4,
-			Vector2(0, srcTex->GetHeight() * 0.0f),
-			Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 1.0f));
-		AnimationClip* WalkL = new AnimationClip(L"WalkL", srcTex, 4,
-			Values::ZeroVec2,
-			Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 1.0f));
-
-		Texture2D* srcTex1 = new Texture2D(TexturePath + L"kirbyAnim/kirbyidle.png");
-		AnimationClip* Idle = new AnimationClip(L"Idle", srcTex1, 2,
-			Values::ZeroVec2,
-			Vector2(srcTex1->GetWidth(), srcTex1->GetHeight() * 1.0f));
-
-		Texture2D* srcTex2 = new Texture2D(TexturePath + L"kirbyAnim/kirbyup.png");
-		AnimationClip* flyUp = new AnimationClip(L"flyUp", srcTex2, 4,
-			Values::ZeroVec2,
-			Vector2(srcTex2->GetWidth(), srcTex2->GetHeight() * 1.0f));
-
-		Texture2D* srcTex3 = new Texture2D(TexturePath + L"kirbyAnim/kirbyfly.png");
-		AnimationClip* inhaled = new AnimationClip(L"inhaled", srcTex3, 2,
-			Values::ZeroVec2,
-			Vector2(srcTex3->GetWidth(), srcTex3->GetHeight() * 1.0f));
-
-		Texture2D* srcTex4 = new Texture2D(TexturePath + L"kirbyAnim/kirbydown.png");
-		AnimationClip* exhaling = new AnimationClip(L"exhaling", srcTex4, 4,
-			Values::ZeroVec2,
-			Vector2(srcTex4->GetWidth(), srcTex4->GetHeight() * 1.0f));
-
-		Texture2D* srcTex5 = new Texture2D(TexturePath + L"kirbyAnim/kirbyjump.png");
-		AnimationClip* jump = new AnimationClip(L"jump", srcTex5, 6,
-			Values::ZeroVec2,
-			Vector2(srcTex5->GetWidth(), srcTex5->GetHeight() * 1.0f));
-		//kirbyslidedown
-		Texture2D* srcTex6 = new Texture2D(TexturePath + L"kirbyAnim/kirbyslidedown.png");
-		AnimationClip* slide = new AnimationClip(L"slide", srcTex6, 2,
-			Values::ZeroVec2,
-			Vector2(srcTex6->GetWidth(), srcTex6->GetHeight() * 1.0f));
-
-		Texture2D* srcTex7 = new Texture2D(TexturePath + L"kirbyAnim/kirbySandwiched.png");
-		AnimationClip* sandwiched = new AnimationClip(L"sandwiched", srcTex7, 1,
-			Values::ZeroVec2,
-			Vector2(srcTex7->GetWidth(), srcTex7->GetHeight() * 1.0f));
-
-		Texture2D* srcTex8 = new Texture2D(TexturePath + L"kirbyAnim/kirbyinhale.png");
-		AnimationClip* inhale = new AnimationClip(L"inhale", srcTex8, 2,
-			Values::ZeroVec2,
-			Vector2(srcTex8->GetWidth(), srcTex8->GetHeight() * 1.0f));
-
-		tempAnimator->AddAnimClip(WalkR);
-		tempAnimator->AddAnimClip(WalkL);
-		tempAnimator->AddAnimClip(Idle);
-		tempAnimator->AddAnimClip(flyUp);
-		tempAnimator->AddAnimClip(inhaled);
-		tempAnimator->AddAnimClip(exhaling);
-		tempAnimator->AddAnimClip(jump);
-		tempAnimator->AddAnimClip(slide);
-		tempAnimator->AddAnimClip(sandwiched);
-		tempAnimator->AddAnimClip(inhale);
+		for (size_t i = 0; i < 11; i++)
+		{
+			Texture2D* srcTex = new Texture2D(TexturePath + L"kirbyAnim/" + animationPng[i]);
+			AnimationClip* WalkR = new AnimationClip(motions[i], srcTex, split[i],
+				Vector2(0, srcTex->GetHeight() * 0.0f),
+				Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 1.0f));
+			tempAnimator->AddAnimClip(WalkR);
+			SAFE_DELETE(srcTex);
+		}
 
 		tempAnimator->SetCurrentAnimClip(L"WalkR");
 		SetAnimator(tempAnimator);
-
-		SAFE_DELETE(srcTex8);
-		SAFE_DELETE(srcTex7);
-		SAFE_DELETE(srcTex6);
-		SAFE_DELETE(srcTex5);
-		SAFE_DELETE(srcTex4);
-		SAFE_DELETE(srcTex3);
-		SAFE_DELETE(srcTex2);
-		SAFE_DELETE(srcTex1);
-		SAFE_DELETE(srcTex);
 	}
 	list.push_back(new Rect(position, size/2, 0.0f));//idle, default
 	list.push_back(new Rect(position, size * 3 / 4, 0.0f));//floating
@@ -109,10 +50,12 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 
 	rect = list[0];
 	effect = new KirbyEffect();
+	effect1 = new KirbyEffect();
 }
 
 KirbyCharacter::~KirbyCharacter()
 {
+	SAFE_DELETE(effect1);
 	SAFE_DELETE(effect);
 	//SAFE_DELETE(rect);
 
@@ -162,6 +105,7 @@ void KirbyCharacter::Render()
 {
 	rect->Render();
 	effect->RenderEffect();
+	effect1->RenderEffect();
 	__super::Render();
 }
 
@@ -283,6 +227,12 @@ bool KirbyCharacter::Move1(float delta, class Keyboard* key)
 
 bool KirbyCharacter::Move2(float delta, class Keyboard* key)
 {
+	if (EatIdle(delta, key)) {
+		return true;
+	}
+	if (EatAndWalk(delta, key)) {
+		return true;
+	}
 	if (Swallowing(delta, key)) {
 		return true;
 	}
@@ -482,20 +432,21 @@ bool KirbyCharacter::Exhaling(float delta, Keyboard* key)
 	return false;
 }
 
-bool KirbyCharacter::Jump(float delta, Keyboard* key)
-{
-	return false;
-}
-
 bool KirbyCharacter::Walk(float delta, Keyboard* key)
 {
 	if (key->Press(VK_RIGHT)) {
 		__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 		dir += Values::RightVec;
+		//block left and right while inhaling motion
 		if (state != inhaling) {
 			__super::SetLeft(false);
 		}
-		if (state == idle) {
+
+		if (state == eatidle) {
+			state = eatandwalk;
+			dir = Values::RightVec;
+		}
+		else if (state == idle) {
 			current = L"WalkR";
 			state = walking;
 		}
@@ -517,8 +468,12 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 		if (state != inhaling) {
 			__super::SetLeft(true);
 		}
-		if (state == idle) {
-			current = L"WalkL";
+		if (state == eatidle) {
+			state = eatandwalk;
+			dir = Values::LeftVec;
+		}
+		else if (state == idle) {
+			current = L"WalkR";
 			state = walking;
 		}
 		else if (!hitGround && state == walking) {
@@ -583,6 +538,10 @@ bool KirbyCharacter::Slide(float delta, Keyboard* key)
 
 bool KirbyCharacter::WalkingToIdle(float delta, Keyboard* key)
 {
+	if (state == eatandwalk && hitGround) {
+		state = eatidle;
+		return true;
+	}
 	if (state == walking && hitGround) {
 		state = idle;
 		current = L"Idle";
@@ -826,7 +785,7 @@ bool KirbyCharacter::Idle(float delta, Keyboard* key)
 
 bool KirbyCharacter::Dash(float delta, Keyboard* key)
 {
-	if (hitGround && state != inhaled) {
+	if (hitGround && state != inhaled && state != eatandwalk) {
 		//if there was a right key down before
 		if (prevRight && Time::Get()->Running() - prevRightTime < 0.3f && 
 			key->Down(VK_RIGHT)) {
@@ -889,7 +848,7 @@ bool KirbyCharacter::Dash(float delta, Keyboard* key)
 		else {
 			//left dash
 			__super::SetLeft(true);
-			current = L"WalkL";
+			current = L"WalkR";
 
 			if (hitGround && hitLeft) {
 				state = sandwiched;
@@ -940,7 +899,7 @@ bool KirbyCharacter::EndDash(float delta, Keyboard* key)
 					__super::GetAnimator()->SetCurrentFrame(2);
 				}
 				else {
-					current = L"WalkL";
+					current = L"WalkR";
 					__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 				}
 				return true;
@@ -1022,13 +981,19 @@ bool KirbyCharacter::Swallowing(float delta, Keyboard* key)
 {
 	if (state == swallowing) {
 		dir.x = 0;
-		dir.y = 0;		
+		dir.y = 0;	
+		
 		//start kirby Effect of inhaling
 		effect->SetKirbyPos(position, __super::GetLeft());
+		effect->UpdateEffect(Time::Get()->Delta());
+		//start kirby Effect of swallowing enemy
+		effect1->SetKirbyPos(position, __super::GetLeft());
+
 		//finish when all enemies reach p1
-		if (effect->UpdateSwallowEffect()) {
-			state = stopInhaling;
-			stopInhale = Time::Get()->Running();
+		if (effect1->UpdateSwallowEffect()) {
+			//kirby idle motion after eat enemy
+			state = eatidle;
+			effect1->StopEffect();
 			effect->StopEffect();
 			return true;
 		}
@@ -1039,9 +1004,25 @@ bool KirbyCharacter::Swallowing(float delta, Keyboard* key)
 	return false;
 }
 
-
-void KirbyCharacter::Swallow()
+bool KirbyCharacter::EatIdle(float delta, Keyboard* key)
 {
+	if (state == eatidle) {
+		current = L"eatidle";
+		dir = Values::ZeroVec3;
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::EatAndWalk(float delta, Keyboard* key)
+{
+	if (state == eatandwalk) {
+		current = L"eatandwalk";
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+		return true;
+	}
+	return false;
 }
 
 void KirbyCharacter::Attack()
@@ -1054,8 +1035,8 @@ void KirbyCharacter::ApplyGravity()
 
 void KirbyCharacter::SetEnemySwallowed(vector<class Enemy*>& enemySwallowed)
 {
-	this->enemySwallowed = enemySwallowed;
-	effect->SetKirbySwallow(enemySwallowed);
+	effect1->SetKirbyPos(position, __super::GetLeft());
+	effect1->SetKirbySwallow(enemySwallowed);
 }
 
 void KirbyCharacter::ClearEnemySwallowed()

@@ -95,8 +95,10 @@ void KirbyGame::Update()
 		//change kirby state to swallowing
 		//all other kirby states are not allowed during this state
 		//move enemy through bezier curve
-		kirby->SetEnemySwallowed(enemySwallowed);
-		kirby->SetState(swallowing);
+		if (enemySwallowed.size()) {
+			kirby->SetEnemySwallowed(enemySwallowed);
+			kirby->SetState(swallowing);
+		}
 	}
 
 	kirby->SetHitGround(false);

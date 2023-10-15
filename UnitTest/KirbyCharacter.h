@@ -27,7 +27,6 @@ enum State {
 	inhaling,
 	exhale,
 	exhaling,
-	swallowed,
 	bounce,
 	flatten,
 	jump,
@@ -38,7 +37,9 @@ enum State {
 	drift,
 	sandwiched,
 	stopInhaling,
-	swallowing
+	swallowing,
+	eatidle,
+	eatandwalk,
 };
 
 class KirbyCharacter : public AnimationRect
@@ -66,7 +67,6 @@ public:
 	bool Exhale(float delta, class Keyboard* key);
 	bool Exhaled(float delta, class Keyboard* key);
 	bool Exhaling(float delta, class Keyboard* key);
-	bool Jump(float delta, class Keyboard* key);
 	bool Walk(float delta, class Keyboard* key);
 	bool Run(float delta, class Keyboard* key);
 	bool HeadDown(float delta, class Keyboard* key);
@@ -92,9 +92,10 @@ public:
 	bool SandWiched(float delta, class Keyboard* key);
 	bool StopInhaling(float delta, class Keyboard* key);
 	bool Swallowing(float delta, class Keyboard* key);
+	bool EatIdle(float delta, class Keyboard* key);
+	bool EatAndWalk(float delta, class Keyboard* key);
 	
 	
-	void Swallow();
 	void Attack();
 	void ApplyGravity();
 	void SetHitGround(bool hitGround) { this->hitGround = hitGround; }
@@ -116,6 +117,7 @@ private:
 	Ability ability;
 	State state = falldown;
 	class KirbyEffect* effect = nullptr;
+	class KirbyEffect* effect1 = nullptr;
 
 	ID3D11SamplerState* point[2];
 	ID3D11BlendState* bpoint[2];
@@ -140,6 +142,35 @@ private:
 	float prevkirbyX = 0.0f;
 	float startInhale = 0.0f;
 	float stopInhale = 0.0f;
-	vector<class Enemy*> enemySwallowed;
+
+	wstring animationPng[11] = {
+		L"kirbywalkright.png",
+		L"kirbyidle.png",
+		L"kirbyup.png",
+		L"kirbyfly.png",
+		L"kirbydown.png",
+		L"kirbyjump.png",
+		L"kirbyslidedown.png",
+		L"kirbySandwiched.png",
+		L"kirbyinhale.png",
+		L"kirbyeatidle.png",
+		L"kirbyeatandwalk.png",
+	};
+	wstring motions[11] = {
+		L"WalkR",
+		L"Idle",
+		L"flyUp",
+		L"inhaled",
+		L"exhaling",
+		L"jump",
+		L"slide",
+		L"sandwiched",
+		L"inhale",
+		L"eatidle",
+		L"eatandwalk"
+	};
+	int split[11] = {
+		4,2,4,2,4,6,2,1,2,1,3
+	};
 };
 
