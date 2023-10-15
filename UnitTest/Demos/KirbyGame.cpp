@@ -57,7 +57,7 @@ void KirbyGame::Update()
 
 	//check if kirby is inhaling
 	if (kirby->GetState() == inhaling) {
-		cout << "kirby is inhaling!" << "\n";
+		//cout << "kirby is inhaling!" << "\n";
 		Vector3 kirbyPos = kirby->GetPosition();
 		
 		vector<Enemy*> enemySwallowed;
@@ -70,7 +70,7 @@ void KirbyGame::Update()
 				//check enemy in inhaling range
 				if (pos.y <= kirbyPos.y + 120.0f && pos.y >= kirbyPos.y - 120.0f &&
 					pos.x <= kirbyPos.x && kirbyPos.x - 180.0f < pos.x) {
-					cout << "Enemy is in range!" << "\n";
+					//cout << "Enemy is in range!" << "\n";
 					enemySwallowed.push_back(enemy);
 					enemies.erase(i);
 					i--;
@@ -85,7 +85,7 @@ void KirbyGame::Update()
 				//check enemy in inhaling range
 				if (pos.y <= kirbyPos.y + 120.0f && pos.y >= kirbyPos.y - 120.0f &&
 					pos.x >= kirbyPos.x && kirbyPos.x + 180.0f > pos.x) {
-					cout << "Enemy is in range!" << "\n";
+					//cout << "Enemy is in range!" << "\n";
 					enemySwallowed.push_back(enemy);
 					enemies.erase(i);
 					i--;

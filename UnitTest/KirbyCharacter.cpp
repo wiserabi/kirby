@@ -1071,11 +1071,6 @@ bool KirbyCharacter::EatAndWalk(float delta, Keyboard* key)
 
 bool KirbyCharacter::Attack(float delta, Keyboard* key)
 {
-	if ((Time::Get()->Running() - attackDelay) > 1.2f && 
-		(state == eatidle || state == eatandwalk) && key->Press('S')) {
-		state = attacking;
-		return true;
-	}
 	if (state == attacking) {
 		current = L"attack";
 		uint curframe = __super::GetAnimator()->GetCurrentFrameIndex();
@@ -1084,6 +1079,11 @@ bool KirbyCharacter::Attack(float delta, Keyboard* key)
 			return true;
 		}
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+	}
+	if ((Time::Get()->Running() - attackDelay) > 0.4f &&
+		(state == eatidle || state == eatandwalk) && key->Press('S')) {
+		state = attacking;
+		return true;
 	}
 
 	return false;
