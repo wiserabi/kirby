@@ -45,15 +45,18 @@ void BezierCurves::CreateWaterdrop(int line_index) {
     }
 }
 
-void BezierCurves::Update() {
+void BezierCurves::Update(bool randomCreate) {
     //change position of line elements according to kirby pos
     for (int i = 0; i < lines_.size(); i++) {
         Line& line = lines_[i];
-        //create new water drop with random time
-        float randInterval = (rand() % 50) * 0.01f + 0.1f;
-        if (Time::Get()->Running() - line.prevCreateTime > randInterval) {
-            CreateWaterdrop(i);
+        if (randomCreate) {
+            //create new water drop with random time
+            float randInterval = (rand() % 50) * 0.01f + 0.1f;
+            if (Time::Get()->Running() - line.prevCreateTime > randInterval) {
+                CreateWaterdrop(i);
+            }
         }
+
         for (int j = 0; j < line.water_drops.size(); ++j) {
             Vector3& drop = line.water_drops[j];
 

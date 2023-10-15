@@ -24,7 +24,7 @@ public:
 
     void CreateWaterdrop(int line_index);
 
-    void Update();
+    void Update(bool randomCreate);
 
     std::vector<Line> GetLines() { return lines_; };
 

@@ -15,13 +15,6 @@
 #define JUMPMIN 0.3
 #define JUMPMAX 0.8
 
-void Log(const std::string& message)
-{
-	std::ofstream logFile("log.txt", std::ios_base::app);
-	//logFile << message << "\n";
-	std::cout << message << "\n";
-}
-
 KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 	:AnimationRect(position, size, false)
 {
@@ -248,6 +241,11 @@ void KirbyCharacter::ChangeBoundingBox()
 	}
 }
 
+State KirbyCharacter::GetState()
+{
+	return state;
+}
+
 void KirbyCharacter::SetAnimator(Animator* animator)
 {
 	__super::SetAnimator(animator);
@@ -285,6 +283,9 @@ bool KirbyCharacter::Move1(float delta, class Keyboard* key)
 
 bool KirbyCharacter::Move2(float delta, class Keyboard* key)
 {
+	if (Swallowing(delta, key)) {
+		return true;
+	}
 	if (StopInhaling(delta, key)) {
 		return true;
 	}
@@ -415,9 +416,7 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 	if (state == inhaling) {
 		current = L"inhale";
 		dir.x = 0;
-		dir.y = 0;
-		//check whether enemy is in range in this state
-		
+		dir.y = 0;		
 		//start kirby Effect of inhaling
 		effect->SetKirbyPos(position, __super::GetLeft());
 		effect->UpdateEffect(Time::Get()->Delta());
@@ -493,7 +492,9 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 	if (key->Press(VK_RIGHT)) {
 		__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 		dir += Values::RightVec;
-		__super::SetLeft(false);
+		if (state != inhaling) {
+			__super::SetLeft(false);
+		}
 		if (state == idle) {
 			current = L"WalkR";
 			state = walking;
@@ -513,7 +514,9 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 	else if (key->Press(VK_LEFT)) {
 		__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 		dir += Values::LeftVec;
-		__super::SetLeft(true);
+		if (state != inhaling) {
+			__super::SetLeft(true);
+		}
 		if (state == idle) {
 			current = L"WalkL";
 			state = walking;
@@ -1015,6 +1018,27 @@ bool KirbyCharacter::StopInhaling(float delta, Keyboard* key)
 	return false;
 }
 
+bool KirbyCharacter::Swallowing(float delta, Keyboard* key)
+{
+	if (state == swallowing) {
+		dir.x = 0;
+		dir.y = 0;		
+		//start kirby Effect of inhaling
+		effect->SetKirbyPos(position, __super::GetLeft());
+		//finish when all enemies reach p1
+		if (effect->UpdateSwallowEffect()) {
+			state = stopInhaling;
+			stopInhale = Time::Get()->Running();
+			effect->StopEffect();
+			return true;
+		}
+
+		ChangeAnimation(current, VELOCITY * delta, dir, 1, true);
+		return true;
+	}
+	return false;
+}
+
 
 void KirbyCharacter::Swallow()
 {
@@ -1025,6 +1049,16 @@ void KirbyCharacter::Attack()
 }
 
 void KirbyCharacter::ApplyGravity()
+{
+}
+
+void KirbyCharacter::SetEnemySwallowed(vector<class Enemy*>& enemySwallowed)
+{
+	this->enemySwallowed = enemySwallowed;
+	effect->SetKirbySwallow(enemySwallowed);
+}
+
+void KirbyCharacter::ClearEnemySwallowed()
 {
 }
 

@@ -19,7 +19,9 @@ void KirbyGame::Init()
 	hud = new HUD();
 	world = new World();
 	enemyInfo = new EnemyInfo();
-	enemies.push_back(new Enemy({ 1000, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
+	if(enemies.find(0) == enemies.end()){
+		enemies[0] = new Enemy({ 1000, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo);
+	}
 }
 
 void KirbyGame::Destroy()
@@ -46,11 +48,56 @@ void KirbyGame::Update()
 	}
 	world->Update();
 
-	for (int i = 0; i < enemies.size(); i++) {
-		enemies[i]->Update();
+	for (pair<int, class Enemy*> enemy : enemies) {
+		enemy.second->Update();
 	}
+
 	kirby->Move();
 	kirby->Update();
+
+	//check if kirby is inhaling
+	if (kirby->GetState() == inhaling) {
+		cout << "kirby is inhaling!" << "\n";
+		Vector3 kirbyPos = kirby->GetPosition();
+		
+		vector<Enemy*> enemySwallowed;
+		//check whether kirby is facing right or left
+		if (kirby->GetLeft()) {
+			//check all enemies on left
+			for(int i = 0; i < enemies.size(); i++) {
+				Enemy* enemy = enemies[i];
+				Vector3 pos = enemy->GetPosition();
+				//check enemy in inhaling range
+				if (pos.y <= kirbyPos.y + 120.0f && pos.y >= kirbyPos.y - 120.0f &&
+					pos.x <= kirbyPos.x && kirbyPos.x - 180.0f < pos.x) {
+					cout << "Enemy is in range!" << "\n";
+					enemySwallowed.push_back(enemy);
+					enemies.erase(i);
+					i--;
+				}
+			}
+		}
+		else {
+			//check all enemies on right
+			for (int i = 0; i < enemies.size(); i++) {
+				Enemy* enemy = enemies[i];
+				Vector3 pos = enemy->GetPosition();
+				//check enemy in inhaling range
+				if (pos.y <= kirbyPos.y + 120.0f && pos.y >= kirbyPos.y - 120.0f &&
+					pos.x >= kirbyPos.x && kirbyPos.x + 180.0f > pos.x) {
+					cout << "Enemy is in range!" << "\n";
+					enemySwallowed.push_back(enemy);
+					enemies.erase(i);
+					i--;
+				}
+			}
+		}
+		//change kirby state to swallowing
+		//all other kirby states are not allowed during this state
+		//move enemy through bezier curve
+		kirby->SetEnemySwallowed(enemySwallowed);
+		kirby->SetState(swallowing);
+	}
 
 	kirby->SetHitGround(false);
 	kirby->SetHitLeft(false);
@@ -61,6 +108,7 @@ void KirbyGame::Update()
 		enemies[j]->SetHitLeft(false);
 		enemies[j]->SetHitRight(false);
 	}
+
 	//if kirby is in the world
 	if (kirby->isKirbyInWorld()) {
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();

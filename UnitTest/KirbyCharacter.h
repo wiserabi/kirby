@@ -37,7 +37,8 @@ enum State {
 	exhaled,
 	drift,
 	sandwiched,
-	stopInhaling
+	stopInhaling,
+	swallowing
 };
 
 class KirbyCharacter : public AnimationRect
@@ -90,6 +91,7 @@ public:
 	bool Drift(float delta, class Keyboard* key);
 	bool SandWiched(float delta, class Keyboard* key);
 	bool StopInhaling(float delta, class Keyboard* key);
+	bool Swallowing(float delta, class Keyboard* key);
 	
 	
 	void Swallow();
@@ -99,6 +101,10 @@ public:
 	void SetHitLeft(bool hitLeft) { this->hitLeft = hitLeft; }
 	void SetHitRight(bool hitRight) { this->hitRight = hitRight; }
 	void ChangeBoundingBox();
+	State GetState();
+	void SetState(State state) { this->state = state; }
+	void SetEnemySwallowed(vector<class Enemy*>& enemySwallowed);
+	void ClearEnemySwallowed();
 
 	Vector3 GetPosition();
 	boolean isKirbyInWorld() { return kirbyInWorld; }
@@ -134,6 +140,6 @@ private:
 	float prevkirbyX = 0.0f;
 	float startInhale = 0.0f;
 	float stopInhale = 0.0f;
-	
+	vector<class Enemy*> enemySwallowed;
 };
 

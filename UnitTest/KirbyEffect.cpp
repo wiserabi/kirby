@@ -4,6 +4,7 @@
 #include "Geomatries/AnimationRect.h"
 
 #include "Utilities/Animator.h"
+#include "Enemy.h"
 
 KirbyEffect::KirbyEffect()
 {
@@ -30,6 +31,7 @@ void KirbyEffect::LoadTextureList()
 			AnimationClip* tmpClip = new AnimationClip(pngList[i], srcTex, pngSplit[i],
 				Vector2(0, srcTex->GetHeight() * 0.0f),
 				Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 1.0f));
+			//add clip for each animator
 			animatorList.push_back(new Animator());
 			animatorList[i]->AddAnimClip(tmpClip);
 			animatorList[i]->SetCurrentAnimClip(pngList[i]);
@@ -62,8 +64,6 @@ void KirbyEffect::SetKirbyEat()
 
 	curves = new BezierCurves();
 	
-	curves->Clear();
-	
 	//add control points for bezier curve
 	if (controlPoints.size()) {
 		controlPoints.clear();
@@ -84,9 +84,29 @@ void KirbyEffect::SetKirbyEat()
 	}
 }
 
+void KirbyEffect::SetKirbySwallow(vector<class Enemy*>& enemySwallowed)
+{
+	currentEffect = Effect::swallowing;
+	curves = new BezierCurves();
+	//set kirby pos as p1
+	Vector2 tmpP1 = Vector2(kirbyPos.x, kirbyPos.y);
+	//get position of enemy and create curves
+	for (size_t i = 0; i < enemySwallowed.size(); i++)
+	{
+		enemySwallow.push_back({ enemySwallowed[i], 
+								 enemySwallowed[i]->GetAnimator()->GetCurrentFrameIndex()});
+		
+		Vector3 enemyPos = enemySwallowed[i]->GetPosition();
+		Vector2 tmpP3 = { enemyPos.x, enemyPos.y };
+		Vector2 tmpP2 = { (enemyPos.x + kirbyPos.x) / 2.0f, kirbyPos.y };
+		curves->Add(tmpP1, tmpP2, tmpP3);
+		curves->CreateWaterdrop(i);
+	}
+}
+
 void KirbyEffect::UpdateEatEffect()
 {
-	curves->Update();
+	curves->Update(true);
 	vector<Line> lines_ = curves->GetLines();
 	
 	count = 0;
@@ -105,6 +125,35 @@ void KirbyEffect::UpdateEatEffect()
 	}
 }
 
+bool KirbyEffect::UpdateSwallowEffect()
+{
+	bool result = true;
+	//first update the curves
+	curves->Update(false);
+	vector<Line> lines_ = curves->GetLines();
+
+	//change position of enemies being swallowed according to the lines position
+	for (int i = 0; i < enemySwallow.size(); i++) {
+		if (i >= 50) {
+			break;
+		}
+		//number of lines == number of enemy being swallowed
+		Line& line = lines_[i];
+		//if enemy pos == kirby pos, water drop will be removed
+		if (line.water_drops.size() == 0) {
+			continue;
+		}
+		result = result & false;
+		for (int j = 0; j < line.water_drops.size(); j++) {
+			enemySwallow[i].first->ChangeAnimation(L"", 0.0f, Values::ZeroVec3, enemySwallow[i].second, true);
+			enemySwallow[i].first->SetPosition(Vector3(line.water_drops[j].x, line.water_drops[j].y, 0.0f));
+			enemySwallow[i].first->Update();
+			count++;
+		}
+	}
+	return result;
+}
+
 void KirbyEffect::UpdateEffect(float deltaTime)
 {
 	if (currentEffect == Effect::eat) {
@@ -115,19 +164,37 @@ void KirbyEffect::UpdateEffect(float deltaTime)
 
 void KirbyEffect::RenderEffect()
 {
-	for (int i = 0; i < count; i++) {
-		animations[i]->Render(animatorList[currentEffect]);
+	if (currentEffect == Effect::eat) {
+		for (int i = 0; i < count; i++) {
+			animations[i]->Render(animatorList[currentEffect]);
+		}
+	}
+	if (currentEffect == Effect::swallowing) {
+		for (int i = 0; i < enemySwallow.size(); i++) {
+			enemySwallow[i].first->Render();
+		}
 	}
 }
 
 void KirbyEffect::StopEffect()
 {
-	count = 0;
-	for (auto& it : animations) {
-		SAFE_DELETE(it);
+	if (currentEffect == Effect::eat) {
+		count = 0;
+		for (auto& it : animations) {
+			SAFE_DELETE(it);
+		}
+		//clear the previous effect animations
+		animations.clear();
+		curves->Clear();
+		return;
 	}
-	//clear the previous effect animations
-	animations.clear();
+	if (currentEffect == Effect::swallowing) {
+		for (size_t i = 0; i < enemySwallow.size(); i++)
+		{
+			SAFE_DELETE(enemySwallow[i].first);
+		}
+		enemySwallow.clear();
+	}
 }
 
 void KirbyEffect::Update(float deltaTime)

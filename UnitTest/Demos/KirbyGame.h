@@ -21,5 +21,5 @@ private:
     class HUD* hud = nullptr;
     class World* world = nullptr;
     class EnemyInfo* enemyInfo = nullptr;
-    vector<class Enemy*> enemies;
+    map<int, class Enemy*> enemies;
 };

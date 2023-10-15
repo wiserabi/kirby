@@ -16,7 +16,8 @@ namespace Effect {
 		twostar,
 		waterblowdown,
 		waterblowright,
-		waterblowup
+		waterblowup,
+		swallowing
 	};
 }
 
@@ -28,7 +29,9 @@ public:
 	void SetKirbyPos(Vector3 kirbyPos, bool left); 
 	void LoadTextureList();
 	void SetKirbyEat();
+	void SetKirbySwallow(vector<class Enemy*>& enemySwallowed);
 	void UpdateEatEffect();
+	bool UpdateSwallowEffect();
 	void UpdateEffect(float deltaTime);
 	void RenderEffect();
 	void StopEffect();
@@ -66,4 +69,5 @@ private:
 	int count = 0;
 	vector<Vector2> controlPoints;
 	bool left = true;
+	vector<pair<class Enemy*, int>> enemySwallow;//int for current animation idx of enemy to fix
 };
