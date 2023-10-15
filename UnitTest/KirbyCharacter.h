@@ -142,6 +142,7 @@ private:
 	float prevkirbyX = 0.0f;
 	float startInhale = 0.0f;
 	float stopInhale = 0.0f;
+	float startEatWalk = 0.0f;
 
 	wstring animationPng[11] = {
 		L"kirbywalkright.png",
@@ -170,7 +171,7 @@ private:
 		L"eatandwalk"
 	};
 	int split[11] = {
-		4,2,4,2,4,6,2,1,2,1,3
+		4,2,4,2,4,6,2,1,2,1,4
 	};
 };
 

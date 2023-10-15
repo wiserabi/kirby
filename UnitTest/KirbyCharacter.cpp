@@ -445,6 +445,7 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 		if (state == eatidle) {
 			state = eatandwalk;
 			dir = Values::RightVec;
+			startEatWalk = Time::Get()->Running();
 		}
 		else if (state == idle) {
 			current = L"WalkR";
@@ -502,7 +503,8 @@ bool KirbyCharacter::Run(float delta, Keyboard* key)
 bool KirbyCharacter::HeadDown(float delta, Keyboard* key)
 {
 	if (hitGround && state != inhaled && 
-		state != inhaling && key->Press(VK_DOWN)) {
+		state != inhaling && state!= eatidle && 
+		state != eatandwalk && key->Press(VK_DOWN)) {
 		dir = Values::ZeroVec3;
 		current = L"slide";
 		state = headdown;
@@ -785,7 +787,7 @@ bool KirbyCharacter::Idle(float delta, Keyboard* key)
 
 bool KirbyCharacter::Dash(float delta, Keyboard* key)
 {
-	if (hitGround && state != inhaled && state != eatandwalk) {
+	if (hitGround && state != inhaled && state != eatandwalk && state != eatidle) {
 		//if there was a right key down before
 		if (prevRight && Time::Get()->Running() - prevRightTime < 0.3f && 
 			key->Down(VK_RIGHT)) {
@@ -1019,7 +1021,23 @@ bool KirbyCharacter::EatAndWalk(float delta, Keyboard* key)
 {
 	if (state == eatandwalk) {
 		current = L"eatandwalk";
-		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+		
+		if (Time::Get()->Running() - startEatWalk < 0.24f) {
+			ChangeAnimation(current, VELOCITY * delta, dir, 0, true);
+		}
+		else if (Time::Get()->Running() - startEatWalk < 0.32f) {
+			ChangeAnimation(current, VELOCITY * delta, dir, 1, true);
+		}
+		else if (Time::Get()->Running() - startEatWalk < 0.56f) {
+			ChangeAnimation(current, VELOCITY * delta, dir, 2, true);
+		}
+		else if(Time::Get()->Running() - startEatWalk < 0.64f){
+			ChangeAnimation(current, VELOCITY * delta, dir, 3, true);
+		}
+		else {
+			startEatWalk = Time::Get()->Running();
+		}
+		//ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
 		return true;
 	}
 	return false;
