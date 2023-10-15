@@ -21,7 +21,7 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 	Animator* tempAnimator = new Animator();
 
 	{
-		for (size_t i = 0; i < 11; i++)
+		for (size_t i = 0; i < PNGNUM; i++)
 		{
 			Texture2D* srcTex = new Texture2D(TexturePath + L"kirbyAnim/" + animationPng[i]);
 			AnimationClip* WalkR = new AnimationClip(motions[i], srcTex, split[i],
@@ -42,6 +42,9 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 
 	list.push_back(new Rect(position, Vector3(size.x / 2.0f, size.y / 4.0f, size.z), 0.0f));//flat
 	list.push_back(new Rect(position, Vector3(size.x / 4.0f, size.y / 2.0f, size.z), 0.0f));//sandwich
+
+	list.push_back(new Rect(position, size * 11 / 16, 0.0f));//become bigger after eat enemy
+
 
 	for (size_t i = 0; i < list.size(); i++)
 	{
@@ -90,6 +93,7 @@ void KirbyCharacter::Update()
 			rectPos += Values::UpVec * 12;
 		}
 	}
+
 	else if (state == inhaling) {
 		rectPos += Values::UpVec * 12;
 	}
@@ -133,6 +137,9 @@ void KirbyCharacter::ChangeBoundingBox()
 	if (state == inhaled) {
 		rect = list[1];
 	}
+	else if (state == eatandwalk || state == eatidle) {
+		rect = list[6];
+	}
 	else if (state == flyup) {
 		uint curFrame = __super::GetAnimator()->GetCurrentFrameIndex();
 		if (curFrame == 2) {
@@ -155,6 +162,18 @@ void KirbyCharacter::ChangeBoundingBox()
 		}
 		else {
 			rect = list[0];
+		}
+	}
+	else if (state == attacking) {
+		uint curFrame = __super::GetAnimator()->GetCurrentFrameIndex();
+		if (curFrame == 1) {
+			rect = list[2];
+		}
+		else if(curFrame == 2){
+			rect = list[0];
+			Vector3 rectPos = rect->GetPosition();
+			rect->SetPosition(rectPos - Values::DownVec * 12);
+			position.y -= 12;
 		}
 	}
 	else if (state == sandwiched) {
@@ -227,6 +246,9 @@ bool KirbyCharacter::Move1(float delta, class Keyboard* key)
 
 bool KirbyCharacter::Move2(float delta, class Keyboard* key)
 {
+	if (Attack(delta, key)) {
+		return true;
+	}
 	if (EatIdle(delta, key)) {
 		return true;
 	}
@@ -420,7 +442,7 @@ bool KirbyCharacter::Exhaling(float delta, Keyboard* key)
 {
 	if (state == exhaling) {
 		current = L"exhaling";
-		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
+		uint curframe = __super::GetAnimator()->GetCurrentFrameIndex();
 		if (curframe == 3) {
 			state = exhaled;
 			delayAfterExhale = Time::Get()->Running();
@@ -994,6 +1016,7 @@ bool KirbyCharacter::Swallowing(float delta, Keyboard* key)
 		//finish when all enemies reach p1
 		if (effect1->UpdateSwallowEffect()) {
 			//kirby idle motion after eat enemy
+			attackDelay = Time::Get()->Running();
 			state = eatidle;
 			effect1->StopEffect();
 			effect->StopEffect();
@@ -1021,6 +1044,9 @@ bool KirbyCharacter::EatAndWalk(float delta, Keyboard* key)
 {
 	if (state == eatandwalk) {
 		current = L"eatandwalk";
+		if (!hitGround) {
+			dir += Values::DownVec;
+		}
 		
 		if (Time::Get()->Running() - startEatWalk < 0.24f) {
 			ChangeAnimation(current, VELOCITY * delta, dir, 0, true);
@@ -1043,8 +1069,24 @@ bool KirbyCharacter::EatAndWalk(float delta, Keyboard* key)
 	return false;
 }
 
-void KirbyCharacter::Attack()
+bool KirbyCharacter::Attack(float delta, Keyboard* key)
 {
+	if ((Time::Get()->Running() - attackDelay) > 1.2f && 
+		(state == eatidle || state == eatandwalk) && key->Press('S')) {
+		state = attacking;
+		return true;
+	}
+	if (state == attacking) {
+		current = L"attack";
+		uint curframe = __super::GetAnimator()->GetCurrentFrameIndex();
+		if (curframe == 2) {
+			state = idle;
+			return true;
+		}
+		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
+	}
+
+	return false;
 }
 
 void KirbyCharacter::ApplyGravity()

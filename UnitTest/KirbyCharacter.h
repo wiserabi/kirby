@@ -1,5 +1,6 @@
 #pragma once
 
+#define PNGNUM 12
 enum Ability
 {
 	spark,
@@ -94,9 +95,8 @@ public:
 	bool Swallowing(float delta, class Keyboard* key);
 	bool EatIdle(float delta, class Keyboard* key);
 	bool EatAndWalk(float delta, class Keyboard* key);
+	bool Attack(float delta, class Keyboard* key);
 	
-	
-	void Attack();
 	void ApplyGravity();
 	void SetHitGround(bool hitGround) { this->hitGround = hitGround; }
 	void SetHitLeft(bool hitLeft) { this->hitLeft = hitLeft; }
@@ -143,8 +143,9 @@ private:
 	float startInhale = 0.0f;
 	float stopInhale = 0.0f;
 	float startEatWalk = 0.0f;
+	float attackDelay = 0.0f;
 
-	wstring animationPng[11] = {
+	wstring animationPng[PNGNUM] = {
 		L"kirbywalkright.png",
 		L"kirbyidle.png",
 		L"kirbyup.png",
@@ -156,8 +157,9 @@ private:
 		L"kirbyinhale.png",
 		L"kirbyeatidle.png",
 		L"kirbyeatandwalk.png",
+		L"kirbyattack.png"
 	};
-	wstring motions[11] = {
+	wstring motions[PNGNUM] = {
 		L"WalkR",
 		L"Idle",
 		L"flyUp",
@@ -168,10 +170,11 @@ private:
 		L"sandwiched",
 		L"inhale",
 		L"eatidle",
-		L"eatandwalk"
+		L"eatandwalk",
+		L"attack"
 	};
-	int split[11] = {
-		4,2,4,2,4,6,2,1,2,1,4
+	int split[PNGNUM] = {
+		4,2,4,2,4,6,2,1,2,1,4,3
 	};
 };
 
