@@ -160,6 +160,7 @@ void Enemy::MoveIdle()
     else if(hitRight){
         move = WALKLEFT;
     }
+
     if (move == WALKLEFT) {
         __super::SetLeft(false);
         Walk();
@@ -168,7 +169,6 @@ void Enemy::MoveIdle()
         __super::SetLeft(true);
         Walk();
     }
-
 }
 
 void Enemy::AttackPlayer()

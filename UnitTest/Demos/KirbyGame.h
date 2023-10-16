@@ -22,4 +22,8 @@ private:
     class World* world = nullptr;
     class EnemyInfo* enemyInfo = nullptr;
     map<int, class Enemy*> enemies;
+    //effect0 kirby inhaling and attack, effect1 kirby eat enemy
+    vector<class KirbyEffect*> effects;
+    //this is because there can be two effects at the same time
+
 };

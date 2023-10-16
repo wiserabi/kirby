@@ -52,17 +52,10 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 	}
 
 	rect = list[0];
-	effects.push_back(new KirbyEffect());//used for kirby inhaling, attacking
-	effects.push_back(new KirbyEffect());//pulling enemy as effect
 }
 
 KirbyCharacter::~KirbyCharacter()
 {
-	for (size_t i = 0; i < effects.size(); i++)
-	{
-		SAFE_DELETE(effects[i]);
-	}
-	effects.clear();
 
 	//SAFE_DELETE(rect);
 
@@ -74,12 +67,6 @@ KirbyCharacter::~KirbyCharacter()
 
 void KirbyCharacter::Update()
 {
-
-	//check if there is a timer set for animation
-	if (effects[0]->isTimerSet() && !effects[0]->EndTimer()) {
-		effects[0]->UpdateEffect(Time::Get()->Delta());
-	}
-
 	//if flatten state adjust rect position
 	Vector3 rectPos = position;
 	if (state == flatten) {
@@ -118,10 +105,6 @@ void KirbyCharacter::Update()
 void KirbyCharacter::Render()
 {
 	rect->Render();
-	for (size_t i = 0; i < effects.size(); i++)
-	{
-		effects[i]->RenderEffect();
-	}
 
 	__super::Render();
 }
@@ -132,6 +115,9 @@ void KirbyCharacter::Move()
 	float delta = Time::Delta();
 	dir = Values::ZeroVec3;
 	
+	//update kirby previous and current state
+	prevState = state;
+
 	ChangeBoundingBox();
 	Move1(Time::Delta(), key);//right left walk, idle
 	if (Move2(Time::Delta(), key)) {//s key exhale, slide, squash down
@@ -220,6 +206,11 @@ void KirbyCharacter::ChangeBoundingBox()
 State KirbyCharacter::GetState()
 {
 	return state;
+}
+
+State KirbyCharacter::GetPrevState()
+{
+	return prevState;
 }
 
 void KirbyCharacter::SetAnimator(Animator* animator)
@@ -387,10 +378,8 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 	if (hitGround && state == inhale) {
 		if (Time::Get()->Running() - startInhale > 0.1f) {
 			state = inhaling;
-			effects[0]->SetKirbyEat();
 			return true;
 		}
-		effects[0]->SetKirbyPos(position, __super::GetLeft());
 		dir.x = 0;
 		dir.y = 0;
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, true);
@@ -402,9 +391,6 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 		current = L"inhale";
 		dir.x = 0;
 		dir.y = 0;		
-		//start kirby Effect of inhaling
-		effects[0]->SetKirbyPos(position, __super::GetLeft());
-		effects[0]->UpdateEffect(delta);
 		
 		//if user is pressing the key extend the period of inhaling
 		if (key->Press('S')) {
@@ -414,7 +400,6 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 		if (Time::Get()->Running() - startInhale > 0.1f) {
 			state = stopInhaling;
 			stopInhale = Time::Get()->Running();
-			effects[0]->StopEffect();
 			return true;
 		}
 		ChangeAnimation(current, VELOCITY * delta, dir, 1, true);
@@ -1019,23 +1004,7 @@ bool KirbyCharacter::Swallowing(float delta, Keyboard* key)
 {
 	if (state == swallowing) {
 		dir.x = 0;
-		dir.y = 0;	
-		
-		//start kirby Effect of inhaling
-		effects[0]->SetKirbyPos(position, __super::GetLeft());
-		effects[0]->UpdateEffect(Time::Get()->Delta());
-		//start kirby Effect of swallowing enemy
-		effects[1]->SetKirbyPos(position, __super::GetLeft());
-
-		//finish when all enemies reach p1
-		if (effects[1]->UpdateSwallowEffect()) {
-			//kirby idle motion after eat enemy
-			attackDelay = Time::Get()->Running();
-			state = eatidle;
-			effects[1]->StopEffect();
-			effects[0]->StopEffect();
-			return true;
-		}
+		dir.y = 0;
 
 		ChangeAnimation(current, VELOCITY * delta, dir, 1, true);
 		return true;
@@ -1099,10 +1068,6 @@ bool KirbyCharacter::Attack(float delta, Keyboard* key)
 	if ((Time::Get()->Running() - attackDelay) > 0.4f &&
 		(state == eatidle || state == eatandwalk) && key->Press('S')) {
 		state = attacking;
-		effects[0]->SetKirbyPos(position, __super::GetLeft());
-		effects[0]->SetKirbyBlowStar();
-		//set duration for this effect
-		effects[0]->StartTimer(2.0f);
 		return true;
 	}
 
@@ -1113,14 +1078,14 @@ void KirbyCharacter::ApplyGravity()
 {
 }
 
-void KirbyCharacter::SetEnemySwallowed(vector<class Enemy*>& enemySwallowed)
-{
-	effects[1]->SetKirbyPos(position, __super::GetLeft());
-	effects[1]->SetKirbySwallow(enemySwallowed);
-}
 
 void KirbyCharacter::ClearEnemySwallowed()
 {
+}
+
+void KirbyCharacter::SetAttackDelay()
+{
+	attackDelay = Time::Get()->Running();
 }
 
 Vector3 KirbyCharacter::GetPosition()

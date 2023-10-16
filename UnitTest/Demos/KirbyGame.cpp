@@ -8,6 +8,7 @@
 #include "Geomatries/Rect.h"
 #include "Enemy.h"
 #include "EnemyInfo.h"
+#include "KirbyEffect.h"
 
 void KirbyGame::Init()
 {
@@ -22,10 +23,19 @@ void KirbyGame::Init()
 	if(enemies.find(0) == enemies.end()){
 		enemies[0] = new Enemy({ 1000, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo);
 	}
+	effects.push_back(new KirbyEffect());//used for kirby inhaling, attacking
+	effects.push_back(new KirbyEffect());//pulling enemy as effect
+	effects.push_back(new KirbyEffect());//pulling enemy as effect
 }
 
 void KirbyGame::Destroy()
 {
+	for (size_t i = 0; i < effects.size(); i++)
+	{
+		SAFE_DELETE(effects[i]);
+	}
+	effects.clear();
+
 	for (int i = 0; i < enemies.size(); i++) {
 		SAFE_DELETE(enemies[i]);
 	}
@@ -55,8 +65,28 @@ void KirbyGame::Update()
 	kirby->Move();
 	kirby->Update();
 
+	//check if there is a timer set for animation
+	if (effects[2]->isTimerSet() && !effects[2]->EndTimer()) {
+		effects[2]->UpdateEffect(Time::Get()->Delta());
+	}
+
+	State kirbyCurState = kirby->GetState();
+	State kirbyPrevState = kirby->GetPrevState();
+	//kirby state change inhale => inhaling
+	if (kirbyPrevState == inhale && kirbyCurState == inhaling) {
+		effects[0]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+		effects[0]->SetKirbyEat();
+	}
+	else if (kirbyPrevState == inhaling && kirbyCurState == stopInhaling) {
+		//kirby stopped inhaling moment
+		effects[0]->StopEffect();
+	}
 	//check if kirby is inhaling
-	if (kirby->GetState() == inhaling) {
+	else if (kirbyCurState == inhaling) {
+		//start kirby Effect of inhaling
+		effects[0]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+		effects[0]->UpdateEffect(Time::Get()->Delta());
+
 		//cout << "kirby is inhaling!" << "\n";
 		Vector3 kirbyPos = kirby->GetPosition();
 		
@@ -96,11 +126,34 @@ void KirbyGame::Update()
 		//all other kirby states are not allowed during this state
 		//move enemy through bezier curve
 		if (enemySwallowed.size()) {
-			kirby->SetEnemySwallowed(enemySwallowed);
+			effects[1]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+			effects[1]->SetKirbySwallow(enemySwallowed);
 			kirby->SetState(swallowing);
 		}
 	}
-
+	else if (kirbyCurState == swallowing) {
+		//start kirby Effect of inhaling
+		effects[0]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+		effects[0]->UpdateEffect(Time::Get()->Delta());
+		//start kirby Effect of swallowing enemy
+		effects[1]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+		//finish when all enemies reach p1
+		if (effects[1]->UpdateSwallowEffect()) {
+			//kirby idle motion after eat enemy
+			kirby->SetAttackDelay();
+			kirby->SetState(eatidle);
+			effects[1]->StopEffect();
+			effects[0]->StopEffect();
+		}
+	}
+	
+	else if ((kirbyPrevState == eatidle || kirbyPrevState == eatandwalk) && kirbyCurState == attacking) {
+		effects[2]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+		effects[2]->SetKirbyBlowStar();
+		//set duration for this effect
+		effects[2]->StartTimer(2.0f);
+	}
+	
 	kirby->SetHitGround(false);
 	kirby->SetHitLeft(false);
 	kirby->SetHitRight(false);
@@ -153,6 +206,11 @@ void KirbyGame::Render()
 		enemies[i]->Render();
 	}
 	kirby->Render();
+
+	for (size_t i = 0; i < effects.size(); i++)
+	{
+		effects[i]->RenderEffect();
+	}
 
 	hud->Render();
 }

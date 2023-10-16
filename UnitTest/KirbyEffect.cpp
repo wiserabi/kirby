@@ -176,7 +176,6 @@ bool KirbyEffect::UpdateBlowEffect(float deltaTime)
 		effectStartPos += Values::RightVec * deltaTime * THROWSTARSPEED;
 	}
 
-	//if enemy is hit with this bigstar - should implement
 
 	animations[0]->SetPosition(effectStartPos);
 	animations[0]->Update(animatorList[currentEffect]);

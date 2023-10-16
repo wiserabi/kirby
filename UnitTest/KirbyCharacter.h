@@ -43,6 +43,7 @@ enum State {
 	eatandwalk,
 };
 
+
 class KirbyCharacter : public AnimationRect
 {
 public:
@@ -103,10 +104,12 @@ public:
 	void SetHitRight(bool hitRight) { this->hitRight = hitRight; }
 	void ChangeBoundingBox();
 	State GetState();
+	State GetPrevState();
+
 	void SetState(State state) { this->state = state; }
-	void SetEnemySwallowed(vector<class Enemy*>& enemySwallowed);
 	void ClearEnemySwallowed();
 
+	void SetAttackDelay();
 	Vector3 GetPosition();
 	boolean isKirbyInWorld() { return kirbyInWorld; }
 	class Rect* GetRect();
@@ -116,14 +119,12 @@ private:
 	int lifeCount;
 	Ability ability;
 	State state = falldown;
-	//effect0 kirby inhaling and attack, effect1 kirby eat enemy
-	vector<class KirbyEffect*> effects;
-	//this is because there can be two effects at the same time
-
+	State prevState = falldown;
 	ID3D11SamplerState* point[2];
 	ID3D11BlendState* bpoint[2];
+
 	wstring current = L"WalkR";
-	boolean kirbyInWorld = true;
+	bool kirbyInWorld = true;
 	class Rect* rect = nullptr;
 	vector<class Rect*> list;
 	bool hitGround = false;
@@ -137,6 +138,7 @@ private:
 	float delayAfterExhale = 0.0f;
 	Vector3 dir = Values::ZeroVec3;
 	bool prevRight = false, prevLeft = false;
+
 	float prevRightTime = 0.0f, prevLeftTime = 0.0f;
 	float endDashTime = 0.0f;
 	float startSandwich = 0.0f;
