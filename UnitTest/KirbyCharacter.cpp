@@ -1089,18 +1089,20 @@ bool KirbyCharacter::Attack(float delta, Keyboard* key)
 		current = L"attack";
 		uint curframe = __super::GetAnimator()->GetCurrentFrameIndex();
 		if (curframe == 2) {
-			effects[0]->SetKirbyPos(position, __super::GetLeft());
-			effects[0]->SetKirbyBlowStar();
-			//set duration for this effect
-			effects[0]->StartTimer(2.0f);
 			state = idle;
 			return true;
 		}
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
 	}
+
+	//kirby that swallowed enemy can throw big star after delay
 	if ((Time::Get()->Running() - attackDelay) > 0.4f &&
 		(state == eatidle || state == eatandwalk) && key->Press('S')) {
 		state = attacking;
+		effects[0]->SetKirbyPos(position, __super::GetLeft());
+		effects[0]->SetKirbyBlowStar();
+		//set duration for this effect
+		effects[0]->StartTimer(2.0f);
 		return true;
 	}
 
