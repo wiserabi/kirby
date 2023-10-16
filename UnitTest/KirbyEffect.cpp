@@ -2,6 +2,7 @@
 #include "BezierCurves.h"
 #include "KirbyEffect.h"
 #include "Geomatries/AnimationRect.h"
+#include "Geomatries/Rect.h"
 
 #include "Utilities/Animator.h"
 #include "Enemy.h"
@@ -114,6 +115,9 @@ void KirbyEffect::SetKirbyBlowStar()
 	//get current position to start effect and direction(left or right)
 	effectStartPos = Vector3(kirbyPos.x, kirbyPos.y, 0.0f);
 	effectLeft = left;
+
+	rectEffect0 = new Rect(effectStartPos, Vector3(42.0f, 42.0f, 0.0f), 0.0f);
+	rectEffect0->SetColor(Color(0.5f, 0.5f, 0.5f, 0.7f));
 }
 
 void KirbyEffect::UpdateEatEffect()
@@ -168,17 +172,21 @@ bool KirbyEffect::UpdateSwallowEffect()
 
 bool KirbyEffect::UpdateBlowEffect(float deltaTime)
 {
+	
 	//move effect left
 	if (effectLeft) {
-		effectStartPos += Values::LeftVec * deltaTime * THROWSTARSPEED;
+		effectStartPos += Values::LeftVec * 5;
 	}
 	else {
-		effectStartPos += Values::RightVec * deltaTime * THROWSTARSPEED;
+		effectStartPos += Values::RightVec * 5;
 	}
 
+	rectEffect0->SetPosition(effectStartPos);
+	rectEffect0->Update();
 
 	animations[0]->SetPosition(effectStartPos);
 	animations[0]->Update(animatorList[currentEffect]);
+
 	return false;
 }
 
@@ -193,7 +201,6 @@ bool KirbyEffect::EndTimer()
 {
 	if (time + duration < Time::Get()->Running()) {
 		setTimer = false;
-		StopEffect();
 		return true;
 	}
 	return false;
@@ -225,6 +232,7 @@ void KirbyEffect::RenderEffect()
 	}
 	else if (currentEffect == Effect::bigstars && animations.size()) {
 		//render if there is animations
+		rectEffect0->Render();
 		animations[0]->Render(animatorList[currentEffect]);
 	}
 }
@@ -251,6 +259,8 @@ void KirbyEffect::StopEffect()
 	if (currentEffect == Effect::bigstars) {
 		SAFE_DELETE(animations[0]);
 		animations.clear();
+		SAFE_DELETE(rectEffect0);
+		setTimer = false;
 	}
 }
 

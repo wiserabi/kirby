@@ -20,12 +20,12 @@ void KirbyGame::Init()
 	hud = new HUD();
 	world = new World();
 	enemyInfo = new EnemyInfo();
-	if(enemies.find(0) == enemies.end()){
-		enemies[0] = new Enemy({ 1000, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo);
-	}
-	effects.push_back(new KirbyEffect());//used for kirby inhaling, attacking
+
+	enemies.push_back(new Enemy({ 1000, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
+
+	effects.push_back(new KirbyEffect());//used for kirby inhaling
 	effects.push_back(new KirbyEffect());//pulling enemy as effect
-	effects.push_back(new KirbyEffect());//pulling enemy as effect
+	effects.push_back(new KirbyEffect());//attacking
 }
 
 void KirbyGame::Destroy()
@@ -47,6 +47,10 @@ void KirbyGame::Destroy()
 }
 void KirbyGame::Update()
 {
+	if (Keyboard::Get()->Down('R')) {
+		Sounds::Get()->Pause("Vegetable-Valley.mp3");
+		KirbyGame::Init();
+	}
 	if (Keyboard::Get()->Down(VK_F2)) {
 		if (Sounds::Get()->IsPaused("Vegetable-Valley.mp3")) {
 			Sounds::Get()->Play("Vegetable-Valley.mp3");
@@ -58,15 +62,15 @@ void KirbyGame::Update()
 	}
 	world->Update();
 
-	for (pair<int, class Enemy*> enemy : enemies) {
-		enemy.second->Update();
+	for (class Enemy* enemy : enemies) {
+		enemy->Update();
 	}
 
 	kirby->Move();
 	kirby->Update();
 
 	//check if there is a timer set for animation
-	if (effects[2]->isTimerSet() && !effects[2]->EndTimer()) {
+	if (effects[2]->isTimerSet()) {
 		effects[2]->UpdateEffect(Time::Get()->Delta());
 	}
 
@@ -102,7 +106,7 @@ void KirbyGame::Update()
 					pos.x <= kirbyPos.x && kirbyPos.x - 180.0f < pos.x) {
 					//cout << "Enemy is in range!" << "\n";
 					enemySwallowed.push_back(enemy);
-					enemies.erase(i);
+					enemies.erase(enemies.begin() + i);
 					i--;
 				}
 			}
@@ -117,7 +121,7 @@ void KirbyGame::Update()
 					pos.x >= kirbyPos.x && kirbyPos.x + 180.0f > pos.x) {
 					//cout << "Enemy is in range!" << "\n";
 					enemySwallowed.push_back(enemy);
-					enemies.erase(i);
+					enemies.erase(enemies.begin() + i);
 					i--;
 				}
 			}
@@ -151,7 +155,7 @@ void KirbyGame::Update()
 		effects[2]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
 		effects[2]->SetKirbyBlowStar();
 		//set duration for this effect
-		effects[2]->StartTimer(2.0f);
+		effects[2]->StartTimer(10.0f);
 	}
 	
 	kirby->SetHitGround(false);
@@ -190,6 +194,13 @@ void KirbyGame::Update()
 				else {
 					//transparent gray
 					world->SetColor(i, Color(0.5f, 0.5f, 0.5f, 0.7f));
+				}
+			}
+			Rect* effectRect = effects[2]->GetRect();
+			if (effectRect) {
+				//check if big star thrown by kirby hits the wall
+				if (BoundingBox::OBB(effectRect->GetBox(), worldRects[i]->GetBox())) {
+					effects[2]->StopEffect();
 				}
 			}
 		}

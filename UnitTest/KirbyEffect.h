@@ -41,6 +41,7 @@ public:
 	void RenderEffect();
 	void StopEffect();
 	void Update(float deltaTime);
+	class Rect* GetRect() { return rectEffect0; };
 	
 	int GetCurrentEffect() { return currentEffect; };
 	vector<class AnimationRect*> GetAnimationRects() { return animations; }
@@ -82,4 +83,5 @@ private:
 	float time = 0.0f;
 	bool setTimer = false;
 	float duration = 0.0f;
+	class Rect* rectEffect0 = nullptr;
 };
