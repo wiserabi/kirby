@@ -6,6 +6,8 @@
 #include "Utilities/Animator.h"
 #include "Enemy.h"
 
+#define THROWSTARSPEED 200
+
 KirbyEffect::KirbyEffect()
 {
 	LoadTextureList();
@@ -104,6 +106,16 @@ void KirbyEffect::SetKirbySwallow(vector<class Enemy*>& enemySwallowed)
 	}
 }
 
+void KirbyEffect::SetKirbyBlowStar()
+{
+	currentEffect = Effect::bigstars;
+	animations.push_back(new AnimationRect(Values::ZeroVec3, Vector3(96.0f, 96.0f, 0.0f), false));
+	animations[0]->SetAnimator(animatorList[currentEffect]);
+	//get current position to start effect and direction(left or right)
+	effectStartPos = Vector3(kirbyPos.x, kirbyPos.y, 0.0f);
+	effectLeft = left;
+}
+
 void KirbyEffect::UpdateEatEffect()
 {
 	curves->Update(true);
@@ -154,25 +166,67 @@ bool KirbyEffect::UpdateSwallowEffect()
 	return result;
 }
 
+bool KirbyEffect::UpdateBlowEffect(float deltaTime)
+{
+	//move effect left
+	if (effectLeft) {
+		effectStartPos += Values::LeftVec * deltaTime * THROWSTARSPEED;
+	}
+	else {
+		effectStartPos += Values::RightVec * deltaTime * THROWSTARSPEED;
+	}
+
+	//if enemy is hit with this bigstar - should implement
+
+	animations[0]->SetPosition(effectStartPos);
+	animations[0]->Update(animatorList[currentEffect]);
+	return false;
+}
+
+void KirbyEffect::StartTimer(float duration)
+{
+	setTimer = true;
+	this->duration = duration;
+	time = Time::Get()->Running();
+}
+
+bool KirbyEffect::EndTimer()
+{
+	if (time + duration < Time::Get()->Running()) {
+		setTimer = false;
+		StopEffect();
+		return true;
+	}
+	return false;
+}
+
 void KirbyEffect::UpdateEffect(float deltaTime)
 {
 	if (currentEffect == Effect::eat) {
 		UpdateEatEffect();
 		return;
 	}
+	if (currentEffect == Effect::bigstars) {
+		UpdateBlowEffect(deltaTime);
+		return;
+	}
 }
 
 void KirbyEffect::RenderEffect()
 {
-	if (currentEffect == Effect::eat) {
+	if (currentEffect == Effect::eat && animations.size()) {
 		for (int i = 0; i < count; i++) {
 			animations[i]->Render(animatorList[currentEffect]);
 		}
 	}
-	if (currentEffect == Effect::swallowing) {
+	else if (currentEffect == Effect::swallowing) {
 		for (int i = 0; i < enemySwallow.size(); i++) {
 			enemySwallow[i].first->Render();
 		}
+	}
+	else if (currentEffect == Effect::bigstars && animations.size()) {
+		//render if there is animations
+		animations[0]->Render(animatorList[currentEffect]);
 	}
 }
 
@@ -194,6 +248,10 @@ void KirbyEffect::StopEffect()
 			SAFE_DELETE(enemySwallow[i].first);
 		}
 		enemySwallow.clear();
+	}
+	if (currentEffect == Effect::bigstars) {
+		SAFE_DELETE(animations[0]);
+		animations.clear();
 	}
 }
 

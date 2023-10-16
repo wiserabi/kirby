@@ -30,13 +30,20 @@ public:
 	void LoadTextureList();
 	void SetKirbyEat();
 	void SetKirbySwallow(vector<class Enemy*>& enemySwallowed);
+	void SetKirbyBlowStar();//kirby default attack with swallowed enemy
 	void UpdateEatEffect();
 	bool UpdateSwallowEffect();
+	bool UpdateBlowEffect(float UpdateBlowEffect);//return true if enemy has been hit
+	bool isTimerSet() { return setTimer; };
+	void StartTimer(float duration);
+	bool EndTimer();
 	void UpdateEffect(float deltaTime);
 	void RenderEffect();
 	void StopEffect();
 	void Update(float deltaTime);
-	vector<class AnimationRect*> GetTexture() { return animations; }
+	
+	int GetCurrentEffect() { return currentEffect; };
+	vector<class AnimationRect*> GetAnimationRects() { return animations; }
 
 private:
 	int pngSplit[15] = {
@@ -70,4 +77,9 @@ private:
 	vector<Vector2> controlPoints;
 	bool left = true;
 	vector<pair<class Enemy*, int>> enemySwallow;//int for current animation idx of enemy to fix
+	Vector3 effectStartPos = Values::ZeroVec3;
+	bool effectLeft = true;
+	float time = 0.0f;
+	bool setTimer = false;
+	float duration = 0.0f;
 };

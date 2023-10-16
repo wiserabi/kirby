@@ -52,14 +52,18 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 	}
 
 	rect = list[0];
-	effect = new KirbyEffect();
-	effect1 = new KirbyEffect();
+	effects.push_back(new KirbyEffect());//used for kirby inhaling, attacking
+	effects.push_back(new KirbyEffect());//pulling enemy as effect
 }
 
 KirbyCharacter::~KirbyCharacter()
 {
-	SAFE_DELETE(effect1);
-	SAFE_DELETE(effect);
+	for (size_t i = 0; i < effects.size(); i++)
+	{
+		SAFE_DELETE(effects[i]);
+	}
+	effects.clear();
+
 	//SAFE_DELETE(rect);
 
 	for (auto& tmp : list) {
@@ -70,6 +74,12 @@ KirbyCharacter::~KirbyCharacter()
 
 void KirbyCharacter::Update()
 {
+
+	//check if there is a timer set for animation
+	if (effects[0]->isTimerSet() && !effects[0]->EndTimer()) {
+		effects[0]->UpdateEffect(Time::Get()->Delta());
+	}
+
 	//if flatten state adjust rect position
 	Vector3 rectPos = position;
 	if (state == flatten) {
@@ -108,8 +118,11 @@ void KirbyCharacter::Update()
 void KirbyCharacter::Render()
 {
 	rect->Render();
-	effect->RenderEffect();
-	effect1->RenderEffect();
+	for (size_t i = 0; i < effects.size(); i++)
+	{
+		effects[i]->RenderEffect();
+	}
+
 	__super::Render();
 }
 
@@ -374,10 +387,10 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 	if (hitGround && state == inhale) {
 		if (Time::Get()->Running() - startInhale > 0.1f) {
 			state = inhaling;
-			effect->SetKirbyEat();
+			effects[0]->SetKirbyEat();
 			return true;
 		}
-		effect->SetKirbyPos(position, __super::GetLeft());
+		effects[0]->SetKirbyPos(position, __super::GetLeft());
 		dir.x = 0;
 		dir.y = 0;
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, true);
@@ -390,8 +403,9 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 		dir.x = 0;
 		dir.y = 0;		
 		//start kirby Effect of inhaling
-		effect->SetKirbyPos(position, __super::GetLeft());
-		effect->UpdateEffect(Time::Get()->Delta());
+		effects[0]->SetKirbyPos(position, __super::GetLeft());
+		effects[0]->UpdateEffect(delta);
+		
 		//if user is pressing the key extend the period of inhaling
 		if (key->Press('S')) {
 			startInhale = Time::Get()->Running();
@@ -400,7 +414,7 @@ bool KirbyCharacter::Inhaling(float delta, Keyboard* key)
 		if (Time::Get()->Running() - startInhale > 0.1f) {
 			state = stopInhaling;
 			stopInhale = Time::Get()->Running();
-			effect->StopEffect();
+			effects[0]->StopEffect();
 			return true;
 		}
 		ChangeAnimation(current, VELOCITY * delta, dir, 1, true);
@@ -1008,18 +1022,18 @@ bool KirbyCharacter::Swallowing(float delta, Keyboard* key)
 		dir.y = 0;	
 		
 		//start kirby Effect of inhaling
-		effect->SetKirbyPos(position, __super::GetLeft());
-		effect->UpdateEffect(Time::Get()->Delta());
+		effects[0]->SetKirbyPos(position, __super::GetLeft());
+		effects[0]->UpdateEffect(Time::Get()->Delta());
 		//start kirby Effect of swallowing enemy
-		effect1->SetKirbyPos(position, __super::GetLeft());
+		effects[1]->SetKirbyPos(position, __super::GetLeft());
 
 		//finish when all enemies reach p1
-		if (effect1->UpdateSwallowEffect()) {
+		if (effects[1]->UpdateSwallowEffect()) {
 			//kirby idle motion after eat enemy
 			attackDelay = Time::Get()->Running();
 			state = eatidle;
-			effect1->StopEffect();
-			effect->StopEffect();
+			effects[1]->StopEffect();
+			effects[0]->StopEffect();
 			return true;
 		}
 
@@ -1075,6 +1089,10 @@ bool KirbyCharacter::Attack(float delta, Keyboard* key)
 		current = L"attack";
 		uint curframe = __super::GetAnimator()->GetCurrentFrameIndex();
 		if (curframe == 2) {
+			effects[0]->SetKirbyPos(position, __super::GetLeft());
+			effects[0]->SetKirbyBlowStar();
+			//set duration for this effect
+			effects[0]->StartTimer(2.0f);
 			state = idle;
 			return true;
 		}
@@ -1095,8 +1113,8 @@ void KirbyCharacter::ApplyGravity()
 
 void KirbyCharacter::SetEnemySwallowed(vector<class Enemy*>& enemySwallowed)
 {
-	effect1->SetKirbyPos(position, __super::GetLeft());
-	effect1->SetKirbySwallow(enemySwallowed);
+	effects[1]->SetKirbyPos(position, __super::GetLeft());
+	effects[1]->SetKirbySwallow(enemySwallowed);
 }
 
 void KirbyCharacter::ClearEnemySwallowed()

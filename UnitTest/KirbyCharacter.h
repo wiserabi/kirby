@@ -116,8 +116,9 @@ private:
 	int lifeCount;
 	Ability ability;
 	State state = falldown;
-	class KirbyEffect* effect = nullptr;
-	class KirbyEffect* effect1 = nullptr;
+	//effect0 kirby inhaling and attack, effect1 kirby eat enemy
+	vector<class KirbyEffect*> effects;
+	//this is because there can be two effects at the same time
 
 	ID3D11SamplerState* point[2];
 	ID3D11BlendState* bpoint[2];
