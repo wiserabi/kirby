@@ -256,8 +256,6 @@ void KirbyEffect::StopEffect()
 	if (currentEffect == Effect::bigstars) {
 		vector<AnimationRect*>().swap(animations);
 
-		//animations.clear();
-		//SAFE_DELETE(animations[0]);
 		SAFE_DELETE(rectEffect0);
 		setTimer = false;
 	}

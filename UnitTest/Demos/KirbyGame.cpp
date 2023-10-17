@@ -26,6 +26,7 @@ void KirbyGame::Init()
 	enemies.push_back(new Enemy({ 1000, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
 	enemies.push_back(new Enemy({ 500, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
 	enemies.push_back(new Enemy({ 700, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
+	enemies.push_back(new Enemy({ 800, 430, 0 }, { 128, 128, 1 }, "waddledoo", enemyInfo));
 
 
 	effects.push_back(new KirbyEffect());//used for kirby inhaling
@@ -158,7 +159,7 @@ void KirbyGame::Update()
 			effects[0]->StopEffect();
 		}
 	}
-	
+	//when changed to throw star
 	else if ((kirbyPrevState == eatidle || kirbyPrevState == eatandwalk) && kirbyCurState == attacking) {
 		effects[2]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
 		effects[2]->SetKirbyBlowStar();
@@ -191,6 +192,7 @@ void KirbyGame::Update()
 				world->SetColor(i, Color(0.5f,0.5f,0.5f,0.7f));
 			}
 			
+
 			//assume there are enemies in the world
 			for (size_t j = 0; j < enemies.size(); j++)
 			{
@@ -203,13 +205,25 @@ void KirbyGame::Update()
 					//transparent gray
 					world->SetColor(i, Color(0.5f, 0.5f, 0.5f, 0.7f));
 				}
-			}
-			Rect* effectRect = effects[2]->GetRect();
-			if (effectRect) {
-				//check if big star thrown by kirby hits the wall
-				if (BoundingBox::OBB(effectRect->GetBox(), worldRects[i]->GetBox())) {
+
+				BoundingBox* effectBox = nullptr;
+				Rect* effectRect = effects[2]->GetRect();
+				if (effectRect) {
+					effectBox = effectRect->GetBox();
+				}
+				//check if big star that kirby throws hit enemy
+				if (effectBox && BoundingBox::OBB(effectBox, enemyBox)) {
 					effects[2]->StopEffect();
 				}
+			}
+			BoundingBox* effectBox = nullptr;
+			Rect* effectRect = effects[2]->GetRect();
+			if (effectRect) {
+				effectBox = effectRect->GetBox();
+			}
+			//check if big star thrown by kirby hits the wall
+			if (effectRect && effectBox && BoundingBox::OBB(effectBox, worldRects[i]->GetBox())) {
+				effects[2]->StopEffect();
 			}
 		}
 	}
@@ -225,13 +239,13 @@ void KirbyGame::Render()
 		enemies[i]->Render();
 	}
 
-	kirby->Render();
-
 	for (size_t i = 0; i < effects.size(); i++)
 	{
 		effects[i]->RenderEffect();
 	}
 	effects[1]->RenderSwallowEffect(enemySwallowed);
+
+	kirby->Render();
 
 	hud->Render();
 }
