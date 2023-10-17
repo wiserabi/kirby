@@ -17,7 +17,7 @@ namespace Effect {
 		waterblowdown,
 		waterblowright,
 		waterblowup,
-		swallowing
+		swallowing,
 	};
 }
 
@@ -31,14 +31,20 @@ public:
 	void SetKirbyEat();
 	void SetKirbySwallow(vector<pair<class Enemy*, int>>& enemySwallowed);
 	void SetKirbyBlowStar();//kirby default attack with swallowed enemy
+	void SetKirbyStarExplodeOnEnemy(Vector3 Pos);//when star hits enemy
+	void SetEnemyDeathEffect(Vector3 pos);//when enemy gets killed effect
+
 	void UpdateEatEffect();
 	bool UpdateSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow);
 	bool UpdateBlowEffect(float UpdateBlowEffect);//return true if enemy has been hit
+	void UpdateExplodeOnEnemy();
+	void UpdateDeathEffect(float delta);
+
 	bool isTimerSet() { return setTimer; };
 	void StartTimer(float duration);
-	bool EndTimer();
 	void UpdateEffect(float deltaTime);
 	void RenderSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow);
+	void RenderDeathEffect();
 	void RenderEffect();
 	void StopEffect();
 	void Update(float deltaTime);
@@ -84,4 +90,5 @@ private:
 	bool setTimer = false;
 	float duration = 0.0f;
 	class Rect* rectEffect0 = nullptr;
+	vector<Vector3> effectStartPositions;
 };

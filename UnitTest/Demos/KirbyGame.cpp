@@ -32,6 +32,9 @@ void KirbyGame::Init()
 	effects.push_back(new KirbyEffect());//used for kirby inhaling
 	effects.push_back(new KirbyEffect());//pulling enemy as effect
 	effects.push_back(new KirbyEffect());//attacking
+	effects.push_back(new KirbyEffect());//explode frame 1(explode when star hits enemy)
+	effects.push_back(new KirbyEffect());//enemy get killed effect
+
 }
 
 void KirbyGame::Destroy()
@@ -76,9 +79,10 @@ void KirbyGame::Update()
 	kirby->Update();
 
 	//check if there is a timer set for animation
-	if (effects[2]->isTimerSet()) {
-		effects[2]->UpdateEffect(Time::Get()->Delta());
-	}
+
+	effects[2]->UpdateEffect(Time::Get()->Delta());
+	effects[3]->UpdateEffect(Time::Get()->Delta());
+	effects[4]->UpdateDeathEffect(Time::Get()->Delta());
 
 	State kirbyCurState = kirby->GetState();
 	State kirbyPrevState = kirby->GetPrevState();
@@ -213,7 +217,14 @@ void KirbyGame::Update()
 				}
 				//check if big star that kirby throws hit enemy
 				if (effectBox && BoundingBox::OBB(effectBox, enemyBox)) {
+					effects[3]->SetKirbyStarExplodeOnEnemy(enemies[j]->GetPosition());
+					effects[3]->StartTimer(0.2f);
+					effects[4]->SetEnemyDeathEffect(enemies[j]->GetPosition());
+					effects[4]->StartTimer(0.8f);
+
+					enemies.erase(enemies.begin() + j);
 					effects[2]->StopEffect();
+					j--;
 				}
 			}
 			BoundingBox* effectBox = nullptr;
@@ -244,6 +255,7 @@ void KirbyGame::Render()
 		effects[i]->RenderEffect();
 	}
 	effects[1]->RenderSwallowEffect(enemySwallowed);
+	effects[4]->RenderDeathEffect();
 
 	kirby->Render();
 

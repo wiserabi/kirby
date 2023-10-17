@@ -117,6 +117,26 @@ void KirbyEffect::SetKirbyBlowStar()
 	rectEffect0->SetColor(Color(0.5f, 0.5f, 0.5f, 0.7f));
 }
 
+void KirbyEffect::SetKirbyStarExplodeOnEnemy(Vector3 pos)
+{
+	currentEffect = Effect::explode;
+	animations.push_back(new AnimationRect(pos, Vector3(96.0f, 96.0f, 0.0f), false));
+	animations[0]->SetAnimator(animatorList[currentEffect]);
+	//get current position to start effect and direction(left or right)
+	effectStartPos = Vector3(pos.x, pos.y, 0.0f);
+}
+
+void KirbyEffect::SetEnemyDeathEffect(Vector3 pos)
+{
+	currentEffect = Effect::bigstars;
+	for (int i = 0; i < 4; i++) {
+		animations.push_back(new AnimationRect(pos, Vector3(32.0f, 32.0f, 0.0f), false));
+		animations[i]->SetAnimator(animatorList[currentEffect]);
+		effectStartPositions.push_back(pos);
+	}
+}
+
+
 void KirbyEffect::UpdateEatEffect()
 {
 	curves->Update(true);
@@ -186,6 +206,39 @@ bool KirbyEffect::UpdateBlowEffect(float deltaTime)
 	return false;
 }
 
+void KirbyEffect::UpdateExplodeOnEnemy()
+{
+	if (time + duration < Time::Get()->Running()) {
+		StopEffect();
+		return;
+	}
+	animations[0]->ChangeAnimation(L"", 0.0f, Values::ZeroVec3, 1, true);
+	animations[0]->Update(animatorList[currentEffect]);
+}
+
+void KirbyEffect::UpdateDeathEffect(float delta)
+{
+	if (time + duration < Time::Get()->Running()) {
+		animations.clear();
+		setTimer = false;
+		return;
+	}
+	//up right
+	effectStartPositions[0] += (Values::UpVec + Values::RightVec) * 100 * delta ;
+	//up left
+	effectStartPositions[1] += (Values::UpVec + Values::LeftVec) * 100 * delta;
+	//down right
+	effectStartPositions[2] += (Values::DownVec + Values::RightVec) * 100 * delta;
+	//down left
+	effectStartPositions[3] += (Values::DownVec + Values::LeftVec) * 100 * delta;
+
+	for (int i = 0; i < animations.size(); i++) {
+		animations[i]->SetPosition(effectStartPositions[i]);
+		animations[i]->ChangeAnimation(L"", 0.0f, Values::ZeroVec3, 0, true);
+		animations[i]->Update(animatorList[currentEffect]);
+	}
+}
+
 void KirbyEffect::StartTimer(float duration)
 {
 	setTimer = true;
@@ -193,14 +246,6 @@ void KirbyEffect::StartTimer(float duration)
 	time = Time::Get()->Running();
 }
 
-bool KirbyEffect::EndTimer()
-{
-	if (time + duration < Time::Get()->Running()) {
-		setTimer = false;
-		return true;
-	}
-	return false;
-}
 
 void KirbyEffect::UpdateEffect(float deltaTime)
 {
@@ -208,8 +253,12 @@ void KirbyEffect::UpdateEffect(float deltaTime)
 		UpdateEatEffect();
 		return;
 	}
-	if (currentEffect == Effect::bigstars) {
+	if (currentEffect == Effect::bigstars && setTimer) {
 		UpdateBlowEffect(deltaTime);
+		return;
+	}
+	if (currentEffect == Effect::explode && setTimer) {
+		UpdateExplodeOnEnemy();
 		return;
 	}
 }
@@ -219,6 +268,13 @@ void KirbyEffect::RenderSwallowEffect(vector<pair<class Enemy*, int>>& enemySwal
 		enemySwallow[i].first->Render();
 	}
 }
+void KirbyEffect::RenderDeathEffect()
+{
+	for (int i = 0; i < animations.size(); i++) {
+		animations[i]->Render();
+	}
+}
+
 void KirbyEffect::RenderEffect()
 {
 	if (currentEffect == Effect::eat && animations.size()) {
@@ -226,9 +282,13 @@ void KirbyEffect::RenderEffect()
 			animations[i]->Render(animatorList[currentEffect]);
 		}
 	}
-	else if (currentEffect == Effect::bigstars && animations.size()) {
+	else if (currentEffect == Effect::bigstars && animations.size() && rectEffect0) {
 		//render if there is animations
 		rectEffect0->Render();
+		animations[0]->Render(animatorList[currentEffect]);
+	}
+	else if (currentEffect == Effect::explode && animations.size()) {
+		//render if there is animations
 		animations[0]->Render(animatorList[currentEffect]);
 	}
 }
@@ -257,6 +317,10 @@ void KirbyEffect::StopEffect()
 		vector<AnimationRect*>().swap(animations);
 
 		SAFE_DELETE(rectEffect0);
+		setTimer = false;
+	}
+	if (currentEffect == Effect::explode) {
+		vector<AnimationRect*>().swap(animations);
 		setTimer = false;
 	}
 }
