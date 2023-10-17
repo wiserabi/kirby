@@ -10,18 +10,23 @@
 #include "EnemyInfo.h"
 #include "KirbyEffect.h"
 
+#define SWALLOWRANGE 300.0f
+
 void KirbyGame::Init()
 {
 	kirby = new KirbyCharacter({ 720, 360, 1.0 }, { 128, 128, 1 });
 	Sounds::Get()->AddSound("Vegetable-Valley.mp3",
 		SoundPath + L"Vegetable-Valley.mp3", true);
-	Sounds::Get()->Play("Vegetable-Valley.mp3");
+	Sounds::Get()->Play("Vegetable-Valley.mp3", 0.2f);
 
 	hud = new HUD();
 	world = new World();
 	enemyInfo = new EnemyInfo();
 
 	enemies.push_back(new Enemy({ 1000, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
+	enemies.push_back(new Enemy({ 500, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
+	enemies.push_back(new Enemy({ 700, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
+
 
 	effects.push_back(new KirbyEffect());//used for kirby inhaling
 	effects.push_back(new KirbyEffect());//pulling enemy as effect
@@ -94,7 +99,6 @@ void KirbyGame::Update()
 		//cout << "kirby is inhaling!" << "\n";
 		Vector3 kirbyPos = kirby->GetPosition();
 		
-		vector<Enemy*> enemySwallowed;
 		//check whether kirby is facing right or left
 		if (kirby->GetLeft()) {
 			//check all enemies on left
@@ -103,9 +107,10 @@ void KirbyGame::Update()
 				Vector3 pos = enemy->GetPosition();
 				//check enemy in inhaling range
 				if (pos.y <= kirbyPos.y + 120.0f && pos.y >= kirbyPos.y - 120.0f &&
-					pos.x <= kirbyPos.x && kirbyPos.x - 180.0f < pos.x) {
+					pos.x <= kirbyPos.x && kirbyPos.x - SWALLOWRANGE < pos.x) {
 					//cout << "Enemy is in range!" << "\n";
-					enemySwallowed.push_back(enemy);
+					int curframe = enemies[i]->GetAnimator()->GetCurrentFrameIndex();
+					enemySwallowed.push_back({ enemies[i] , curframe });
 					enemies.erase(enemies.begin() + i);
 					i--;
 				}
@@ -118,9 +123,11 @@ void KirbyGame::Update()
 				Vector3 pos = enemy->GetPosition();
 				//check enemy in inhaling range
 				if (pos.y <= kirbyPos.y + 120.0f && pos.y >= kirbyPos.y - 120.0f &&
-					pos.x >= kirbyPos.x && kirbyPos.x + 180.0f > pos.x) {
+					pos.x >= kirbyPos.x && kirbyPos.x + SWALLOWRANGE > pos.x) {
 					//cout << "Enemy is in range!" << "\n";
-					enemySwallowed.push_back(enemy);
+					int curframe = enemies[i]->GetAnimator()->GetCurrentFrameIndex();
+
+					enemySwallowed.push_back({ enemy, curframe });
 					enemies.erase(enemies.begin() + i);
 					i--;
 				}
@@ -129,7 +136,7 @@ void KirbyGame::Update()
 		//change kirby state to swallowing
 		//all other kirby states are not allowed during this state
 		//move enemy through bezier curve
-		if (enemySwallowed.size()) {
+		if (!enemySwallowed.empty()) {
 			effects[1]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
 			effects[1]->SetKirbySwallow(enemySwallowed);
 			kirby->SetState(swallowing);
@@ -142,11 +149,12 @@ void KirbyGame::Update()
 		//start kirby Effect of swallowing enemy
 		effects[1]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
 		//finish when all enemies reach p1
-		if (effects[1]->UpdateSwallowEffect()) {
+		if (effects[1]->UpdateSwallowEffect(enemySwallowed)) {
 			//kirby idle motion after eat enemy
 			kirby->SetAttackDelay();
 			kirby->SetState(eatidle);
 			effects[1]->StopEffect();
+			enemySwallowed.clear();
 			effects[0]->StopEffect();
 		}
 	}
@@ -216,12 +224,14 @@ void KirbyGame::Render()
 	for (int i = 0; i < enemies.size(); i++) {
 		enemies[i]->Render();
 	}
+
 	kirby->Render();
 
 	for (size_t i = 0; i < effects.size(); i++)
 	{
 		effects[i]->RenderEffect();
 	}
+	effects[1]->RenderSwallowEffect(enemySwallowed);
 
 	hud->Render();
 }

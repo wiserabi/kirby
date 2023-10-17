@@ -87,7 +87,7 @@ void KirbyEffect::SetKirbyEat()
 	}
 }
 
-void KirbyEffect::SetKirbySwallow(vector<class Enemy*>& enemySwallowed)
+void KirbyEffect::SetKirbySwallow(vector<pair<class Enemy*, int>>& enemySwallowed)
 {
 	currentEffect = Effect::swallowing;
 	curves = new BezierCurves();
@@ -96,10 +96,7 @@ void KirbyEffect::SetKirbySwallow(vector<class Enemy*>& enemySwallowed)
 	//get position of enemy and create curves
 	for (size_t i = 0; i < enemySwallowed.size(); i++)
 	{
-		enemySwallow.push_back({ enemySwallowed[i], 
-								 enemySwallowed[i]->GetAnimator()->GetCurrentFrameIndex()});
-		
-		Vector3 enemyPos = enemySwallowed[i]->GetPosition();
+		Vector3 enemyPos = enemySwallowed[i].first->GetPosition();
 		Vector2 tmpP3 = { enemyPos.x, enemyPos.y };
 		Vector2 tmpP2 = { (enemyPos.x + kirbyPos.x) / 2.0f, kirbyPos.y };
 		curves->Add(tmpP1, tmpP2, tmpP3);
@@ -141,7 +138,7 @@ void KirbyEffect::UpdateEatEffect()
 	}
 }
 
-bool KirbyEffect::UpdateSwallowEffect()
+bool KirbyEffect::UpdateSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow)
 {
 	bool result = true;
 	//first update the curves
@@ -172,7 +169,6 @@ bool KirbyEffect::UpdateSwallowEffect()
 
 bool KirbyEffect::UpdateBlowEffect(float deltaTime)
 {
-	
 	//move effect left
 	if (effectLeft) {
 		effectStartPos += Values::LeftVec * 5;
@@ -218,16 +214,16 @@ void KirbyEffect::UpdateEffect(float deltaTime)
 	}
 }
 
+void KirbyEffect::RenderSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow) {
+	for (int i = 0; i < enemySwallow.size(); i++) {
+		enemySwallow[i].first->Render();
+	}
+}
 void KirbyEffect::RenderEffect()
 {
 	if (currentEffect == Effect::eat && animations.size()) {
 		for (int i = 0; i < count; i++) {
 			animations[i]->Render(animatorList[currentEffect]);
-		}
-	}
-	else if (currentEffect == Effect::swallowing) {
-		for (int i = 0; i < enemySwallow.size(); i++) {
-			enemySwallow[i].first->Render();
 		}
 	}
 	else if (currentEffect == Effect::bigstars && animations.size()) {
@@ -245,20 +241,23 @@ void KirbyEffect::StopEffect()
 			SAFE_DELETE(it);
 		}
 		//clear the previous effect animations
-		animations.clear();
+		vector<AnimationRect*>().swap(animations);
 		curves->Clear();
+		delete curves;
+		curves = nullptr;
 		return;
 	}
 	if (currentEffect == Effect::swallowing) {
-		for (size_t i = 0; i < enemySwallow.size(); i++)
-		{
-			SAFE_DELETE(enemySwallow[i].first);
-		}
-		enemySwallow.clear();
+		curves->Clear();
+		delete curves;
+		curves = nullptr;
+		return;
 	}
 	if (currentEffect == Effect::bigstars) {
-		SAFE_DELETE(animations[0]);
-		animations.clear();
+		vector<AnimationRect*>().swap(animations);
+
+		//animations.clear();
+		//SAFE_DELETE(animations[0]);
 		SAFE_DELETE(rectEffect0);
 		setTimer = false;
 	}
