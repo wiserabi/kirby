@@ -11,6 +11,12 @@ public:
     const static Vector3 RightVec;
     const static Vector3 UpVec;
     const static Vector3 DownVec;
+
+    const static Vector3 Values::RightUpVec;
+    const static Vector3 Values::LeftUpVec;
+    const static Vector3 Values::RightDownVec;
+    const static Vector3 Values::LeftDownVec;
+
     const static Vector3 FwdVec;
     const static Vector3 ScreenSize;
 

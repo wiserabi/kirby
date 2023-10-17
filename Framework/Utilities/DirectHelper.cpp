@@ -9,6 +9,12 @@ const Vector3 Values::LeftVec    = Vector3(-1, +0, +0);
 const Vector3 Values::RightVec   = Vector3(+1, +0, +0);
 const Vector3 Values::UpVec      = Vector3(+0, +1, +0);
 const Vector3 Values::DownVec    = Vector3(+0, -1, +0);
+
+const Vector3 Values::RightUpVec = Vector3(+1, +1, +0);
+const Vector3 Values::LeftUpVec = Vector3(-1, +1, +0);
+const Vector3 Values::RightDownVec = Vector3(+1, -1, +0);
+const Vector3 Values::LeftDownVec = Vector3(-1, -1, +0);
+
 const Vector3 Values::FwdVec     = Vector3(+0, +0, +1);
 const Vector3 Values::ScreenSize = Vector3((float)WinMaxHeight, (float)WinMaxWidth, 1);
 

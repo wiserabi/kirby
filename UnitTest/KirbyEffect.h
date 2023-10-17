@@ -33,18 +33,22 @@ public:
 	void SetKirbyBlowStar();//kirby default attack with swallowed enemy
 	void SetKirbyStarExplodeOnEnemy(Vector3 Pos);//when star hits enemy
 	void SetEnemyDeathEffect(Vector3 pos);//when enemy gets killed effect
+	void SetHitEffect();//when kirby is hit by enemy
 
 	void UpdateEatEffect();
 	bool UpdateSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow);
 	bool UpdateBlowEffect(float UpdateBlowEffect);//return true if enemy has been hit
 	void UpdateExplodeOnEnemy();
 	void UpdateDeathEffect(float delta);
+	void UpdateHitEffect(float delta);
 
 	bool isTimerSet() { return setTimer; };
 	void StartTimer(float duration);
 	void UpdateEffect(float deltaTime);
 	void RenderSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow);
 	void RenderDeathEffect();
+	void RenderHitEffect();
+
 	void RenderEffect();
 	void StopEffect();
 	void Update(float deltaTime);
@@ -91,4 +95,5 @@ private:
 	float duration = 0.0f;
 	class Rect* rectEffect0 = nullptr;
 	vector<Vector3> effectStartPositions;
+	Vector3 randVec = Values::ZeroVec3;
 };

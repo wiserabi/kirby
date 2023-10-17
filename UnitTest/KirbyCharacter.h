@@ -1,6 +1,7 @@
 #pragma once
 
-#define PNGNUM 12
+#define PNGNUM 13
+
 enum Ability
 {
 	spark,
@@ -41,6 +42,7 @@ enum State {
 	swallowing,
 	eatidle,
 	eatandwalk,
+	hitEnemy,
 };
 
 
@@ -97,6 +99,9 @@ public:
 	bool EatIdle(float delta, class Keyboard* key);
 	bool EatAndWalk(float delta, class Keyboard* key);
 	bool Attack(float delta, class Keyboard* key);
+	bool HitEnemy(float delta, class Keyboard* key);
+	void SetHitEnemy();
+	float GetHitEnemy();
 	
 	void ApplyGravity();
 	void SetHitGround(bool hitGround) { this->hitGround = hitGround; }
@@ -147,6 +152,7 @@ private:
 	float stopInhale = 0.0f;
 	float startEatWalk = 0.0f;
 	float attackDelay = 0.0f;
+	float hitEnemyTime = 0.0f;//moment when kirby hit enemy
 
 	wstring animationPng[PNGNUM] = {
 		L"kirbywalkright.png",
@@ -160,7 +166,8 @@ private:
 		L"kirbyinhale.png",
 		L"kirbyeatidle.png",
 		L"kirbyeatandwalk.png",
-		L"kirbyattack.png"
+		L"kirbyattack.png",
+		L"kirbyouch.png"
 	};
 	wstring motions[PNGNUM] = {
 		L"WalkR",
@@ -174,10 +181,11 @@ private:
 		L"inhale",
 		L"eatidle",
 		L"eatandwalk",
-		L"attack"
+		L"attack",
+		L"ouch"
 	};
 	int split[PNGNUM] = {
-		4,2,4,2,4,6,2,1,2,1,4,3
+		4,2,4,2,4,6,2,1,2,1,4,3,1
 	};
 };
 

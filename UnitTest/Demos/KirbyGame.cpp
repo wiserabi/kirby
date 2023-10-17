@@ -34,7 +34,7 @@ void KirbyGame::Init()
 	effects.push_back(new KirbyEffect());//attacking
 	effects.push_back(new KirbyEffect());//explode frame 1(explode when star hits enemy)
 	effects.push_back(new KirbyEffect());//enemy get killed effect
-
+	effects.push_back(new KirbyEffect());//kirby hit enemy effect
 }
 
 void KirbyGame::Destroy()
@@ -83,6 +83,7 @@ void KirbyGame::Update()
 	effects[2]->UpdateEffect(Time::Get()->Delta());
 	effects[3]->UpdateEffect(Time::Get()->Delta());
 	effects[4]->UpdateDeathEffect(Time::Get()->Delta());
+	effects[5]->UpdateHitEffect(Time::Get()->Delta());
 
 	State kirbyCurState = kirby->GetState();
 	State kirbyPrevState = kirby->GetPrevState();
@@ -209,7 +210,8 @@ void KirbyGame::Update()
 					//transparent gray
 					world->SetColor(i, Color(0.5f, 0.5f, 0.5f, 0.7f));
 				}
-
+				
+				
 				BoundingBox* effectBox = nullptr;
 				Rect* effectRect = effects[2]->GetRect();
 				if (effectRect) {
@@ -225,6 +227,17 @@ void KirbyGame::Update()
 					enemies.erase(enemies.begin() + j);
 					effects[2]->StopEffect();
 					j--;
+				}
+				float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
+				//check if kirby collides with enemy
+				if (invulnerableTime > 2.0f && BoundingBox::OBB(kirbyBox, enemyBox)) {
+					effects[5]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+					effects[5]->SetHitEffect();
+					effects[5]->StartTimer(0.5f);//set duration of effect
+
+					kirby->SetState(hitEnemy);
+					kirby->SetHitEnemy();
+					
 				}
 			}
 			BoundingBox* effectBox = nullptr;
@@ -256,6 +269,7 @@ void KirbyGame::Render()
 	}
 	effects[1]->RenderSwallowEffect(enemySwallowed);
 	effects[4]->RenderDeathEffect();
+	effects[5]->RenderHitEffect();
 
 	kirby->Render();
 

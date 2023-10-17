@@ -118,12 +118,16 @@ void KirbyCharacter::Move()
 	//update kirby previous and current state
 	prevState = state;
 
-	ChangeBoundingBox();
-	Move1(Time::Delta(), key);//right left walk, idle
-	if (Move2(Time::Delta(), key)) {//s key exhale, slide, squash down
+	if (state == hitEnemy) {
+		HitEnemy(delta, key);
 		return;
 	}
-	if (Move3(Time::Delta(), key)) {//fly up, jump
+	ChangeBoundingBox();
+	Move1(delta, key);//right left walk, idle
+	if (Move2(delta, key)) {//s key exhale, slide, squash down
+		return;
+	}
+	if (Move3(delta, key)) {//fly up, jump
 		return;
 	}
 	
@@ -1072,6 +1076,55 @@ bool KirbyCharacter::Attack(float delta, Keyboard* key)
 	}
 
 	return false;
+}
+
+bool KirbyCharacter::HitEnemy(float delta, Keyboard* key)
+{
+	dir = Values::ZeroVec3;
+	//when kirby was moving left
+	if (__super::GetLeft()) {
+		//move right slightly after collision with enemy
+		dir += Values::RightVec;
+	}
+	else {
+		//move left slightly after collision with enemy
+		dir += Values::LeftVec;
+	}
+	//different movement when kirby hit ground on floor
+	if (!hitGround) {
+		dir += Values::UpVec;
+	}
+
+	int velocity = VELOCITY * delta / 2;
+	float elapsed = Time::Get()->Running() - hitEnemyTime;
+	if (elapsed < 0.2f) {
+		current = L"ouch";
+		ChangeAnimation(current, velocity, dir, 0, false);
+	}
+	else if (elapsed < 0.25f) {
+		current = L"jump";
+		ChangeAnimation(current, velocity, dir, 2, true);
+	}
+	else if (elapsed < 0.3f) {
+		current = L"jump";
+		ChangeAnimation(current, velocity, dir, 3, true);
+	}
+
+	else {
+		state = falldown;
+		startFalling = Time::Get()->Running();
+	}
+	return true;
+}
+
+void KirbyCharacter::SetHitEnemy()
+{
+	hitEnemyTime = Time::Get()->Running();
+}
+
+float KirbyCharacter::GetHitEnemy()
+{
+	return hitEnemyTime;
 }
 
 void KirbyCharacter::ApplyGravity()

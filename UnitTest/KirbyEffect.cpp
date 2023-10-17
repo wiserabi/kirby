@@ -130,10 +130,46 @@ void KirbyEffect::SetEnemyDeathEffect(Vector3 pos)
 {
 	currentEffect = Effect::bigstars;
 	for (int i = 0; i < 4; i++) {
-		animations.push_back(new AnimationRect(pos, Vector3(32.0f, 32.0f, 0.0f), false));
+		animations.push_back(new AnimationRect(pos, Vector3(52.0f, 52.0f, 0.0f), false));
 		animations[i]->SetAnimator(animatorList[currentEffect]);
 		effectStartPositions.push_back(pos);
 	}
+}
+
+//when kirby is hit by enemy
+void KirbyEffect::SetHitEffect()
+{
+	currentEffect = Effect::bigstars;
+	animations.push_back(new AnimationRect(kirbyPos, Vector3(52.0f, 52.0f, 0.0f), false));
+	animations[0]->SetAnimator(animatorList[currentEffect]);
+	//get current position to start effect and direction(left or right)
+	effectStartPos = kirbyPos;
+	int randDir = rand() % 8;//set random direction
+	if (randDir == 0) {
+		randVec = Values::LeftVec;
+	}
+	else if (randDir == 1) {
+		randVec = Values::RightVec;
+	}
+	else if (randDir == 2) {
+		randVec = Values::UpVec;
+	}
+	else if (randDir == 3) {
+		randVec = Values::DownVec;
+	}
+	else if (randDir == 4) {
+		randVec = Values::RightUpVec;
+	}
+	else if (randDir == 5) {
+		randVec = Values::RightDownVec;
+	}
+	else if (randDir == 6) {
+		randVec = Values::LeftDownVec;
+	}
+	else if (randDir == 7) {
+		randVec = Values::LeftUpVec;
+	}
+
 }
 
 
@@ -224,19 +260,32 @@ void KirbyEffect::UpdateDeathEffect(float delta)
 		return;
 	}
 	//up right
-	effectStartPositions[0] += (Values::UpVec + Values::RightVec) * 100 * delta ;
+	effectStartPositions[0] += Values::RightUpVec * 100 * delta ;
 	//up left
-	effectStartPositions[1] += (Values::UpVec + Values::LeftVec) * 100 * delta;
+	effectStartPositions[1] += Values::LeftUpVec * 100 * delta;
 	//down right
-	effectStartPositions[2] += (Values::DownVec + Values::RightVec) * 100 * delta;
+	effectStartPositions[2] += Values::RightDownVec * 100 * delta;
 	//down left
-	effectStartPositions[3] += (Values::DownVec + Values::LeftVec) * 100 * delta;
+	effectStartPositions[3] += Values::LeftDownVec * 100 * delta;
 
 	for (int i = 0; i < animations.size(); i++) {
 		animations[i]->SetPosition(effectStartPositions[i]);
 		animations[i]->ChangeAnimation(L"", 0.0f, Values::ZeroVec3, 0, true);
 		animations[i]->Update(animatorList[currentEffect]);
 	}
+}
+
+void KirbyEffect::UpdateHitEffect(float delta)
+{
+	if (time + duration < Time::Get()->Running()) {
+		animations.clear();
+		setTimer = false;
+		return;
+	}
+	effectStartPos += randVec * 150 * delta;
+	animations[0]->SetPosition(effectStartPos);
+	animations[0]->ChangeAnimation(L"", 0.0f, Values::ZeroVec3, 1, true);
+	animations[0]->Update(animatorList[currentEffect]);
 }
 
 void KirbyEffect::StartTimer(float duration)
@@ -272,6 +321,13 @@ void KirbyEffect::RenderDeathEffect()
 {
 	for (int i = 0; i < animations.size(); i++) {
 		animations[i]->Render();
+	}
+}
+
+void KirbyEffect::RenderHitEffect()
+{
+	if (animations.size()) {
+		animations[0]->Render();
 	}
 }
 
