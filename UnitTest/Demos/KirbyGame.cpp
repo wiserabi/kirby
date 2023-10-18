@@ -70,6 +70,7 @@ void KirbyGame::Update()
 	world->Update();
 
 	for (class Enemy* enemy : enemies) {
+		enemy->SetKirbyPos(kirby->GetPosition());
 		enemy->Update();
 	}
 
@@ -446,7 +447,7 @@ void KirbyGame::KirbyCollisionWithWorld(BoundingBox* kirbyBox, Rect* worldRect)
 	}
 }
 
-void KirbyGame::EnemyCollisions(vector<class Enemy*> enemies, Rect* worldRect, BoundingBox* kirbyBox)
+void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, BoundingBox* kirbyBox)
 {
 	//assume there are enemies in the world
 	for (size_t j = 0; j < enemies.size(); j++)

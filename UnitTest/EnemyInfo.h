@@ -2,7 +2,7 @@
 
 typedef struct EnemyData {
     string name;
-    int moves;
+    int moves;//(walk, jump, fly, attack) 1,2,4,8
     string ability;
     int invincible;
     int follow;

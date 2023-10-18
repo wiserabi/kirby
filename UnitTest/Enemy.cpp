@@ -9,7 +9,7 @@
 
 #define VELOCITY 200
 
-void Enemy::setKirbyPos(Vector3 pos)
+void Enemy::SetKirbyPos(Vector3 pos)
 {
     this->kirbyPos = pos;
 }
@@ -17,10 +17,35 @@ void Enemy::setKirbyPos(Vector3 pos)
 
 void Enemy::attackPlayer()
 {
+    attackEffect.UpdateSparkEffect(Time::Delta());
 }
 
 void Enemy::moveTowardsPlayer()
 {
+    //follow kirby pos
+    if (position.x <= kirbyPos.x) {
+        move = WALKRIGHT;
+    }
+    else {
+        move = WALKLEFT;
+    }
+    //hit wall
+    if (hitLeft) {
+        move = WALKRIGHT;
+    }
+    else if (hitRight) {
+        move = WALKLEFT;
+    }
+
+
+    if (move == WALKLEFT) {
+        __super::SetLeft(false);
+        Walk();
+    }
+    else {
+        __super::SetLeft(true);
+        Walk();
+    }
 }
 
 Enemy::Enemy(Vector3 position, Vector3 size, string name, class EnemyInfo* infos)
@@ -64,6 +89,7 @@ Enemy::~Enemy()
 
 void Enemy::Update()
 {
+    cout << state << "\n";
     switch (state) {
     case IDLE:
         MoveIdle();
@@ -75,15 +101,22 @@ void Enemy::Update()
         if (playerOutOfRange(outRange)) {
             state = IDLE;
         }
-        else if (playerInRange(inRange) && canAttack(attackRange)) {
+        else if (canAttack(attackRange)) {
             state = ATTACK;
+            attackEffect.SetSparkEffect(rect->GetPosition());
+            attackEffect.StartTimer(4.0f);
+            startAttack = Time::Get()->Running();
         }
         else {
             moveTowardsPlayer();
         }
         break;
     case ATTACK:
-        if (playerOutOfRange(outRange)) {
+        if (Time::Get()->Running() - startAttack < 4.0f) {
+            state = ATTACK;
+            attackPlayer();
+        }
+        else if (playerOutOfRange(outRange)) {
             state = IDLE;
         }
         else if (!canAttack(attackRange)) {
@@ -109,6 +142,9 @@ void Enemy::Render()
     if (state == DEATH) {
         deathEffect.RenderDeathEffect();
         return;
+    }
+    if (state == ATTACK) {
+        attackEffect.RenderSparkEffect();
     }
     if (rect) {
         rect->Render();

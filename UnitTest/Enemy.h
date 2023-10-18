@@ -30,6 +30,8 @@ public:
     void SetHitLeft(bool hitLeft) { this->hitLeft = hitLeft; }
     void SetHitRight(bool hitRight) { this->hitRight = hitRight; }
     void SetDeathStart();
+    void SetKirbyPos(Vector3 pos);
+
 
 private:
     enum State { IDLE, CHASE, ATTACK, DEATH};
@@ -39,8 +41,8 @@ private:
     std::vector<std::vector<int>> Enemy::currentMap;
     Vector3 kirbyPos;
 
-    float inRange = 400.0f;
-    float outRange = 450.0f;
+    float inRange = 300.0f;
+    float outRange = 400.0f;
     float attackRange = 100.0f;
     float idleTimer = 0.0f;
     EnemyInfo* infos = nullptr;
@@ -51,17 +53,18 @@ private:
     bool hitLeft = false;
     bool hitRight = false;
     class KirbyEffect deathEffect;
+    class KirbyEffect attackEffect;
     float deathStart;
+    float startAttack;
 
-    void setKirbyPos(Vector3 pos);
-    bool playerInRange(float range){ 
-        return sqrt(pow(kirbyPos.x - position.x, 2.0f) + pow(kirbyPos.y - position.y, 2.0f)) < range;
-    }
     bool playerOutOfRange(float range) {
         return sqrt(pow(kirbyPos.x - position.x, 2.0f) + pow(kirbyPos.y - position.y, 2.0f)) > range;
     }
+    bool playerInRange(float range){ 
+        return sqrt(pow(kirbyPos.x - position.x, 2.0f) + pow(kirbyPos.y - position.y, 2.0f)) < range;
+    }
     bool canAttack(float range) {
-        return sqrt(pow(kirbyPos.x - position.x, 2.0f) + pow(kirbyPos.y - position.y, 2.0f)) > range;
+        return hitGround && sqrt(pow(kirbyPos.x - position.x, 2.0f) + pow(kirbyPos.y - position.y, 2.0f)) < range;
     }
 
     void moveTowardsPlayer();

@@ -17,6 +17,7 @@ namespace Effect {
 		waterblowdown,
 		waterblowright,
 		waterblowup,
+		spark,
 		swallowing,
 	};
 }
@@ -35,6 +36,8 @@ public:
 	void SetEnemyDeathEffect(Vector3 pos);//when enemy gets killed effect
 	void SetHitEffect();//when kirby is hit by enemy
 	void SetKirbyBlowAir();//kirby blow effect
+	void SetSparkEffect(Vector3 pos);
+	void SetBeamEffect(Vector3 pos, bool leftSide);
 
 	void UpdateEatEffect();
 	bool UpdateSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow);
@@ -43,6 +46,9 @@ public:
 	void UpdateDeathEffect(float delta);
 	void UpdateHitEffect(float delta);
 	void UpdateBlowAir(float delta);
+	void UpdateSparkEffect(float delta);
+	void UpdateBeamEffect(float delta);
+	
 
 	bool isTimerSet() { return setTimer; };
 	void StartTimer(float duration);
@@ -51,6 +57,8 @@ public:
 	void RenderDeathEffect();
 	void RenderHitEffect();
 	void RenderBlowAir();
+	void RenderSparkEffect();
+	void RenderBeamEffect();
 
 	void RenderEffect();
 	void StopEffect();
@@ -60,11 +68,11 @@ public:
 	vector<class AnimationRect*> GetAnimationRects() { return animations; }
 
 private:
-	int pngSplit[15] = {
-		1,4,1,3,1,5,2,1,4,4,3,8,2,2,2
+	int pngSplit[16] = {
+		11,4,1,3,1,5,2,1,4,4,3,8,2,2,2,8
 	};
-	wstring pngList[15] = {
-		L"kirbybeam.png",//1
+	wstring pngList[16] = {
+		L"kirbybeam.png",//11
 		L"kirbybigstars.png",//4
 		L"kirbybloweffect.png",//1
 		L"kirbybomb.png",//3
@@ -78,7 +86,8 @@ private:
 		L"kirbytwostar.png",//8
 		L"kirbywaterblowdown.png",//2
 		L"kirbywaterblowright.png",//2
-		L"kirbywaterblowup.png"//2
+		L"kirbywaterblowup.png",//2
+		L"kirbysparkeffect.png"//8
 	};
 	vector<class AnimationRect*> animations;
 	vector<class Animator*> animatorList;

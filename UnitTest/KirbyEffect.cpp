@@ -27,7 +27,7 @@ void KirbyEffect::SetKirbyPos(Vector3 kirbyPos, bool left)
 
 void KirbyEffect::LoadTextureList()
 {
-	for (size_t i = 0; i < 15; i++)
+	for (size_t i = 0; i < 16; i++)
 	{
 		{
 			Texture2D* srcTex = new Texture2D(TexturePath + L"kirbyEffect/" + pngList[i]);
@@ -182,6 +182,32 @@ void KirbyEffect::SetKirbyBlowAir()
 	rectEffect0 = new Rect(effectStartPos, Vector3(52.0f, 52.0f, 0.0f), 0.0f);
 }
 
+void KirbyEffect::SetSparkEffect(Vector3 pos)
+{
+	currentEffect = Effect::spark;
+
+	effectStartPos = pos;
+	animations.push_back(new AnimationRect(effectStartPos, Vector3(270.0f, 270.0f, 0.0f), false));
+	animations[0]->SetAnimator(animatorList[currentEffect]);
+}
+
+void KirbyEffect::SetBeamEffect(Vector3 pos, bool leftSide)
+{
+	currentEffect = Effect::beam;
+
+	if (leftSide) {
+		effectStartPos = pos + Values::LeftVec * 20;//effect starting point
+		animations.push_back(new AnimationRect(effectStartPos, Vector3(96.0f, 96.0f, 0.0f), false));
+		animations[0]->SetAnimator(animatorList[currentEffect]);
+		animations[0]->SetLeft(true);
+	}
+	else {
+		effectStartPos = pos + Values::RightVec * 20;//effect starting point
+		animations.push_back(new AnimationRect(effectStartPos, Vector3(96.0f, 96.0f, 0.0f), false));
+		animations[0]->SetAnimator(animatorList[currentEffect]);
+		animations[0]->SetLeft(false);
+	}
+}
 
 void KirbyEffect::UpdateEatEffect()
 {
@@ -340,6 +366,27 @@ void KirbyEffect::UpdateBlowAir(float delta)
 	animations[0]->Update(animatorList[currentEffect]);
 }
 
+void KirbyEffect::UpdateSparkEffect(float delta)
+{
+	if (time + duration < Time::Get()->Running()) {
+		animations.clear();
+		setTimer = false;
+		return;
+	}
+	animations[0]->SetPosition(effectStartPos);
+	animations[0]->Update(animatorList[currentEffect]);
+}
+
+void KirbyEffect::UpdateBeamEffect(float delta)
+{
+	if (time + duration < Time::Get()->Running()) {
+		animations.clear();
+		setTimer = false;
+		return;
+	}
+	animations[0]->Update(animatorList[currentEffect]);
+}
+
 void KirbyEffect::StartTimer(float duration)
 {
 	setTimer = true;
@@ -387,6 +434,20 @@ void KirbyEffect::RenderBlowAir()
 {
 	if (animations.size() && rectEffect0) {
 		rectEffect0->Render();
+		animations[0]->Render();
+	}
+}
+
+void KirbyEffect::RenderSparkEffect()
+{
+	if (animations.size()) {
+		animations[0]->Render();
+	}
+}
+
+void KirbyEffect::RenderBeamEffect()
+{
+	if (animations.size()) {
 		animations[0]->Render();
 	}
 }
