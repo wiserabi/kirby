@@ -120,69 +120,8 @@ void KirbyGame::Update()
 		for (size_t i = 0; i < worldRects.size(); i++) {
 			KirbyCollisionWithWorld(kirbyBox, worldRects[i]);
 
-			//assume there are enemies in the world
-			for (size_t j = 0; j < enemies.size(); j++)
-			{
-				BoundingBox* enemyBox = nullptr;
-				Rect* enemyRect = enemies[j]->GetRect();
-				if (enemyRect) {
-					enemyBox = enemyRect->GetBox();
-				}
+			EnemyCollisions(enemies, worldRects[i], kirbyBox);
 
-				if (enemyBox && BoundingBox::OBB(enemyBox, worldRects[i]->GetBox())) {
-					world->SetColor(i, Values::Red);
-					FixEnemyPosition(worldRects[i], j);
-				}
-				else {
-					//transparent gray
-					world->SetColor(i, Color(0.5f, 0.5f, 0.5f, 0.7f));
-				}
-				
-				
-				//check if kirby blow air collides with enemy
-				BoundingBox* effectBox = nullptr;
-				Rect* effectRect = effects[5]->GetRect();
-				if (effectRect) {
-					effectBox = effectRect->GetBox();
-				}
-
-				if (effectBox && enemyBox && BoundingBox::OBB(effectBox, enemyBox)) {
-					effects[5]->StartTimer(0.1f);
-					enemies[j]->SetDeathStart();//start enemy death timer
-					continue;
-				}
-
-				effectBox = nullptr;
-				effectRect = effects[2]->GetRect();
-				if (effectRect) {
-					effectBox = effectRect->GetBox();
-				}
-
-				//check if big star that kirby throws hit enemy
-				if (effectBox && enemyBox && BoundingBox::OBB(effectBox, enemyBox)) {
-					effects[3]->SetKirbyStarExplodeOnEnemy(enemies[j]->GetPosition());
-					effects[3]->StartTimer(0.2f);
-
-					effects[2]->StartTimer(0.1f);
-					enemies[j]->SetDeathStart();//start enemy death timer
-					continue;
-				}
-				float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
-				//check if kirby collides with enemy
-				if (enemyBox && invulnerableTime > 2.0f && BoundingBox::OBB(kirbyBox, enemyBox)) {
-					effects[4]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
-					effects[4]->SetHitEffect();
-					effects[4]->StartTimer(0.5f);//set duration of effect
-					//while kirby was hit while inhaling
-					if (kirby->GetState() == inhaling) {
-						effects[0]->StartTimer(0.1f);
-					}
-
-					kirby->SetState(hitEnemy);
-					kirby->SetHitEnemy();
-					
-				}
-			}
 			BoundingBox* effectBox = nullptr;
 			Rect* effectRect = effects[2]->GetRect();
 			if (effectRect) {
@@ -504,5 +443,67 @@ void KirbyGame::KirbyCollisionWithWorld(BoundingBox* kirbyBox, Rect* worldRect)
 	if (BoundingBox::OBB(kirbyBox, worldRect->GetBox())) {
 		//world->SetColor(i, Values::Blue);
 		FixKirbyPosition(worldRect);
+	}
+}
+
+void KirbyGame::EnemyCollisions(vector<class Enemy*> enemies, Rect* worldRect, BoundingBox* kirbyBox)
+{
+	//assume there are enemies in the world
+	for (size_t j = 0; j < enemies.size(); j++)
+	{
+		BoundingBox* enemyBox = nullptr;
+		Rect* enemyRect = enemies[j]->GetRect();
+		if (enemyRect) {
+			enemyBox = enemyRect->GetBox();
+		}
+
+		if (enemyBox && BoundingBox::OBB(enemyBox, worldRect->GetBox())) {
+			//world->SetColor(i, Values::Red);
+			FixEnemyPosition(worldRect, j);
+		}
+
+		//check if kirby blow air collides with enemy
+		BoundingBox* effectBox = nullptr;
+		Rect* effectRect = effects[5]->GetRect();
+		if (effectRect) {
+			effectBox = effectRect->GetBox();
+		}
+
+		if (effectBox && enemyBox && BoundingBox::OBB(effectBox, enemyBox)) {
+			effects[5]->StartTimer(0.1f);
+			enemies[j]->SetDeathStart();//start enemy death timer
+			continue;
+		}
+
+		effectBox = nullptr;
+		effectRect = effects[2]->GetRect();
+		if (effectRect) {
+			effectBox = effectRect->GetBox();
+		}
+
+		//check if big star that kirby throws hit enemy
+		if (effectBox && enemyBox && BoundingBox::OBB(effectBox, enemyBox)) {
+			effects[3]->SetKirbyStarExplodeOnEnemy(enemies[j]->GetPosition());
+			effects[3]->StartTimer(0.2f);
+
+			effects[2]->StartTimer(0.1f);
+			enemies[j]->SetDeathStart();//start enemy death timer
+			continue;
+		}
+		float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
+		//check if kirby collides with enemy
+		if (enemyBox && invulnerableTime > 2.0f && BoundingBox::OBB(kirbyBox, enemyBox)) {
+			effects[4]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+			effects[4]->SetHitEffect();
+			effects[4]->StartTimer(0.5f);//set duration of effect
+			//while kirby was hit while inhaling
+			if (kirby->GetState() == inhaling) {
+				effects[0]->StartTimer(0.1f);
+			}
+
+			kirby->SetState(hitEnemy);
+			kirby->SetHitEnemy();
+
+		}
 	}
 }

@@ -20,6 +20,7 @@ public:
     void SetKirbyEat();
     void SetKirbyBlowAir();
     void KirbyCollisionWithWorld(BoundingBox* kirbyBox, Rect* worldRect);
+    void EnemyCollisions(vector<class Enemy*> enemies, Rect* worldRect, BoundingBox* kirbyBox);
 
 private:
     class KirbyCharacter* kirby = nullptr;
