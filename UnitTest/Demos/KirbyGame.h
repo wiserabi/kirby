@@ -15,6 +15,11 @@ public:
     void CheckReset();
     void Sound();
     void UpdateEffect();
+    void CheckInhaleEnemy();
+    void SetThrowStar();
+    void SetKirbyEat();
+    void SetKirbyBlowAir();
+    void KirbyCollisionWithWorld(BoundingBox* kirbyBox, Rect* worldRect);
 
 private:
     class KirbyCharacter* kirby = nullptr;

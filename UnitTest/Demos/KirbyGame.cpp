@@ -82,16 +82,13 @@ void KirbyGame::Update()
 	State kirbyCurState = kirby->GetState();
 	State kirbyPrevState = kirby->GetPrevState();
 
+	//set blow air effect of kirby
 	if (kirbyPrevState == inhaled && kirbyCurState == exhaling) {
-		effects[5]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
-		effects[5]->SetKirbyBlowAir();
-		effects[5]->StartTimer(2.0f);
+		SetKirbyBlowAir();
 	}
 	//kirby state change inhale => inhaling
 	else if (kirbyPrevState == inhale && kirbyCurState == inhaling) {
-		effects[0]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
-		effects[0]->SetKirbyEat();
-		effects[0]->StartTimer(100000.0f);
+		SetKirbyEat();
 	}
 	else if (kirbyPrevState == inhaling && kirbyCurState == stopInhaling) {
 		//kirby stopped inhaling moment
@@ -99,60 +96,11 @@ void KirbyGame::Update()
 	}
 	//check if kirby is inhaling
 	else if (kirbyCurState == inhaling) {
-		//cout << "kirby is inhaling!" << "\n";
-		Vector3 kirbyPos = kirby->GetPosition();
-		
-		//check whether kirby is facing right or left
-		if (kirby->GetLeft()) {
-			//check all enemies on left
-			for(int i = 0; i < enemies.size(); i++) {
-				Enemy* enemy = enemies[i];
-				Vector3 pos = enemy->GetPosition();
-				//check enemy in inhaling range
-				if (enemy->GetState() != 3 && pos.y <= kirbyPos.y + 120.0f && pos.y >= kirbyPos.y - 120.0f &&
-					pos.x <= kirbyPos.x && kirbyPos.x - SWALLOWRANGE < pos.x) {
-					//cout << "Enemy is in range!" << "\n";
-					int curframe = enemies[i]->GetAnimator()->GetCurrentFrameIndex();
-					enemySwallowed.push_back({ enemies[i] , curframe });
-					enemies.erase(enemies.begin() + i);
-					i--;
-				}
-			}
-		}
-		else {
-			//check all enemies on right
-			for (int i = 0; i < enemies.size(); i++) {
-				Enemy* enemy = enemies[i];
-				Vector3 pos = enemy->GetPosition();
-				//check enemy in inhaling range
-				if (enemy->GetState() != 3 && pos.y <= kirbyPos.y + 120.0f && pos.y >= kirbyPos.y - 120.0f &&
-					pos.x >= kirbyPos.x && kirbyPos.x + SWALLOWRANGE > pos.x) {
-					//cout << "Enemy is in range!" << "\n";
-					int curframe = enemies[i]->GetAnimator()->GetCurrentFrameIndex();
-
-					enemySwallowed.push_back({ enemy, curframe });
-					enemies.erase(enemies.begin() + i);
-					i--;
-				}
-			}
-		}
-		//change kirby state to swallowing
-		//all other kirby states are not allowed during this state
-		//move enemy through bezier curve
-		if (!enemySwallowed.empty()) {
-			effects[1]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
-			effects[1]->SetKirbySwallow(enemySwallowed);
-			effects[1]->StartTimer(10000.0f);
-			kirby->SetState(swallowing);
-		}
+		CheckInhaleEnemy();
 	}
-
 	//when changed to throw star
 	else if ((kirbyPrevState == eatidle || kirbyPrevState == eatandwalk) && kirbyCurState == attacking) {
-		effects[2]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
-		effects[2]->SetKirbyBlowStar();
-		//set duration for this effect
-		effects[2]->StartTimer(10.0f);
+		SetThrowStar();
 	}
 	
 	kirby->SetHitGround(false);
@@ -170,16 +118,7 @@ void KirbyGame::Update()
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
 		vector<Rect*> worldRects = world->GetRects();
 		for (size_t i = 0; i < worldRects.size(); i++) {
-			//if there is collision
-			if (BoundingBox::OBB(kirbyBox, worldRects[i]->GetBox())) {
-				world->SetColor(i, Values::Blue);
-				FixKirbyPosition(worldRects[i]);
-			}
-			else {
-				//transparent gray
-				world->SetColor(i, Color(0.5f,0.5f,0.5f,0.7f));
-			}
-			
+			KirbyCollisionWithWorld(kirbyBox, worldRects[i]);
 
 			//assume there are enemies in the world
 			for (size_t j = 0; j < enemies.size(); j++)
@@ -485,4 +424,85 @@ void KirbyGame::UpdateEffect()
 	effects[3]->UpdateEffect(Time::Get()->Delta());
 	effects[4]->UpdateHitEffect(Time::Get()->Delta());
 	effects[5]->UpdateBlowAir(Time::Get()->Delta());
+}
+
+void KirbyGame::CheckInhaleEnemy()
+{
+	//cout << "kirby is inhaling!" << "\n";
+	Vector3 kirbyPos = kirby->GetPosition();
+
+	//check whether kirby is facing right or left
+	if (kirby->GetLeft()) {
+		//check all enemies on left
+		for (int i = 0; i < enemies.size(); i++) {
+			Enemy* enemy = enemies[i];
+			Vector3 pos = enemy->GetPosition();
+			//check enemy in inhaling range, if enemy is not dead
+			if (enemy->GetState() != 3 && pos.y <= kirbyPos.y + 120.0f && pos.y >= kirbyPos.y - 120.0f &&
+				pos.x <= kirbyPos.x && kirbyPos.x - SWALLOWRANGE < pos.x) {
+				//cout << "Enemy is in range!" << "\n";
+				int curframe = enemies[i]->GetAnimator()->GetCurrentFrameIndex();
+				enemySwallowed.push_back({ enemies[i] , curframe });
+				enemies.erase(enemies.begin() + i);
+				i--;
+			}
+		}
+	}
+	else {
+		//check all enemies on right
+		for (int i = 0; i < enemies.size(); i++) {
+			Enemy* enemy = enemies[i];
+			Vector3 pos = enemy->GetPosition();
+			//check enemy in inhaling range, if enemy is not dead
+			if (enemy->GetState() != 3 && pos.y <= kirbyPos.y + 120.0f && pos.y >= kirbyPos.y - 120.0f &&
+				pos.x >= kirbyPos.x && kirbyPos.x + SWALLOWRANGE > pos.x) {
+				//cout << "Enemy is in range!" << "\n";
+				int curframe = enemies[i]->GetAnimator()->GetCurrentFrameIndex();
+
+				enemySwallowed.push_back({ enemy, curframe });
+				enemies.erase(enemies.begin() + i);
+				i--;
+			}
+		}
+	}
+	//change kirby state to swallowing
+	//all other kirby states are not allowed during this state
+	//move enemy through bezier curve
+	if (!enemySwallowed.empty()) {
+		effects[1]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+		effects[1]->SetKirbySwallow(enemySwallowed);
+		effects[1]->StartTimer(10000.0f);
+		kirby->SetState(swallowing);
+	}
+}
+
+void KirbyGame::SetThrowStar()
+{
+	effects[2]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+	effects[2]->SetKirbyBlowStar();
+	//set duration for this effect
+	effects[2]->StartTimer(10.0f);
+}
+
+void KirbyGame::SetKirbyEat()
+{
+	effects[0]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+	effects[0]->SetKirbyEat();
+	effects[0]->StartTimer(100000.0f);
+}
+
+void KirbyGame::SetKirbyBlowAir()
+{
+	effects[5]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+	effects[5]->SetKirbyBlowAir();
+	effects[5]->StartTimer(2.0f);
+}
+
+void KirbyGame::KirbyCollisionWithWorld(BoundingBox* kirbyBox, Rect* worldRect)
+{
+	//if there is collision
+	if (BoundingBox::OBB(kirbyBox, worldRect->GetBox())) {
+		//world->SetColor(i, Values::Blue);
+		FixKirbyPosition(worldRect);
+	}
 }
