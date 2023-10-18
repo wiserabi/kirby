@@ -24,8 +24,15 @@ void KirbyGame::Init()
 	enemyInfo = new EnemyInfo();
 
 	enemies.push_back(new Enemy({ 1000, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
+	enemies.push_back(new Enemy({ 1000, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
+
 	enemies.push_back(new Enemy({ 500, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
+	enemies.push_back(new Enemy({ 500, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
+	
 	enemies.push_back(new Enemy({ 700, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
+	enemies.push_back(new Enemy({ 700, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
+	
+	enemies.push_back(new Enemy({ 800, 430, 0 }, { 128, 128, 1 }, "waddledoo", enemyInfo));
 	enemies.push_back(new Enemy({ 800, 430, 0 }, { 128, 128, 1 }, "waddledoo", enemyInfo));
 
 
@@ -33,8 +40,8 @@ void KirbyGame::Init()
 	effects.push_back(new KirbyEffect());//pulling enemy as effect
 	effects.push_back(new KirbyEffect());//attacking
 	effects.push_back(new KirbyEffect());//explode frame 1(explode when star hits enemy)
-	effects.push_back(new KirbyEffect());//enemy get killed effect
 	effects.push_back(new KirbyEffect());//kirby hit enemy effect
+	effects.push_back(new KirbyEffect());//kirby blow air effect
 }
 
 void KirbyGame::Destroy()
@@ -58,6 +65,8 @@ void KirbyGame::Update()
 {
 	if (Keyboard::Get()->Down('R')) {
 		Sounds::Get()->Pause("Vegetable-Valley.mp3");
+		vector<class Enemy*>().swap(enemies);
+
 		KirbyGame::Init();
 	}
 	if (Keyboard::Get()->Down(VK_F2)) {
@@ -82,13 +91,19 @@ void KirbyGame::Update()
 
 	effects[2]->UpdateEffect(Time::Get()->Delta());
 	effects[3]->UpdateEffect(Time::Get()->Delta());
-	effects[4]->UpdateDeathEffect(Time::Get()->Delta());
-	effects[5]->UpdateHitEffect(Time::Get()->Delta());
+	effects[4]->UpdateHitEffect(Time::Get()->Delta());
+	effects[5]->UpdateBlowAir(Time::Get()->Delta());
 
 	State kirbyCurState = kirby->GetState();
 	State kirbyPrevState = kirby->GetPrevState();
+
+	if (kirbyPrevState == inhaled && kirbyCurState == exhaling) {
+		effects[5]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+		effects[5]->SetKirbyBlowAir();
+		effects[5]->StartTimer(2.0f);
+	}
 	//kirby state change inhale => inhaling
-	if (kirbyPrevState == inhale && kirbyCurState == inhaling) {
+	else if (kirbyPrevState == inhale && kirbyCurState == inhaling) {
 		effects[0]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
 		effects[0]->SetKirbyEat();
 	}
@@ -201,8 +216,13 @@ void KirbyGame::Update()
 			//assume there are enemies in the world
 			for (size_t j = 0; j < enemies.size(); j++)
 			{
-				BoundingBox* enemyBox = enemies[j]->GetRect()->GetBox();
-				if (BoundingBox::OBB(enemyBox, worldRects[i]->GetBox())) {
+				BoundingBox* enemyBox = nullptr;
+				Rect* enemyRect = enemies[j]->GetRect();
+				if (enemyRect) {
+					enemyBox = enemyRect->GetBox();
+				}
+
+				if (enemyBox && BoundingBox::OBB(enemyBox, worldRects[i]->GetBox())) {
 					world->SetColor(i, Values::Red);
 					FixEnemyPosition(worldRects[i], j);
 				}
@@ -212,28 +232,44 @@ void KirbyGame::Update()
 				}
 				
 				
+				//check if kirby blow air collides with enemy
 				BoundingBox* effectBox = nullptr;
-				Rect* effectRect = effects[2]->GetRect();
+				Rect* effectRect = effects[5]->GetRect();
 				if (effectRect) {
 					effectBox = effectRect->GetBox();
 				}
+
+				if (effectBox && enemyBox && BoundingBox::OBB(effectBox, enemyBox)) {
+					effects[5]->StartTimer(0.1f);
+					enemies[j]->SetDeathStart();//start enemy death timer
+					continue;
+				}
+
+				effectBox = nullptr;
+				effectRect = effects[2]->GetRect();
+				if (effectRect) {
+					effectBox = effectRect->GetBox();
+				}
+
 				//check if big star that kirby throws hit enemy
-				if (effectBox && BoundingBox::OBB(effectBox, enemyBox)) {
+				if (effectBox && enemyBox && BoundingBox::OBB(effectBox, enemyBox)) {
 					effects[3]->SetKirbyStarExplodeOnEnemy(enemies[j]->GetPosition());
 					effects[3]->StartTimer(0.2f);
-					effects[4]->SetEnemyDeathEffect(enemies[j]->GetPosition());
-					effects[4]->StartTimer(0.8f);
 
-					enemies.erase(enemies.begin() + j);
 					effects[2]->StopEffect();
-					j--;
+					enemies[j]->SetDeathStart();//start enemy death timer
+					continue;
 				}
 				float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
 				//check if kirby collides with enemy
-				if (invulnerableTime > 2.0f && BoundingBox::OBB(kirbyBox, enemyBox)) {
-					effects[5]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
-					effects[5]->SetHitEffect();
-					effects[5]->StartTimer(0.5f);//set duration of effect
+				if (enemyBox && invulnerableTime > 2.0f && BoundingBox::OBB(kirbyBox, enemyBox)) {
+					effects[4]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+					effects[4]->SetHitEffect();
+					effects[4]->StartTimer(0.5f);//set duration of effect
+					//while kirby was hit while inhaling
+					if (kirby->GetState() == inhaling) {
+						effects[0]->StopEffect();
+					}
 
 					kirby->SetState(hitEnemy);
 					kirby->SetHitEnemy();
@@ -248,6 +284,14 @@ void KirbyGame::Update()
 			//check if big star thrown by kirby hits the wall
 			if (effectRect && effectBox && BoundingBox::OBB(effectBox, worldRects[i]->GetBox())) {
 				effects[2]->StopEffect();
+			}
+		}
+		
+		for (size_t i = 0; i < enemies.size(); i++)
+		{
+			if(enemies[i]->CheckDeath()) {
+				enemies.erase(enemies.begin() + i);
+				i--;
 			}
 		}
 	}
@@ -268,8 +312,7 @@ void KirbyGame::Render()
 		effects[i]->RenderEffect();
 	}
 	effects[1]->RenderSwallowEffect(enemySwallowed);
-	effects[4]->RenderDeathEffect();
-	effects[5]->RenderHitEffect();
+	effects[4]->RenderHitEffect();
 
 	kirby->Render();
 

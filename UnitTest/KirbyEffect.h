@@ -34,6 +34,7 @@ public:
 	void SetKirbyStarExplodeOnEnemy(Vector3 Pos);//when star hits enemy
 	void SetEnemyDeathEffect(Vector3 pos);//when enemy gets killed effect
 	void SetHitEffect();//when kirby is hit by enemy
+	void SetKirbyBlowAir();//kirby blow effect
 
 	void UpdateEatEffect();
 	bool UpdateSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow);
@@ -41,6 +42,7 @@ public:
 	void UpdateExplodeOnEnemy();
 	void UpdateDeathEffect(float delta);
 	void UpdateHitEffect(float delta);
+	void UpdateBlowAir(float delta);
 
 	bool isTimerSet() { return setTimer; };
 	void StartTimer(float duration);
@@ -48,6 +50,7 @@ public:
 	void RenderSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow);
 	void RenderDeathEffect();
 	void RenderHitEffect();
+	void RenderBlowAir();
 
 	void RenderEffect();
 	void StopEffect();

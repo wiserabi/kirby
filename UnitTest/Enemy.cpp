@@ -3,6 +3,7 @@
 #include "Geomatries/AnimationRect.h"
 #include "Enemy.h"
 #include "EnemyInfo.h"
+
 #include <fstream>
 #include <sstream>
 
@@ -52,6 +53,7 @@ Enemy::Enemy(Vector3 position, Vector3 size, string name, class EnemyInfo* infos
     //set color to see gray bounding box
     rect->SetColor(Color(0.5f, 0.5f, 0.5f, 0.7f));
     idleTimer = Time::Get()->Running();
+    deathEffect.StartTimer(1000000.0f);
 }
 
 Enemy::~Enemy()
@@ -91,15 +93,27 @@ void Enemy::Update()
             attackPlayer();
         }
         break;
+    case DEATH:
+        deathEffect.UpdateDeathEffect(Time::Delta());
+
     }
-    rect->SetPosition({ position.x, position.y, 0});
-    rect->Update();
-    __super::Update();
+    if (rect) {
+        rect->SetPosition({ position.x, position.y, 0 });
+        rect->Update();
+        __super::Update();
+    }
 }
 
 void Enemy::Render()
 {
-    rect->Render();
+    if (state == DEATH) {
+        deathEffect.RenderDeathEffect();
+        return;
+    }
+    if (rect) {
+        rect->Render();
+    }
+
     __super::Render();
 }
 //left, right
@@ -177,5 +191,19 @@ void Enemy::AttackPlayer()
 
 void Enemy::rangedAttackPlayer()
 {
+}
+
+bool Enemy::CheckDeath()
+{
+    return !deathEffect.isTimerSet();
+}
+
+void Enemy::SetDeathStart()
+{
+    deathStart = Time::Get()->Running();
+    deathEffect.SetEnemyDeathEffect(position);
+    deathEffect.StartTimer(0.8f);
+    state = DEATH;
+    SAFE_DELETE(rect);
 }
 
