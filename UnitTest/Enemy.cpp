@@ -95,7 +95,7 @@ void Enemy::Update()
         break;
     case DEATH:
         deathEffect.UpdateDeathEffect(Time::Delta());
-
+        return;
     }
     if (rect) {
         rect->SetPosition({ position.x, position.y, 0 });

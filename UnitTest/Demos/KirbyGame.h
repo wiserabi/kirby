@@ -12,7 +12,9 @@ public:
     void SetCameraBound();
     void FixKirbyPosition(class Rect* worldRect);
     void FixEnemyPosition(class Rect* worldRect, int idx);
-
+    void CheckReset();
+    void Sound();
+    void UpdateEffect();
 
 private:
     class KirbyCharacter* kirby = nullptr;

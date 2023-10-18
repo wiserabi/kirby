@@ -185,6 +185,19 @@ void KirbyEffect::SetKirbyBlowAir()
 
 void KirbyEffect::UpdateEatEffect()
 {
+	if (time + duration < Time::Get()->Running()) {
+		count = 0;
+		for (auto& it : animations) {
+			SAFE_DELETE(it);
+		}
+		//clear the previous effect animations
+		vector<AnimationRect*>().swap(animations);
+		curves->Clear();
+		SAFE_DELETE(curves);
+		setTimer = false;
+		return;
+	}
+
 	curves->Update(true);
 	vector<Line> lines_ = curves->GetLines();
 	
@@ -206,6 +219,13 @@ void KirbyEffect::UpdateEatEffect()
 
 bool KirbyEffect::UpdateSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow)
 {
+	if (time + duration < Time::Get()->Running()) {
+		curves->Clear();
+		delete curves;
+		curves = nullptr;
+		setTimer = false;
+		return true;
+	}
 	bool result = true;
 	//first update the curves
 	curves->Update(false);
@@ -330,7 +350,7 @@ void KirbyEffect::StartTimer(float duration)
 
 void KirbyEffect::UpdateEffect(float deltaTime)
 {
-	if (currentEffect == Effect::eat) {
+	if (currentEffect == Effect::eat && setTimer) {
 		UpdateEatEffect();
 		return;
 	}
@@ -394,24 +414,6 @@ void KirbyEffect::RenderEffect()
 
 void KirbyEffect::StopEffect()
 {
-	if (currentEffect == Effect::eat) {
-		count = 0;
-		for (auto& it : animations) {
-			SAFE_DELETE(it);
-		}
-		//clear the previous effect animations
-		vector<AnimationRect*>().swap(animations);
-		curves->Clear();
-		delete curves;
-		curves = nullptr;
-		return;
-	}
-	if (currentEffect == Effect::swallowing) {
-		curves->Clear();
-		delete curves;
-		curves = nullptr;
-		return;
-	}
 	if (currentEffect == Effect::bigstars) {
 		vector<AnimationRect*>().swap(animations);
 
@@ -431,8 +433,4 @@ void KirbyEffect::StopEffect()
 		return;
 	}
 
-}
-
-void KirbyEffect::Update(float deltaTime)
-{
 }

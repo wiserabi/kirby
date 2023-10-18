@@ -23,6 +23,7 @@ public:
     void MoveIdle();
     void AttackPlayer();
     void rangedAttackPlayer();
+    int GetState() { return state; }
     bool CheckDeath();//check whether enemy is death
 
     void SetHitGround(bool hitGround) { this->hitGround = hitGround; }

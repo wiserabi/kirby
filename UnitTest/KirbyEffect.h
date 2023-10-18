@@ -54,7 +54,6 @@ public:
 
 	void RenderEffect();
 	void StopEffect();
-	void Update(float deltaTime);
 	class Rect* GetRect() { return rectEffect0; };
 	
 	int GetCurrentEffect() { return currentEffect; };
