@@ -117,12 +117,11 @@ void KirbyCharacter::Move()
 	
 	//update kirby previous and current state
 	prevState = state;
-
+	ChangeBoundingBox();
 	if (state == hitEnemy) {
 		HitEnemy(delta, key);
 		return;
 	}
-	ChangeBoundingBox();
 	Move1(delta, key);//right left walk, idle
 	if (Move2(delta, key)) {//s key exhale, slide, squash down
 		return;
@@ -137,7 +136,10 @@ void KirbyCharacter::Move()
 
 void KirbyCharacter::ChangeBoundingBox()
 {
-	if (state == inhaled) {
+	if (state == hitEnemy) {
+		rect = list[0];
+	}
+	else if (state == inhaled) {
 		rect = list[1];
 	}
 	else if (state == eatandwalk || state == eatidle) {
@@ -1125,7 +1127,6 @@ bool KirbyCharacter::HitEnemy(float delta, Keyboard* key)
 
 	else {
 		state = falldown;
-		position.x -= 10.0f;
 		startFalling = Time::Get()->Running();
 		effectHitDir = -1;
 	}
