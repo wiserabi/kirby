@@ -32,9 +32,13 @@ void Enemy::moveTowardsPlayer()
     //hit wall
     if (hitLeft) {
         move = WALKRIGHT;
+        hitwallTime = Time::Get()->Running();
+        hitwall = true;
     }
     else if (hitRight) {
         move = WALKLEFT;
+        hitwallTime = Time::Get()->Running();
+        hitwall = true;
     }
 
 
@@ -52,26 +56,23 @@ Enemy::Enemy(Vector3 position, Vector3 size, string name, class EnemyInfo* infos
     : AnimationRect(position, size, false)
 {
     this->infos = infos;
-    Animator* tempAnimator = new Animator();
-    vector<EnemyData> data =  infos->GetData();
-    for (size_t i = 0; i < data.size(); i++)
-    {
-        //found the same name of enemy from Enemy info
-        if (name.compare(data[i].name) == 0) {
-            clipname = String::ToWString(data[i].name);
-            wstring tmpPath = L"kirbyEnemy/" + clipname + L".png";
-            Texture2D* srcTex = new Texture2D(TexturePath + tmpPath);
-            AnimationClip* animClip = new AnimationClip(clipname, srcTex, data[i].split,
-                Vector2(0, srcTex->GetHeight() * 0.0f),
-                Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 1.0f));
-            
-            tempAnimator->AddAnimClip(animClip);
-            tempAnimator->SetCurrentAnimClip(clipname);
-            SetAnimator(tempAnimator);
+    this->name = name;
 
-            SAFE_DELETE(srcTex);
-            break;
-        }
+    Animator* tempAnimator = new Animator();
+    map<string, EnemyData> data =  infos->GetData();
+    {
+        clipname = String::ToWString(name);
+        wstring tmpPath = L"kirbyEnemy/" + clipname + L".png";
+        Texture2D* srcTex = new Texture2D(TexturePath + tmpPath);
+        AnimationClip* animClip = new AnimationClip(clipname, srcTex, data[name].split,
+            Vector2(0, srcTex->GetHeight() * 0.0f),
+            Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 1.0f));
+            
+        tempAnimator->AddAnimClip(animClip);
+        tempAnimator->SetCurrentAnimClip(clipname);
+        SetAnimator(tempAnimator);
+
+        SAFE_DELETE(srcTex);
     }
     //set bounding box for enemy
     rect = new Rect(position, size / 2, 0.0f);
@@ -89,16 +90,21 @@ Enemy::~Enemy()
 
 void Enemy::Update()
 {
-    cout << state << "\n";
+    map<string, EnemyData> data = infos->GetData();
+
+    //cout << state << "\n";
     switch (state) {
     case IDLE:
         MoveIdle();
-        if (playerInRange(inRange)) {
+        if (playerInRange(inRange) && data[name].follow) {
             state = CHASE;
         }
         break;
     case CHASE:
-        if (playerOutOfRange(outRange)) {
+        if (hitwall && Time::Get()->Running() - hitwallTime < 1.0f) {
+            state = IDLE;
+        }
+        else if (playerOutOfRange(outRange)) {
             state = IDLE;
         }
         else if (canAttack(attackRange)) {
@@ -109,6 +115,9 @@ void Enemy::Update()
         }
         else {
             moveTowardsPlayer();
+        }
+        if (Time::Get()->Running() - hitwallTime > 1.0f) {
+            hitwall = false;
         }
         break;
     case ATTACK:

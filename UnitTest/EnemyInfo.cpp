@@ -26,15 +26,16 @@ void EnemyInfo::LoadEnemyInfo()
             Vector3 vector;
             istringstream iss(line);
             EnemyData info;
-            iss >> info.name >> info.moves >> info.ability >> info.invincible >> info.follow >> info.split;
-            infos.push_back({ info.name , info.moves , info.ability , info.invincible , info.follow, info.split });
+            string name;
+            iss >> name >> info.moves >> info.ability >> info.invincible >> info.follow >> info.split;
+            infos[name] = { info.moves , info.ability , info.invincible , info.follow, info.split };
         }
 
         file.close();
     }
 }
 
-vector<EnemyData> EnemyInfo::GetData()
+map<string, EnemyData> EnemyInfo::GetData()
 {
     return infos;
 }

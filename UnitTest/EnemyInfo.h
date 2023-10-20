@@ -1,7 +1,6 @@
 #pragma once
 
 typedef struct EnemyData {
-    string name;
     int moves;//(walk, jump, fly, attack) 1,2,4,8
     string ability;
     int invincible;
@@ -14,7 +13,7 @@ class EnemyInfo {
 public:
     EnemyInfo();
     ~EnemyInfo();
-    vector<EnemyData> infos;
+    map<string, EnemyData> infos;
     void LoadEnemyInfo();
-    vector<EnemyData> GetData();
+    map<string, EnemyData> GetData();
 };

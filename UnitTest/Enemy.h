@@ -56,6 +56,9 @@ private:
     class KirbyEffect attackEffect;
     float deathStart;
     float startAttack;
+    float hitwallTime;
+    bool hitwall = false;
+    string name;
 
     bool playerOutOfRange(float range) {
         return sqrt(pow(kirbyPos.x - position.x, 2.0f) + pow(kirbyPos.y - position.y, 2.0f)) > range;
