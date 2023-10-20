@@ -287,6 +287,12 @@ bool KirbyEffect::UpdateSwallowEffect(vector<pair<class Enemy*, int>>& enemySwal
 //blow star effect
 bool KirbyEffect::UpdateBlowEffect(float deltaTime)
 {
+	if (time + duration < Time::Get()->Running()) {
+		SAFE_DELETE(rectEffect0);
+		animations.clear();
+		setTimer = false;
+		return true;
+	}
 	//move effect left
 	if (effectLeft) {
 		effectStartPos += Values::LeftVec * 5;

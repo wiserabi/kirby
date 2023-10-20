@@ -525,7 +525,7 @@ void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, 
 			effects[3]->SetKirbyStarExplodeOnEnemy(enemies[j]->GetPosition());
 			effects[3]->StartTimer(0.2f);
 
-			effects[2]->StartTimer(0.1f);
+			effects[2]->StartTimer(0.01f);
 			enemies[j]->SetDeathStart();//start enemy death timer
 			continue;
 		}
@@ -535,10 +535,12 @@ void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, 
 			effects[4]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
 			effects[4]->SetHitEffect();
 			effects[4]->StartTimer(0.5f);//set duration of effect
+
 			//while kirby was hit while inhaling
 			if (kirby->GetState() == inhaling) {
 				effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
 				effects[1]->StartTimer(0.1f);//remove enemy pulling effect
+				//vector<pair<Enemy*, int>>().swap(enemySwallowed);//clear enemies swallowed
 			}
 
 			kirby->SetState(hitEnemy);
@@ -603,6 +605,7 @@ void KirbyGame::EnemyAttackCollideKirby(Rect* effect)
 	if (kirby->GetState() == inhaling) {
 		effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
 		effects[1]->StartTimer(0.1f);//remove enemy pulling effect
+		//vector<pair<Enemy*, int>>().swap(enemySwallowed);//clear enemies swallowed
 	}
 	kirby->SetState(hitEnemy);
 	kirby->SetHitEnemy();
