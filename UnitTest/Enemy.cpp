@@ -17,7 +17,14 @@ void Enemy::SetKirbyPos(Vector3 pos)
 
 void Enemy::attackPlayer()
 {
-    attackEffect.UpdateSparkEffect(Time::Delta());
+    map<string, EnemyData> data = infos->GetData();
+
+    if (data[name].ability.compare("spark") == 0) {
+        sparkEffect.UpdateSparkEffect(Time::Delta());
+    }
+    else if (data[name].ability.compare("beam") == 0) {
+        beamEffect.UpdateBeamEffect(Time::Delta(), !GetLeft());
+    }
 }
 
 void Enemy::moveTowardsPlayer()
@@ -80,6 +87,7 @@ Enemy::Enemy(Vector3 position, Vector3 size, string name, class EnemyInfo* infos
     rect->SetColor(Color(0.5f, 0.5f, 0.5f, 0.7f));
     idleTimer = Time::Get()->Running();
     deathEffect.StartTimer(1000000.0f);
+    beamEffect.StartTimer(1000000.0f);
 }
 
 Enemy::~Enemy()
@@ -109,8 +117,18 @@ void Enemy::Update()
         }
         else if (canAttack(attackRange)) {
             state = ATTACK;
-            attackEffect.SetSparkEffect(rect->GetPosition());
-            attackEffect.StartTimer(4.0f);
+            //check if it is waddledoo or sparky
+            if (data[name].ability.compare("spark") == 0) {
+                sparkEffect.SetSparkEffect(rect->GetPosition());
+                attackTime = 4.0f;
+                sparkEffect.StartTimer(attackTime);
+            }
+            else if (data[name].ability.compare("beam") == 0) {
+                beamEffect.SetBeamEffect(rect->GetPosition(), !GetLeft());
+                attackTime = 2.0f;
+                beamEffect.StartTimer(attackTime);
+            }
+
             startAttack = Time::Get()->Running();
         }
         else {
@@ -121,7 +139,7 @@ void Enemy::Update()
         }
         break;
     case ATTACK:
-        if (Time::Get()->Running() - startAttack < 4.0f) {
+        if (Time::Get()->Running() - startAttack < attackTime) {
             state = ATTACK;
             attackPlayer();
         }
@@ -153,7 +171,14 @@ void Enemy::Render()
         return;
     }
     if (state == ATTACK) {
-        attackEffect.RenderSparkEffect();
+        map<string, EnemyData> data = infos->GetData();
+        cout << data[name].ability << "\n";
+        if (data[name].ability.compare("spark") == 0) {
+            sparkEffect.RenderSparkEffect();
+        }
+        else if (data[name].ability.compare("beam") == 0) {
+            beamEffect.RenderBeamEffect();
+        }
     }
     if (rect) {
         rect->Render();

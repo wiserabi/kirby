@@ -10,14 +10,14 @@
 #include "EnemyInfo.h"
 #include "KirbyEffect.h"
 
-#define SWALLOWRANGE 300.0f
+#define SWALLOWRANGE 200.0f
 
 void KirbyGame::Init()
 {
 	kirby = new KirbyCharacter({ 720, 360, 1.0 }, { 128, 128, 1 });
 	Sounds::Get()->AddSound("Vegetable-Valley.mp3",
 		SoundPath + L"Vegetable-Valley.mp3", true);
-	Sounds::Get()->Play("Vegetable-Valley.mp3", 0.2f);
+	Sounds::Get()->Play("Vegetable-Valley.mp3", 0.1f);
 
 	hud = new HUD();
 	world = new World();

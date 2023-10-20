@@ -53,12 +53,14 @@ private:
     bool hitLeft = false;
     bool hitRight = false;
     class KirbyEffect deathEffect;
-    class KirbyEffect attackEffect;
+    class KirbyEffect sparkEffect;
+    class KirbyEffect beamEffect;
     float deathStart;
     float startAttack;
     float hitwallTime;
     bool hitwall = false;
     string name;
+    float attackTime = 4.0f;
 
     bool playerOutOfRange(float range) {
         return sqrt(pow(kirbyPos.x - position.x, 2.0f) + pow(kirbyPos.y - position.y, 2.0f)) > range;

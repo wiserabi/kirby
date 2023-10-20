@@ -73,7 +73,7 @@ void KirbyEffect::SetKirbyEat()
 	}
 	Vector2 tmpP1 = Vector2(kirbyPos.x, kirbyPos.y);
 	float xDistance[2] = { 100.0f, 150.0f };
-	float yDistance[2] = { 25.0f, 60.0f };
+	float yDistance[2] = { 25.0f, 70.0f };
 
 	if (left) {
 		xDistance[0] = -xDistance[0];
@@ -196,16 +196,16 @@ void KirbyEffect::SetBeamEffect(Vector3 pos, bool leftSide)
 	currentEffect = Effect::beam;
 
 	if (leftSide) {
-		effectStartPos = pos + Values::LeftVec * 20;//effect starting point
-		animations.push_back(new AnimationRect(effectStartPos, Vector3(96.0f, 96.0f, 0.0f), false));
+		effectStartPos = pos + Values::LeftUpVec * 50 + Values::LeftVec * 20 ;//effect starting point
+		animations.push_back(new AnimationRect(effectStartPos, Vector3(128.0f, 128.0f, 0.0f), false));
 		animations[0]->SetAnimator(animatorList[currentEffect]);
-		animations[0]->SetLeft(true);
+		animations[0]->SetLeft(leftSide);
 	}
 	else {
-		effectStartPos = pos + Values::RightVec * 20;//effect starting point
-		animations.push_back(new AnimationRect(effectStartPos, Vector3(96.0f, 96.0f, 0.0f), false));
+		effectStartPos = pos + Values::RightUpVec * 50 + Values::RightVec * 20;//effect starting point
+		animations.push_back(new AnimationRect(effectStartPos, Vector3(128.0f, 128.0f, 0.0f), false));
 		animations[0]->SetAnimator(animatorList[currentEffect]);
-		animations[0]->SetLeft(false);
+		animations[0]->SetLeft(leftSide);
 	}
 }
 
@@ -377,13 +377,15 @@ void KirbyEffect::UpdateSparkEffect(float delta)
 	animations[0]->Update(animatorList[currentEffect]);
 }
 
-void KirbyEffect::UpdateBeamEffect(float delta)
+void KirbyEffect::UpdateBeamEffect(float delta, float leftSide)
 {
 	if (time + duration < Time::Get()->Running()) {
 		animations.clear();
 		setTimer = false;
 		return;
 	}
+	animations[0]->SetPosition(effectStartPos);
+	animations[0]->SetLeft(leftSide);
 	animations[0]->Update(animatorList[currentEffect]);
 }
 

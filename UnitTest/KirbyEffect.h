@@ -47,7 +47,7 @@ public:
 	void UpdateHitEffect(float delta);
 	void UpdateBlowAir(float delta);
 	void UpdateSparkEffect(float delta);
-	void UpdateBeamEffect(float delta);
+	void UpdateBeamEffect(float delta, float leftSide);
 	
 
 	bool isTimerSet() { return setTimer; };
