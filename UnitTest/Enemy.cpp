@@ -172,7 +172,7 @@ void Enemy::Render()
     }
     if (state == ATTACK) {
         map<string, EnemyData> data = infos->GetData();
-        cout << data[name].ability << "\n";
+        //cout << data[name].ability << "\n";
         if (data[name].ability.compare("spark") == 0) {
             sparkEffect.RenderSparkEffect();
         }

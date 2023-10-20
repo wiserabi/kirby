@@ -31,6 +31,9 @@ public:
     void SetHitRight(bool hitRight) { this->hitRight = hitRight; }
     void SetDeathStart();
     void SetKirbyPos(Vector3 pos);
+    class Rect* GetSparkEffectRect() { return sparkEffect.GetRect(); }
+    class Rect* GetBeamEffectRect() { return beamEffect.GetRect(); }
+    string GetName() { return name; }
 
 
 private:

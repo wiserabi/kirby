@@ -382,6 +382,8 @@ void KirbyEffect::UpdateSparkEffect(float delta)
 	}
 	animations[0]->SetPosition(effectStartPos);
 	animations[0]->Update(animatorList[currentEffect]);
+
+	rectEffect0->SetPosition(effectStartPos);
 	rectEffect0->Update();
 }
 
@@ -396,6 +398,8 @@ void KirbyEffect::UpdateBeamEffect(float delta, float leftSide)
 	animations[0]->SetPosition(effectStartPos);
 	animations[0]->SetLeft(leftSide);
 	animations[0]->Update(animatorList[currentEffect]);
+
+	rectEffect0->SetPosition(effectStartPos);
 	rectEffect0->Update();
 }
 

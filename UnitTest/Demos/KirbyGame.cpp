@@ -452,6 +452,7 @@ void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, 
 	//assume there are enemies in the world
 	for (size_t j = 0; j < enemies.size(); j++)
 	{
+		//check enemy collision with world
 		BoundingBox* enemyBox = nullptr;
 		Rect* enemyRect = enemies[j]->GetRect();
 		if (enemyRect) {
@@ -462,7 +463,31 @@ void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, 
 			//world->SetColor(i, Values::Red);
 			FixEnemyPosition(worldRect, j);
 		}
+		float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
+		//check if enemy attack effect hit kirby
+		if (enemies[j]->GetState() < 3) {//if kirby is not dead
+			Rect* attackEffectRect = nullptr;
+			//cout << enemies[j]->GetName() << "\n";
+			string enemyName = enemies[j]->GetName();
+			if (enemyName.compare("waddledoo") == 0) {
+				attackEffectRect = enemies[j]->GetBeamEffectRect();
+			}
+			else if (enemyName.compare("sparky") == 0) {
+				attackEffectRect = enemies[j]->GetSparkEffectRect();
+			}
 
+			BoundingBox* attackBoundingBox = nullptr;
+			if (attackEffectRect) {
+				attackBoundingBox = attackEffectRect->GetBox();
+			}
+			//if enemy attack hit kirby
+			if (attackBoundingBox && invulnerableTime > 2.0f && 
+				BoundingBox::OBB(kirbyBox, attackBoundingBox)) {
+				kirby->SetState(hitEnemy);
+				kirby->SetHitEnemy();
+			}
+		}
+		
 		//check if kirby blow air collides with enemy
 		BoundingBox* effectBox = nullptr;
 		Rect* effectRect = effects[5]->GetRect();
@@ -491,7 +516,7 @@ void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, 
 			enemies[j]->SetDeathStart();//start enemy death timer
 			continue;
 		}
-		float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
+		
 		//check if kirby collides with enemy
 		if (enemyBox && invulnerableTime > 2.0f && BoundingBox::OBB(kirbyBox, enemyBox)) {
 			effects[4]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
