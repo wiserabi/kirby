@@ -382,6 +382,14 @@ void KirbyGame::CheckInhaleEnemy()
 				pos.x <= kirbyPos.x && kirbyPos.x - SWALLOWRANGE < pos.x) {
 				//cout << "Enemy is in range!" << "\n";
 				int curframe = enemies[i]->GetAnimator()->GetCurrentFrameIndex();
+				//erase spark and beam effect
+				if (enemies[i]->GetBeamEffectRect()) {
+					enemies[i]->StopBeamEffect();
+				}
+				else if (enemies[i]->GetSparkEffectRect()) {
+					enemies[i]->StopSparkEffect();
+				}
+
 				enemySwallowed.push_back({ enemies[i] , curframe });
 				enemies.erase(enemies.begin() + i);
 				i--;
@@ -398,7 +406,13 @@ void KirbyGame::CheckInhaleEnemy()
 				pos.x >= kirbyPos.x && kirbyPos.x + SWALLOWRANGE > pos.x) {
 				//cout << "Enemy is in range!" << "\n";
 				int curframe = enemies[i]->GetAnimator()->GetCurrentFrameIndex();
-
+				//erase spark and beam effect
+				if (enemies[i]->GetBeamEffectRect()) {
+					enemies[i]->StopBeamEffect();
+				}
+				else if (enemies[i]->GetSparkEffectRect()) {
+					enemies[i]->StopSparkEffect();
+				}
 				enemySwallowed.push_back({ enemy, curframe });
 				enemies.erase(enemies.begin() + i);
 				i--;
@@ -411,7 +425,7 @@ void KirbyGame::CheckInhaleEnemy()
 	if (!enemySwallowed.empty()) {
 		effects[1]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
 		effects[1]->SetKirbySwallow(enemySwallowed);
-		effects[1]->StartTimer(10000.0f);
+		effects[1]->StartTimer(100000.0f);
 		kirby->SetState(swallowing);
 	}
 }
@@ -523,7 +537,8 @@ void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, 
 			effects[4]->StartTimer(0.5f);//set duration of effect
 			//while kirby was hit while inhaling
 			if (kirby->GetState() == inhaling) {
-				effects[0]->StartTimer(0.1f);
+				effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
+				effects[1]->StartTimer(0.1f);//remove enemy pulling effect
 			}
 
 			kirby->SetState(hitEnemy);
@@ -584,6 +599,11 @@ void KirbyGame::EnemyAttackCollideKirby(Rect* effect)
 		}
 	}
 
+	//while kirby was hit while inhaling
+	if (kirby->GetState() == inhaling) {
+		effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
+		effects[1]->StartTimer(0.1f);//remove enemy pulling effect
+	}
 	kirby->SetState(hitEnemy);
 	kirby->SetHitEnemy();
 }

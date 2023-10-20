@@ -33,6 +33,8 @@ public:
     void SetKirbyPos(Vector3 pos);
     class Rect* GetSparkEffectRect() { return sparkEffect.GetRect(); }
     class Rect* GetBeamEffectRect() { return beamEffect.GetRect(); }
+    void StopBeamEffect() { sparkEffect.StartTimer(0.1f); }
+    void StopSparkEffect() { beamEffect.StartTimer(0.1f); }
     string GetName() { return name; }
 
 
