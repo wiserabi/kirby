@@ -483,8 +483,7 @@ void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, 
 			//if enemy attack hit kirby
 			if (attackBoundingBox && invulnerableTime > 2.0f && 
 				BoundingBox::OBB(kirbyBox, attackBoundingBox)) {
-				kirby->SetState(hitEnemy);
-				kirby->SetHitEnemy();
+				EnemyAttackCollideKirby(attackEffectRect);
 			}
 		}
 		
@@ -532,4 +531,59 @@ void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, 
 
 		}
 	}
+}
+
+void KirbyGame::EnemyAttackCollideKirby(Rect* effect)
+
+{
+	pair<Vector3, Vector3> intersection;
+	IntersectRect(kirby->GetRect(), effect, intersection);
+
+	Vector3 kirbyPos = kirby->GetRect()->GetPosition();
+	Vector3 kirbySize = kirby->GetRect()->GetSize();
+
+	Vector3 kirbyLT = kirby->GetRect()->GetLT();
+	Vector3 kirbyRB = kirby->GetRect()->GetRB();
+
+	Vector3 effectRectPos = effect->GetPosition();
+	Vector3 effectLT = effect->GetLT();
+	Vector3 effectRB = effect->GetRB();
+
+	Vector3 tmp = kirbyPos - effectRectPos;
+	if (intersection.first == Values::ZeroVec3 &&
+		intersection.second == Values::ZeroVec3) {
+		return;
+	}
+	// Determine the collision direction based on the intersection size
+	if (intersection.first.x - intersection.second.x >
+		intersection.second.y - intersection.first.y) {
+		if (kirbyLT.x < effectLT.x) {
+			// Right collision
+			kirbyPos.x = effectLT.x - kirbySize.x / 2 + 1;
+			//kirby->SetPosition(kirbyPos);
+			kirby->SetEffectHit(1);//right hit
+		}
+		else {
+			// Left collision
+			kirbyPos.x = effectRB.x + kirbySize.x / 2 - 1;
+			//kirby->SetPosition(kirbyPos);
+			kirby->SetEffectHit(2);//left hit
+		}
+	}
+	else
+	{
+		if (kirbyLT.y > effectLT.y) {
+			// Down collision
+			kirbyPos.y = effectLT.y + kirbySize.y / 2 - 1;
+			//kirby->SetPosition(kirbyPos);
+			kirby->SetEffectHit(3);//down hit
+		}
+		else {
+			// Up collision
+			kirbyPos.y = effectRB.y - kirbySize.y / 2;
+		}
+	}
+
+	kirby->SetState(hitEnemy);
+	kirby->SetHitEnemy();
 }

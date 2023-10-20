@@ -1080,22 +1080,35 @@ bool KirbyCharacter::Attack(float delta, Keyboard* key)
 
 bool KirbyCharacter::HitEnemy(float delta, Keyboard* key)
 {
+	int velocity = VELOCITY * delta;
+
 	dir = Values::ZeroVec3;
+
 	//when kirby was moving left
 	if (__super::GetLeft()) {
-		//move right slightly after collision with enemy
 		dir += Values::RightVec;
 	}
 	else {
-		//move left slightly after collision with enemy
 		dir += Values::LeftVec;
 	}
+	
+	//when kirby was moving left
+	if (effectHitDir == 2) {
+		dir.x = 1;
+		//move right slightly after collision with enemy
+		velocity *= 3;
+	}
+	else if (effectHitDir == 1) {
+		dir.x = -1;
+		//move left slightly after collision with enemy
+		velocity *= 3;
+	}
+
 	//different movement when kirby hit ground on floor
-	if (!hitGround) {
+	if ((!hitGround) || (effectHitDir == 3)) {
 		dir += Values::UpVec;
 	}
 
-	int velocity = VELOCITY * delta / 2;
 	float elapsed = Time::Get()->Running() - hitEnemyTime;
 	if (elapsed < 0.2f) {
 		current = L"ouch";
@@ -1112,7 +1125,9 @@ bool KirbyCharacter::HitEnemy(float delta, Keyboard* key)
 
 	else {
 		state = falldown;
+		position.x -= 10.0f;
 		startFalling = Time::Get()->Running();
+		effectHitDir = -1;
 	}
 	return true;
 }

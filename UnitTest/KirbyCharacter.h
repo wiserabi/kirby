@@ -118,6 +118,7 @@ public:
 	Vector3 GetPosition();
 	boolean isKirbyInWorld() { return kirbyInWorld; }
 	class Rect* GetRect();
+	void SetEffectHit(int effectHitDir) { this->effectHitDir = effectHitDir; }
 
 private:
 	int health;
@@ -153,6 +154,7 @@ private:
 	float startEatWalk = 0.0f;
 	float attackDelay = 0.0f;
 	float hitEnemyTime = 0.0f;//moment when kirby hit enemy
+	int effectHitDir = -1;
 
 	wstring animationPng[PNGNUM] = {
 		L"kirbywalkright.png",
