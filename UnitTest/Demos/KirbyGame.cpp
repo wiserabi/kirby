@@ -26,8 +26,8 @@ void KirbyGame::Init()
 	enemies.push_back(new Enemy({ 1000, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
 	enemies.push_back(new Enemy({ 1000, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
 
-	enemies.push_back(new Enemy({ 500, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
-	enemies.push_back(new Enemy({ 500, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
+	enemies.push_back(new Enemy({ 500, 430, 0 }, { 128, 128, 1 }, "sparky", enemyInfo));
+	enemies.push_back(new Enemy({ 500, 430, 0 }, { 128, 128, 1 }, "sparky", enemyInfo));
 	
 	enemies.push_back(new Enemy({ 700, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
 	enemies.push_back(new Enemy({ 700, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));

@@ -2,4 +2,4 @@ waddledee 1 no 0 0 2
 brontoburt 4 no 0 0 2
 gordo 4 no 1 0 4
 waddledoo 11 beam 0 1 2
-sparky 11 spark 0 1 5
+sparky 11 spark 0 1 3

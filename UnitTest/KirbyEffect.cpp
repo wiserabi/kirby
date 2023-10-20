@@ -189,6 +189,9 @@ void KirbyEffect::SetSparkEffect(Vector3 pos)
 	effectStartPos = pos;
 	animations.push_back(new AnimationRect(effectStartPos, Vector3(270.0f, 270.0f, 0.0f), false));
 	animations[0]->SetAnimator(animatorList[currentEffect]);
+	animatorList[currentEffect]->SetPlayRate(pngList[15],1.0f / 40.0f);
+
+	rectEffect0 = new Rect(effectStartPos, Vector3(160.0f, 160.0f, 0.0f), 0.0f);
 }
 
 void KirbyEffect::SetBeamEffect(Vector3 pos, bool leftSide)
@@ -207,6 +210,9 @@ void KirbyEffect::SetBeamEffect(Vector3 pos, bool leftSide)
 		animations[0]->SetAnimator(animatorList[currentEffect]);
 		animations[0]->SetLeft(leftSide);
 	}
+	animatorList[currentEffect]->SetPlayRate(pngList[0], 1.0f / 30.0f);
+
+	rectEffect0 = new Rect(effectStartPos, Vector3(128.0f, 128.0f, 0.0f), 0.0f);
 }
 
 void KirbyEffect::UpdateEatEffect()
@@ -370,23 +376,27 @@ void KirbyEffect::UpdateSparkEffect(float delta)
 {
 	if (time + duration < Time::Get()->Running()) {
 		animations.clear();
+		SAFE_DELETE(rectEffect0);
 		setTimer = false;
 		return;
 	}
 	animations[0]->SetPosition(effectStartPos);
 	animations[0]->Update(animatorList[currentEffect]);
+	rectEffect0->Update();
 }
 
 void KirbyEffect::UpdateBeamEffect(float delta, float leftSide)
 {
 	if (time + duration < Time::Get()->Running()) {
 		animations.clear();
+		SAFE_DELETE(rectEffect0);
 		setTimer = false;
 		return;
 	}
 	animations[0]->SetPosition(effectStartPos);
 	animations[0]->SetLeft(leftSide);
 	animations[0]->Update(animatorList[currentEffect]);
+	rectEffect0->Update();
 }
 
 void KirbyEffect::StartTimer(float duration)
@@ -443,6 +453,7 @@ void KirbyEffect::RenderBlowAir()
 void KirbyEffect::RenderSparkEffect()
 {
 	if (animations.size()) {
+		rectEffect0->Render();
 		animations[0]->Render();
 	}
 }
@@ -450,6 +461,7 @@ void KirbyEffect::RenderSparkEffect()
 void KirbyEffect::RenderBeamEffect()
 {
 	if (animations.size()) {
+		rectEffect0->Render();
 		animations[0]->Render();
 	}
 }
