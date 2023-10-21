@@ -14,6 +14,11 @@ void Enemy::SetKirbyPos(Vector3 pos)
     this->kirbyPos = pos;
 }
 
+string Enemy::GetAbility()
+{
+    return (infos->GetData())[name].ability;
+}
+
 
 void Enemy::attackPlayer()
 {

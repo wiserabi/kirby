@@ -1,6 +1,6 @@
 #pragma once
 
-#define PNGNUM 13
+#define PNGNUM 15
 
 enum Ability
 {
@@ -11,7 +11,8 @@ enum Ability
 	crash,
 	sword,
 	freeze,
-	cutter
+	cutter,
+	none
 };
 
 enum State {
@@ -100,6 +101,7 @@ public:
 	bool EatAndWalk(float delta, class Keyboard* key);
 	bool Attack(float delta, class Keyboard* key);
 	bool HitEnemy(float delta, class Keyboard* key);
+	bool UseAbility(float delta, class Keyboard* key);
 	void SetHitEnemy();
 	float GetHitEnemy();
 	
@@ -119,11 +121,14 @@ public:
 	boolean isKirbyInWorld() { return kirbyInWorld; }
 	class Rect* GetRect();
 	void SetEffectHit(int effectHitDir) { this->effectHitDir = effectHitDir; }
+	void SetAbility(int ability);
+	void StartUseAbility(class Keyboard* key);
 
 private:
 	int health;
 	int lifeCount;
 	Ability ability;
+	bool abilitySet = false;
 	State state = falldown;
 	State prevState = falldown;
 	ID3D11SamplerState* point[2];
@@ -155,6 +160,9 @@ private:
 	float attackDelay = 0.0f;
 	float hitEnemyTime = 0.0f;//moment when kirby hit enemy
 	int effectHitDir = -1;
+	bool abilityUse = false;
+	class KirbyEffect* sparkEffect;
+	class KirbyEffect* beamEffect;
 
 	wstring animationPng[PNGNUM] = {
 		L"kirbywalkright.png",
@@ -169,7 +177,9 @@ private:
 		L"kirbyeatidle.png",
 		L"kirbyeatandwalk.png",
 		L"kirbyattack.png",
-		L"kirbyouch.png"
+		L"kirbyouch.png",
+		L"kirbyspark.png",
+		L"kirbybeam.png",
 	};
 	wstring motions[PNGNUM] = {
 		L"WalkR",
@@ -184,10 +194,12 @@ private:
 		L"eatidle",
 		L"eatandwalk",
 		L"attack",
-		L"ouch"
+		L"ouch",
+		L"spark",
+		L"beam",
 	};
 	int split[PNGNUM] = {
-		4,2,4,2,4,6,2,1,2,1,4,3,1
+		4,2,4,2,4,6,2,1,2,1,4,3,1,2,2
 	};
 };
 

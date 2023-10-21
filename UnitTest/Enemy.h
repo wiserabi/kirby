@@ -36,6 +36,7 @@ public:
     void StopBeamEffect() { sparkEffect.StartTimer(0.1f); }
     void StopSparkEffect() { beamEffect.StartTimer(0.1f); }
     string GetName() { return name; }
+    string GetAbility();
 
 
 private:

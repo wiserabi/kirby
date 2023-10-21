@@ -253,8 +253,7 @@ bool KirbyEffect::UpdateSwallowEffect(vector<pair<class Enemy*, int>>& enemySwal
 {
 	if (time + duration < Time::Get()->Running()) {
 		curves->Clear();
-		delete curves;
-		curves = nullptr;
+		SAFE_DELETE(curves);
 		setTimer = false;
 		return true;
 	}

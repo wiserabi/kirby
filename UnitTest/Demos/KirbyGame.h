@@ -22,6 +22,7 @@ public:
     void KirbyCollisionWithWorld(BoundingBox* kirbyBox, Rect* worldRect);
     void EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, BoundingBox* kirbyBox);
     void EnemyAttackCollideKirby(class Rect* effect);//where to move kirby when collide with effect
+    void CheckAbility();
 
 private:
     class KirbyCharacter* kirby = nullptr;

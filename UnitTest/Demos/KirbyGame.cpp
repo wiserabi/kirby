@@ -350,13 +350,14 @@ void KirbyGame::UpdateEffect()
 		//start kirby Effect of swallowing enemy
 		effects[1]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
 
-		//finish when all enemies reach p1
+		//finish when all enemies reach p1 or timer goes out
 		if (effects[1]->UpdateSwallowEffect(enemySwallowed)) {
 			//kirby idle motion after eat enemy
 			kirby->SetAttackDelay();
 			kirby->SetState(eatidle);
 			effects[1]->StartTimer(0.1f);
-			enemySwallowed.clear();
+			CheckAbility();
+			vector<pair<Enemy*, int>>().swap(enemySwallowed);
 			effects[0]->StartTimer(0.1f);
 		}
 	}
@@ -540,7 +541,6 @@ void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, 
 			if (kirby->GetState() == inhaling) {
 				effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
 				effects[1]->StartTimer(0.1f);//remove enemy pulling effect
-				//vector<pair<Enemy*, int>>().swap(enemySwallowed);//clear enemies swallowed
 			}
 
 			kirby->SetState(hitEnemy);
@@ -605,8 +605,40 @@ void KirbyGame::EnemyAttackCollideKirby(Rect* effect)
 	if (kirby->GetState() == inhaling) {
 		effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
 		effects[1]->StartTimer(0.1f);//remove enemy pulling effect
-		//vector<pair<Enemy*, int>>().swap(enemySwallowed);//clear enemies swallowed
 	}
 	kirby->SetState(hitEnemy);
 	kirby->SetHitEnemy();
+}
+
+void KirbyGame::CheckAbility()
+{
+	if (enemySwallowed.size() == 0) {
+		return;
+	}
+	int abi = -1;
+	for (pair<Enemy*, int> enemy : enemySwallowed) {
+		string ability = enemy.first->GetAbility();
+		int cmp1 = ability.compare("spark");
+		int cmp2 = ability.compare("beam");
+		
+		//enemy has ability
+		if (cmp1 == 0 && cmp2 == 0) {//random if both swallowed
+			abi = rand() % 2;
+		}
+		else if (cmp1 == 0) {
+			abi = 0;
+		}
+		else if (cmp2 == 0) {
+			abi = 1;
+		}
+	}
+	if (abi == 0) {
+		kirby->SetAbility(0);
+	}
+	else if (abi == 1) {
+		kirby->SetAbility(1);
+	}
+	else {
+		kirby->SetAbility(Ability::none);
+	}
 }

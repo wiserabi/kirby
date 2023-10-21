@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Geomatries/Rect.h"
 #include "Geomatries/AnimationRect.h"
+#include "KirbyEffect.h"
 #include "KirbyCharacter.h"
 #include "Utilities/Animator.h"
 #include "UI/HUD.h"
@@ -8,7 +9,6 @@
 #include <fstream>
 #include <iostream>
 #include "Utilities/String.h"
-#include "KirbyEffect.h"
 
 #define VELOCITY 200
 #define FALLMOTIONCHANGE 1.2f
@@ -52,12 +52,15 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 	}
 
 	rect = list[0];
+
+	sparkEffect = new KirbyEffect();
+	beamEffect = new KirbyEffect();
 }
 
 KirbyCharacter::~KirbyCharacter()
 {
-
-	//SAFE_DELETE(rect);
+	SAFE_DELETE(sparkEffect);
+	SAFE_DELETE(beamEffect);
 
 	for (auto& tmp : list) {
 		SAFE_DELETE(tmp);
@@ -66,7 +69,9 @@ KirbyCharacter::~KirbyCharacter()
 }
 
 void KirbyCharacter::Update()
-{
+{	
+	beamEffect->UpdateBeamEffect(Time::Delta(), __super::GetLeft());
+	sparkEffect->UpdateSparkEffect(Time::Delta());
 	//if flatten state adjust rect position
 	Vector3 rectPos = position;
 	if (state == flatten) {
@@ -105,7 +110,8 @@ void KirbyCharacter::Update()
 void KirbyCharacter::Render()
 {
 	rect->Render();
-
+	beamEffect->RenderBeamEffect();
+	sparkEffect->RenderSparkEffect();
 	__super::Render();
 }
 
@@ -268,6 +274,9 @@ bool KirbyCharacter::Move2(float delta, class Keyboard* key)
 	if (Swallowing(delta, key)) {
 		return true;
 	}
+	if (UseAbility(delta, key)) {
+		return true;
+	}
 	if (StopInhaling(delta, key)) {
 		return true;
 	}
@@ -355,7 +364,7 @@ bool KirbyCharacter::Move3(float delta, class Keyboard* key)
 
 bool KirbyCharacter::Inhale(float delta, Keyboard* key)
 {
-	if (state != inhale && hitGround && (state < 2 && key->Press('S'))) {
+	if (state != inhale && hitGround && (state < 2 && key->Press('S')) && !abilityUse) {
 		state = inhale;
 		current = L"inhale";
 		dir.x = 0;
@@ -1023,6 +1032,7 @@ bool KirbyCharacter::EatIdle(float delta, Keyboard* key)
 	if (state == eatidle) {
 		current = L"eatidle";
 		dir = Values::ZeroVec3;
+		StartUseAbility(key);
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
 		return true;
 	}
@@ -1033,6 +1043,8 @@ bool KirbyCharacter::EatAndWalk(float delta, Keyboard* key)
 {
 	if (state == eatandwalk) {
 		current = L"eatandwalk";
+		StartUseAbility(key);
+
 		if (!hitGround) {
 			dir += Values::DownVec;
 		}
@@ -1133,6 +1145,42 @@ bool KirbyCharacter::HitEnemy(float delta, Keyboard* key)
 	return true;
 }
 
+bool KirbyCharacter::UseAbility(float delta, Keyboard* key)
+{
+	if (abilityUse && (state == walking || state == idle) && key->Press('S')) {
+		if (ability == Ability::spark) {
+
+			//cout << "use spark\n";
+			//if sparkEffect is not active activate
+			if (!sparkEffect->isTimerSet()) {
+				sparkEffect->SetSparkEffect(position);
+				sparkEffect->StartTimer(0.2f);
+			}
+			else {
+				current = L"spark";
+				ChangeAnimation(current, 0.0f, dir, 0, false);
+			}
+
+		}
+		else if (ability == Ability::beam) {
+			//cout << "use beam\n";
+			if (!beamEffect->isTimerSet()) {
+				beamEffect->SetBeamEffect(position, __super::GetLeft());
+				beamEffect->StartTimer(0.2f);
+			}
+			else {
+				current = L"beam";
+				ChangeAnimation(current, 0.0f, dir, 3, false);
+			}
+			current = L"beam";
+		}
+
+		
+		return true;
+	}
+	return false;
+}
+
 void KirbyCharacter::SetHitEnemy()
 {
 	hitEnemyTime = Time::Get()->Running();
@@ -1165,4 +1213,35 @@ Vector3 KirbyCharacter::GetPosition()
 class Rect* KirbyCharacter::GetRect()
 {
 	return this->rect;
+}
+
+void KirbyCharacter::SetAbility(int ability)
+{
+	if (ability < 2) {
+		this->ability = (Ability)ability;
+		abilitySet = true;
+	}
+}
+
+void KirbyCharacter::StartUseAbility(class Keyboard* key)
+{
+	if (abilitySet && key->Press(VK_DOWN)) {
+		//kirby copy enemy ability here
+		if (ability == none) {
+			//enemy does not have ability
+		}
+		else if (ability == spark || ability == beam) {
+			abilityUse = true;
+		}
+
+		abilitySet = false;
+		//when kirby start using ability
+		state = flatten;
+		//change rect position of kirby
+		rect = list[0];
+		Vector3 rectPos = rect->GetPosition();
+		rect->SetPosition(rectPos - 15 * Values::DownVec);
+
+		startSqueeze = Time::Get()->Running();
+	}
 }
