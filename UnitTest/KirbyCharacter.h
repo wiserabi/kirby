@@ -123,6 +123,8 @@ public:
 	void SetEffectHit(int effectHitDir) { this->effectHitDir = effectHitDir; }
 	void SetAbility(int ability);
 	void StartUseAbility(class Keyboard* key);
+	class KirbyEffect* GetSparkEffect() { return sparkEffect; }
+	class KirbyEffect* GetBeamEffect() { return beamEffect; }
 
 private:
 	int health;
@@ -163,6 +165,7 @@ private:
 	bool abilityUse = false;
 	class KirbyEffect* sparkEffect;
 	class KirbyEffect* beamEffect;
+	class KirbyEffect* getAbilityEffect;
 
 	wstring animationPng[PNGNUM] = {
 		L"kirbywalkright.png",

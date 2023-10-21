@@ -55,10 +55,12 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 
 	sparkEffect = new KirbyEffect();
 	beamEffect = new KirbyEffect();
+	getAbilityEffect = new KirbyEffect();
 }
 
 KirbyCharacter::~KirbyCharacter()
 {
+	SAFE_DELETE(getAbilityEffect);
 	SAFE_DELETE(sparkEffect);
 	SAFE_DELETE(beamEffect);
 
@@ -72,6 +74,7 @@ void KirbyCharacter::Update()
 {	
 	beamEffect->UpdateBeamEffect(Time::Delta(), __super::GetLeft());
 	sparkEffect->UpdateSparkEffect(Time::Delta());
+	getAbilityEffect->UpdateKirbyAbilityEffect();
 	//if flatten state adjust rect position
 	Vector3 rectPos = position;
 	if (state == flatten) {
@@ -112,6 +115,7 @@ void KirbyCharacter::Render()
 	rect->Render();
 	beamEffect->RenderBeamEffect();
 	sparkEffect->RenderSparkEffect();
+	getAbilityEffect->RenderKirbyAbilityEffect();
 	__super::Render();
 }
 
@@ -1172,10 +1176,11 @@ bool KirbyCharacter::UseAbility(float delta, Keyboard* key)
 				current = L"beam";
 				ChangeAnimation(current, 0.0f, dir, 3, false);
 			}
-			current = L"beam";
+		}
+		else if (ability == Ability::none) {
+			abilityUse = false;
 		}
 
-		
 		return true;
 	}
 	return false;
@@ -1217,7 +1222,7 @@ class Rect* KirbyCharacter::GetRect()
 
 void KirbyCharacter::SetAbility(int ability)
 {
-	if (ability < 2) {
+	if (ability < 2 || ability == Ability::none) {
 		this->ability = (Ability)ability;
 		abilitySet = true;
 	}
@@ -1227,12 +1232,13 @@ void KirbyCharacter::StartUseAbility(class Keyboard* key)
 {
 	if (abilitySet && key->Press(VK_DOWN)) {
 		//kirby copy enemy ability here
-		if (ability == none) {
-			//enemy does not have ability
-		}
-		else if (ability == spark || ability == beam) {
+		if (ability == spark || ability == beam || ability == none) {
 			abilityUse = true;
 		}
+
+		getAbilityEffect->SetKirbyPos(position);
+		getAbilityEffect->SetGetKirbyAbilityEffect();
+		getAbilityEffect->StartTimer(0.5f);
 
 		abilitySet = false;
 		//when kirby start using ability

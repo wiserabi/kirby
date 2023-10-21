@@ -1,5 +1,7 @@
 #pragma once
 
+#define PNGNUMEFFECT 17
+
 namespace Effect {
 	enum EffectName {
 		beam,
@@ -18,6 +20,7 @@ namespace Effect {
 		waterblowright,
 		waterblowup,
 		spark,
+		getability,
 		swallowing,
 	};
 }
@@ -27,7 +30,7 @@ class KirbyEffect {
 public:
 	KirbyEffect();
 	~KirbyEffect();
-	void SetKirbyPos(Vector3 kirbyPos, bool left); 
+	void SetKirbyPos(Vector3 kirbyPos, bool left = true); 
 	void LoadTextureList();
 	void SetKirbyEat();
 	void SetKirbySwallow(vector<pair<class Enemy*, int>>& enemySwallowed);
@@ -38,6 +41,7 @@ public:
 	void SetKirbyBlowAir();//kirby blow effect
 	void SetSparkEffect(Vector3 pos);
 	void SetBeamEffect(Vector3 pos, bool leftSide);
+	void SetGetKirbyAbilityEffect();
 
 	void UpdateEatEffect();
 	bool UpdateSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow);
@@ -48,6 +52,7 @@ public:
 	void UpdateBlowAir(float delta);
 	void UpdateSparkEffect(float delta);
 	void UpdateBeamEffect(float delta, float leftSide);
+	void UpdateKirbyAbilityEffect();
 	
 
 	bool isTimerSet() { return setTimer; };
@@ -59,6 +64,7 @@ public:
 	void RenderBlowAir();
 	void RenderSparkEffect();
 	void RenderBeamEffect();
+	void RenderKirbyAbilityEffect();
 
 	void RenderEffect();
 	void StopEffect();
@@ -68,10 +74,10 @@ public:
 	vector<class AnimationRect*> GetAnimationRects() { return animations; }
 
 private:
-	int pngSplit[16] = {
-		11,4,1,3,1,5,2,1,4,4,3,8,2,2,2,8
+	int pngSplit[PNGNUMEFFECT] = {
+		11,4,1,3,1,5,2,1,4,4,3,8,2,2,2,8,6
 	};
-	wstring pngList[16] = {
+	wstring pngList[PNGNUMEFFECT] = {
 		L"kirbybeam.png",//11
 		L"kirbybigstars.png",//4
 		L"kirbybloweffect.png",//1
@@ -87,7 +93,8 @@ private:
 		L"kirbywaterblowdown.png",//2
 		L"kirbywaterblowright.png",//2
 		L"kirbywaterblowup.png",//2
-		L"kirbysparkeffect.png"//8
+		L"kirbysparkeffect.png",//8
+		L"kirbygetability.png"//6
 	};
 	vector<class AnimationRect*> animations;
 	vector<class Animator*> animatorList;

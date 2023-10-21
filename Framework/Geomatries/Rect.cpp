@@ -94,6 +94,8 @@ void Rect::UpdateColor()
     {
         vertices[0].color = color;
         vertices[1].color = color;
+        vertices[2].color = color;
+        vertices[3].color = color;
 
         memcpy(subResource.pData, vertices.data(), vb->GetCount() * vb->GetStride());
     }

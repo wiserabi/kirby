@@ -27,19 +27,18 @@ void KirbyEffect::SetKirbyPos(Vector3 kirbyPos, bool left)
 
 void KirbyEffect::LoadTextureList()
 {
-	for (size_t i = 0; i < 16; i++)
+	for (size_t i = 0; i < PNGNUMEFFECT; i++)
 	{
-		{
-			Texture2D* srcTex = new Texture2D(TexturePath + L"kirbyEffect/" + pngList[i]);
-			AnimationClip* tmpClip = new AnimationClip(pngList[i], srcTex, pngSplit[i],
-				Vector2(0, srcTex->GetHeight() * 0.0f),
-				Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 1.0f));
-			//add clip for each animator
-			animatorList.push_back(new Animator());
-			animatorList[i]->AddAnimClip(tmpClip);
-			animatorList[i]->SetCurrentAnimClip(pngList[i]);
-			SAFE_DELETE(srcTex);
-		}
+		Texture2D* srcTex = new Texture2D(TexturePath + L"kirbyEffect/" + pngList[i]);
+		AnimationClip* tmpClip = new AnimationClip(pngList[i], srcTex, pngSplit[i],
+			Vector2(0, srcTex->GetHeight() * 0.0f),
+			Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 1.0f));
+		//add clip for each animator
+		animatorList.push_back(new Animator());
+		animatorList[i]->AddAnimClip(tmpClip);
+		animatorList[i]->SetCurrentAnimClip(pngList[i]);
+		SAFE_DELETE(srcTex);
+
 	}
 
 }
@@ -215,6 +214,19 @@ void KirbyEffect::SetBeamEffect(Vector3 pos, bool leftSide)
 	rectEffect0 = new Rect(effectStartPos, Vector3(128.0f, 128.0f, 0.0f), 0.0f);
 }
 
+void KirbyEffect::SetGetKirbyAbilityEffect()
+{
+	currentEffect = Effect::getability;
+
+	effectStartPos = kirbyPos;
+	animations.push_back(new AnimationRect(effectStartPos, Vector3(320.0f, 320.0f, 0.0f), false));
+	animations[0]->SetAnimator(animatorList[currentEffect]);
+	animatorList[currentEffect]->SetPlayRate(pngList[currentEffect], 1.0f / 30.0f);
+
+	rectEffect0 = new Rect(effectStartPos, Vector3(3200.0f, 3200.0f, 0.0f), 0.0f);
+	rectEffect0->SetColor(Values::Black);
+}
+
 void KirbyEffect::UpdateEatEffect()
 {
 	if (time + duration < Time::Get()->Running()) {
@@ -288,7 +300,7 @@ bool KirbyEffect::UpdateBlowEffect(float deltaTime)
 {
 	if (time + duration < Time::Get()->Running()) {
 		SAFE_DELETE(rectEffect0);
-		animations.clear();
+		vector<AnimationRect*>().swap(animations);
 		setTimer = false;
 		return true;
 	}
@@ -322,7 +334,7 @@ void KirbyEffect::UpdateExplodeOnEnemy()
 void KirbyEffect::UpdateDeathEffect(float delta)
 {
 	if (time + duration < Time::Get()->Running()) {
-		animations.clear();
+		vector<AnimationRect*>().swap(animations);
 		setTimer = false;
 		return;
 	}
@@ -345,7 +357,7 @@ void KirbyEffect::UpdateDeathEffect(float delta)
 void KirbyEffect::UpdateHitEffect(float delta)
 {
 	if (time + duration < Time::Get()->Running()) {
-		animations.clear();
+		vector<AnimationRect*>().swap(animations);
 		setTimer = false;
 		return;
 	}
@@ -380,7 +392,7 @@ void KirbyEffect::UpdateBlowAir(float delta)
 void KirbyEffect::UpdateSparkEffect(float delta)
 {
 	if (time + duration < Time::Get()->Running()) {
-		animations.clear();
+		vector<AnimationRect*>().swap(animations);
 		SAFE_DELETE(rectEffect0);
 		setTimer = false;
 		return;
@@ -395,7 +407,7 @@ void KirbyEffect::UpdateSparkEffect(float delta)
 void KirbyEffect::UpdateBeamEffect(float delta, float leftSide)
 {
 	if (time + duration < Time::Get()->Running()) {
-		animations.clear();
+		vector<AnimationRect*>().swap(animations);
 		SAFE_DELETE(rectEffect0);
 		setTimer = false;
 		return;
@@ -406,6 +418,24 @@ void KirbyEffect::UpdateBeamEffect(float delta, float leftSide)
 
 	rectEffect0->SetPosition(effectStartPos);
 	rectEffect0->Update();
+}
+
+void KirbyEffect::UpdateKirbyAbilityEffect()
+{
+	if (time + duration < Time::Get()->Running()) {
+		vector<AnimationRect*>().swap(animations);
+		SAFE_DELETE(rectEffect0);
+		setTimer = false;
+		return;
+	}
+
+	if (animations.size() && rectEffect0) {
+		animations[0]->SetPosition(effectStartPos);
+		animations[0]->Update(animatorList[currentEffect]);
+
+		rectEffect0->SetPosition(effectStartPos);
+		rectEffect0->Update();
+	}
 }
 
 void KirbyEffect::StartTimer(float duration)
@@ -469,7 +499,16 @@ void KirbyEffect::RenderSparkEffect()
 
 void KirbyEffect::RenderBeamEffect()
 {
-	if (animations.size()) {
+	if (animations.size() && rectEffect0) {
+		rectEffect0->Render();
+		animations[0]->Render();
+	}
+}
+
+void KirbyEffect::RenderKirbyAbilityEffect()
+{
+	if (animations.size() && rectEffect0) {
+		rectEffect0->SetColor(Color(0, 0, 0, 0.35f));
 		rectEffect0->Render();
 		animations[0]->Render();
 	}

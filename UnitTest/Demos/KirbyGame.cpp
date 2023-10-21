@@ -545,7 +545,32 @@ void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, 
 
 			kirby->SetState(hitEnemy);
 			kirby->SetHitEnemy();
+			continue;
+		}
+		
+		//check if kirby kills enemy with effect
+		KirbyEffect* beam = kirby->GetBeamEffect();
+		KirbyEffect* spark = kirby->GetSparkEffect();
+		Rect* beamSparkRect = nullptr;
+		BoundingBox* beamSparkBox = nullptr;
 
+		//if effects are alive
+		if (beam->isTimerSet()) {
+			beamSparkRect = beam->GetRect();
+		}
+		else if (spark->isTimerSet()) {
+			beamSparkRect = spark->GetRect();
+		}
+		//get bounding box
+		if (beamSparkRect) {
+			beamSparkBox = beamSparkRect->GetBox();
+		}
+		//check if hits enemy
+		if (beamSparkBox && enemyBox && BoundingBox::OBB(beamSparkBox, enemyBox)) {
+			effects[3]->SetKirbyStarExplodeOnEnemy(enemies[j]->GetPosition());
+			effects[3]->StartTimer(0.2f);
+
+			enemies[j]->SetDeathStart();//start enemy death timer
 		}
 	}
 }
