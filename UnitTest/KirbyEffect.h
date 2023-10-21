@@ -42,6 +42,7 @@ public:
 	void SetSparkEffect(Vector3 pos);
 	void SetBeamEffect(Vector3 pos, bool leftSide);
 	void SetGetKirbyAbilityEffect();
+	void SetRemoveAbilityEffect();
 
 	void UpdateEatEffect();
 	bool UpdateSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow);
@@ -53,6 +54,7 @@ public:
 	void UpdateSparkEffect(float delta);
 	void UpdateBeamEffect(float delta, float leftSide);
 	void UpdateKirbyAbilityEffect();
+	void UpdateRemoveAbilityEffect(float delta);
 	
 
 	bool isTimerSet() { return setTimer; };
@@ -65,6 +67,8 @@ public:
 	void RenderSparkEffect();
 	void RenderBeamEffect();
 	void RenderKirbyAbilityEffect();
+	void RenderRemoveAbilityEffect();
+
 
 	void RenderEffect();
 	void StopEffect();

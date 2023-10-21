@@ -102,6 +102,8 @@ public:
 	bool Attack(float delta, class Keyboard* key);
 	bool HitEnemy(float delta, class Keyboard* key);
 	bool UseAbility(float delta, class Keyboard* key);
+	bool RemoveAbility(float delta, class Keyboard* key);
+
 	void SetHitEnemy();
 	float GetHitEnemy();
 	
@@ -166,6 +168,7 @@ private:
 	class KirbyEffect* sparkEffect;
 	class KirbyEffect* beamEffect;
 	class KirbyEffect* getAbilityEffect;
+	class KirbyEffect* removeAbilityEffect;
 
 	wstring animationPng[PNGNUM] = {
 		L"kirbywalkright.png",

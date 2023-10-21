@@ -227,6 +227,13 @@ void KirbyEffect::SetGetKirbyAbilityEffect()
 	rectEffect0->SetColor(Values::Black);
 }
 
+void KirbyEffect::SetRemoveAbilityEffect()
+{
+	effectStartPos = kirbyPos;
+	animations.push_back(new AnimationRect(effectStartPos, Vector3(128.0f, 128.0f, 0.0f), false));
+	animations[0]->SetAnimator(animatorList[Effect::bigstars]);
+}
+
 void KirbyEffect::UpdateEatEffect()
 {
 	if (time + duration < Time::Get()->Running()) {
@@ -438,6 +445,26 @@ void KirbyEffect::UpdateKirbyAbilityEffect()
 	}
 }
 
+void KirbyEffect::UpdateRemoveAbilityEffect(float delta)
+{
+	if (time + duration < Time::Get()->Running()) {
+		vector<AnimationRect*>().swap(animations);
+		setTimer = false;
+		return;
+	}
+
+	if (animations.size()) {
+		if (!left) {
+			effectStartPos += Values::LeftUpVec * 200 * delta;
+		}
+		else {
+			effectStartPos += Values::RightUpVec * 200 * delta;
+		}
+		animations[0]->SetPosition(effectStartPos);
+		animations[0]->Update();
+	}
+}
+
 void KirbyEffect::StartTimer(float duration)
 {
 	setTimer = true;
@@ -510,6 +537,13 @@ void KirbyEffect::RenderKirbyAbilityEffect()
 	if (animations.size() && rectEffect0) {
 		rectEffect0->SetColor(Color(0, 0, 0, 0.35f));
 		rectEffect0->Render();
+		animations[0]->Render();
+	}
+}
+
+void KirbyEffect::RenderRemoveAbilityEffect()
+{
+	if (animations.size()) {
 		animations[0]->Render();
 	}
 }

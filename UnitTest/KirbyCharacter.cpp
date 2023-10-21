@@ -56,10 +56,12 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 	sparkEffect = new KirbyEffect();
 	beamEffect = new KirbyEffect();
 	getAbilityEffect = new KirbyEffect();
+	removeAbilityEffect = new KirbyEffect();
 }
 
 KirbyCharacter::~KirbyCharacter()
 {
+	SAFE_DELETE(removeAbilityEffect);
 	SAFE_DELETE(getAbilityEffect);
 	SAFE_DELETE(sparkEffect);
 	SAFE_DELETE(beamEffect);
@@ -75,6 +77,8 @@ void KirbyCharacter::Update()
 	beamEffect->UpdateBeamEffect(Time::Delta(), __super::GetLeft());
 	sparkEffect->UpdateSparkEffect(Time::Delta());
 	getAbilityEffect->UpdateKirbyAbilityEffect();
+	removeAbilityEffect->UpdateRemoveAbilityEffect(Time::Delta());
+
 	//if flatten state adjust rect position
 	Vector3 rectPos = position;
 	if (state == flatten) {
@@ -116,6 +120,7 @@ void KirbyCharacter::Render()
 	beamEffect->RenderBeamEffect();
 	sparkEffect->RenderSparkEffect();
 	getAbilityEffect->RenderKirbyAbilityEffect();
+	removeAbilityEffect->RenderRemoveAbilityEffect();
 	__super::Render();
 }
 
@@ -279,6 +284,9 @@ bool KirbyCharacter::Move2(float delta, class Keyboard* key)
 		return true;
 	}
 	if (UseAbility(delta, key)) {
+		return true;
+	}
+	if (RemoveAbility(delta, key)) {
 		return true;
 	}
 	if (StopInhaling(delta, key)) {
@@ -1182,6 +1190,17 @@ bool KirbyCharacter::UseAbility(float delta, Keyboard* key)
 		}
 
 		return true;
+	}
+	return false;
+}
+//remove kirby ability when shift is pressed and kirby has ability
+bool KirbyCharacter::RemoveAbility(float delta, Keyboard* key)
+{
+	if (abilityUse && key->Press(VK_SHIFT)) {
+		abilityUse = false;
+		removeAbilityEffect->SetKirbyPos(position, __super::GetLeft());
+		removeAbilityEffect->SetRemoveAbilityEffect();
+		removeAbilityEffect->StartTimer(5.0f);
 	}
 	return false;
 }
