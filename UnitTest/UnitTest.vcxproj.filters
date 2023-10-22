@@ -10,7 +10,6 @@
     <ClInclude Include="KirbyCharacter.h" />
     <ClInclude Include="ReadCoordinate.h" />
     <ClInclude Include="Demos\05_CollisionDemo.h" />
-    <ClInclude Include="Demos\Gravity.h" />
     <ClInclude Include="BezierCurves.h" />
     <ClInclude Include="KirbyEffect.h" />
     <ClInclude Include="Enemy.h" />
@@ -25,7 +24,6 @@
     <ClCompile Include="KirbyCharacter.cpp" />
     <ClCompile Include="ReadCoordinate.cpp" />
     <ClCompile Include="Demos\05_CollisionDemo.cpp" />
-    <ClCompile Include="Demos\Gravity.cpp" />
     <ClCompile Include="BezierCurves.cpp" />
     <ClCompile Include="KirbyEffect.cpp" />
     <ClCompile Include="Enemy.cpp" />

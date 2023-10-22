@@ -48,19 +48,50 @@ void Camera::Move()
 {
 	auto key = Keyboard::Get();
 	float delta = Time::Delta();
-	position.x = kirbyPos.x - WinMaxWidth / 2;
-	position.y = kirbyPos.y - WinMaxHeight / 2;
-	if (position.x < topLeft.x) {
-		position.x = topLeft.x;
+
+	//disable camera auto move
+	if (key->Down(VK_F10)) {
+		if (cameraAutoMove) {
+			cameraAutoMove = false;
+		}
+		else {
+			cameraAutoMove = true;
+		}
 	}
-	if (position.x > bottomRight.x) {
-		position.x = bottomRight.x;
+
+
+	//cout << cameraAutoMove << "\n";
+	if (cameraAutoMove) {
+		position.x = kirbyPos.x - WinMaxWidth / 2;
+		position.y = kirbyPos.y - WinMaxHeight / 2;
+
+		if (position.x < topLeft.x) {
+			position.x = topLeft.x;
+		}
+		if (position.x > bottomRight.x) {
+			position.x = bottomRight.x;
+		}
+		if (position.y < bottomRight.y) {
+			position.y = bottomRight.y;
+		}
+		if (position.y > topLeft.y) {
+			position.y = topLeft.y;
+		}
 	}
-	if (position.y < bottomRight.y) {
-		position.y = bottomRight.y;
-	}
-	if (position.y > topLeft.y) {
-		position.y = topLeft.y;
+	else {
+		if (key->Press('1')) {
+			position.y += 10;
+		}
+		else if (key->Press('2')) {
+			position.y -= 10;
+		}
+
+		if (key->Press('3')) {
+			position.x -= 10;
+		}
+		else if (key->Press('4')) {
+			position.x += 10;
+		}
 	}
 }
 

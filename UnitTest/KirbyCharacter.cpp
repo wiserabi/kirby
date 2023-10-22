@@ -1215,14 +1215,7 @@ float KirbyCharacter::GetHitEnemy()
 	return hitEnemyTime;
 }
 
-void KirbyCharacter::ApplyGravity()
-{
-}
 
-
-void KirbyCharacter::ClearEnemySwallowed()
-{
-}
 
 void KirbyCharacter::SetAttackDelay()
 {

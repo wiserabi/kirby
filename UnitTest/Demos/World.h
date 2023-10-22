@@ -1,9 +1,10 @@
 #pragma once
 
+#define LEVELNUM 3
+
 class World : IObject
 {
 public:
-	int currentLevel = 1;
 	World();
 	~World();
 	//Enemy
@@ -26,7 +27,16 @@ public:
 private:
 	Vector3 worldSize;
 	Vector3 worldPos;
-	class TextureRect* worldMap;
-	class Rect* rect;
+	class TextureRect* worldMap = nullptr;
+	class Rect* guiRect = nullptr;
 	vector<class Rect*> rects;
+	vector<class Level*> levels;//stages
+	Vector3 levelPos;
+	class Rect* door1 = nullptr;
+	class Rect* door2 = nullptr;
+	wstring levelPng[LEVELNUM] = {
+		L"world1stage1.png",
+		L"world1stage2.png",
+		L"world1stage3.png",
+	};
 };

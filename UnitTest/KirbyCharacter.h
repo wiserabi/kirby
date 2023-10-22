@@ -107,7 +107,6 @@ public:
 	void SetHitEnemy();
 	float GetHitEnemy();
 	
-	void ApplyGravity();
 	void SetHitGround(bool hitGround) { this->hitGround = hitGround; }
 	void SetHitLeft(bool hitLeft) { this->hitLeft = hitLeft; }
 	void SetHitRight(bool hitRight) { this->hitRight = hitRight; }
@@ -116,7 +115,6 @@ public:
 	State GetPrevState();
 
 	void SetState(State state) { this->state = state; }
-	void ClearEnemySwallowed();
 
 	void SetAttackDelay();
 	Vector3 GetPosition();
