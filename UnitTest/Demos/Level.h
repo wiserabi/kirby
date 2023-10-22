@@ -17,5 +17,5 @@ private:
 	Vector3 size;
 	class TextureRect* levelMap;
 	//class Rect* guiRect = nullptr;
-
+	vector<class Rect*> rects;
 };

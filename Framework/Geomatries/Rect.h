@@ -14,7 +14,7 @@ public:
     Vector3 GetSize() { return size; }
     Vector3 GetLT() { return Vector3(position.x - size.x / 2, position.y + size.y / 2, 0.0f); }
     Vector3 GetRB() { return Vector3(position.x + size.x / 2, position.y - size.y / 2, 0.0f); }
-
+    float GetRotation() { return rotation; }
 
     void SetColor(Color color);
     void UpdateColor();

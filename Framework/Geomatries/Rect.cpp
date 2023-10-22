@@ -125,6 +125,7 @@ void Rect::GUI()
 {
     ImGui::Begin("Rect", &bOpen);
     {
+
         ImGui::InputFloat3(MakeLabel("Pos").c_str(), position, 2);
         ImGui::InputFloat3(MakeLabel("Size").c_str(), size, 2);
         ImGui::SliderAngle(MakeLabel("Rot").c_str(), &rotation);

@@ -35,8 +35,8 @@ private:
 	class Rect* door1 = nullptr;
 	class Rect* door2 = nullptr;
 	wstring levelPng[LEVELNUM] = {
-		L"world1stage1.png",
-		L"world1stage2.png",
-		L"world1stage3.png",
+		L"world1stage1",
+		L"world1stage2",
+		L"world1stage3",
 	};
 };
