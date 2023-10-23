@@ -57,10 +57,18 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 	beamEffect = new KirbyEffect();
 	getAbilityEffect = new KirbyEffect();
 	removeAbilityEffect = new KirbyEffect();
+
+	for (size_t i = 0; i < DOORNUM; i++)
+	{
+		doors.push_back(new Rect(doorPos[i], doorSize[i], 0.0f));
+		doors[i]->SetColor(Color(0.5f, 0.5f, 0.5f, 0.5f));
+	}
 }
 
 KirbyCharacter::~KirbyCharacter()
 {
+	vector<Rect*>().swap(doors);
+
 	SAFE_DELETE(removeAbilityEffect);
 	SAFE_DELETE(getAbilityEffect);
 	SAFE_DELETE(sparkEffect);
@@ -111,6 +119,11 @@ void KirbyCharacter::Update()
 	}
 	rect->SetPosition(rectPos);
 	rect->Update();
+
+	for (size_t i = 0; i < DOORNUM; i++)
+	{
+		doors[i]->Update();
+	}
 	__super::Update();
 }
 
@@ -121,6 +134,12 @@ void KirbyCharacter::Render()
 	sparkEffect->RenderSparkEffect();
 	getAbilityEffect->RenderKirbyAbilityEffect();
 	removeAbilityEffect->RenderRemoveAbilityEffect();
+
+	for (size_t i = 0; i < DOORNUM; i++)
+	{
+		doors[i]->Render();
+	}
+
 	__super::Render();
 }
 
@@ -1201,6 +1220,37 @@ bool KirbyCharacter::RemoveAbility(float delta, Keyboard* key)
 		removeAbilityEffect->SetKirbyPos(position, __super::GetLeft());
 		removeAbilityEffect->SetRemoveAbilityEffect();
 		removeAbilityEffect->StartTimer(5.0f);
+	}
+	return false;
+}
+
+bool KirbyCharacter::OpenDoor(float delta, Keyboard* key)
+{
+	if ((state == idle || state == walking) && key->Press(VK_UP)) {
+		current = L"door";
+		if (openDoorTime - Time::Get()->Running() < 0.2f) {
+			ChangeAnimation(current, 0.0f, dir, 0, true);
+		}
+		else if (openDoorTime - Time::Get()->Running() < 0.4f) {
+			ChangeAnimation(current, 0.0f, dir, 1, true);
+		}
+		else {
+			
+			state = falldown;
+			startFalling = Time::Get()->Running();
+		}
+		return true;
+	}
+	return false;
+}
+
+bool KirbyCharacter::CheckOpenDoor()
+{
+	for (size_t i = 0; i < DOORNUM; i++)
+	{
+		Vector3 doorLT = doors[i]->GetLT();
+		Vector3 doorRB = doors[i]->GetRB();
+
 	}
 	return false;
 }

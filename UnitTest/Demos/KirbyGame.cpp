@@ -117,7 +117,7 @@ void KirbyGame::Update()
 	}
 
 	//if kirby is in the world
-	if (kirby->isKirbyInWorld()) {
+	if (kirby->getKirbyLocation() == WORLD) {
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
 		vector<Rect*> worldRects = world->GetRects();
 		for (size_t i = 0; i < worldRects.size(); i++) {
@@ -181,20 +181,21 @@ void KirbyGame::SetCameraBound()
 {
 	Camera::Get()->SetKirbyPosition(kirby->GetPosition());
 
-	if (kirby->isKirbyInWorld()) {
-		Vector3 worldPos = world->getWorldPosition();//TL = TopLeft
-		Vector3 worldSize = world->getWorldSize();
-		Vector3 worldTL = Vector3(worldPos.x - worldSize.x / 2, worldPos.y + worldSize.y / 2, 0);
-		Vector3 worldBR = Vector3(worldPos.x + worldSize.x / 2, worldPos.y - worldSize.y / 2, 0);
+	if (kirby->getKirbyLocation() == WORLD) {
+		Vector3 worldLT = world->GetLT();
+		Vector3 worldBR = world->GetRB();
 		//BR = BottomRight
 		
-		Vector3 cameraTL = Vector3(worldTL.x, worldTL.y - WinMaxHeight, 0);
-		Vector3 cameraBR = Vector3(worldBR.x - WinMaxWidth, worldBR.y, 0);
+		Vector3 cameraTL = Vector3(worldLT.x, worldLT.y - WinMaxHeight, 0);
+		Vector3 cameraRB = Vector3(worldBR.x - WinMaxWidth, worldBR.y, 0);
 
-		Camera::Get()->SetBound(cameraTL, cameraBR);
+		Camera::Get()->SetBound(cameraTL, cameraRB);
 	}
-	else {
-		//get level pos
+	else if(kirby->getKirbyLocation() == LEVEL1){
+	}
+	else if (kirby->getKirbyLocation() == LEVEL2) {
+	}
+	else if (kirby->getKirbyLocation() == LEVEL3) {
 	}
 }
 

@@ -1,7 +1,14 @@
 #pragma once
 
-#define PNGNUM 15
+#define PNGNUM 16
+#define DOORNUM 5
 
+enum Location {
+	WORLD,
+	LEVEL1,
+	LEVEL2,
+	LEVEL3,
+};
 enum Ability
 {
 	spark,
@@ -44,6 +51,7 @@ enum State {
 	eatidle,
 	eatandwalk,
 	hitEnemy,
+	opendoor,
 };
 
 
@@ -103,6 +111,8 @@ public:
 	bool HitEnemy(float delta, class Keyboard* key);
 	bool UseAbility(float delta, class Keyboard* key);
 	bool RemoveAbility(float delta, class Keyboard* key);
+	bool OpenDoor(float delta, class Keyboard* key);
+	bool CheckOpenDoor();
 
 	void SetHitEnemy();
 	float GetHitEnemy();
@@ -118,7 +128,7 @@ public:
 
 	void SetAttackDelay();
 	Vector3 GetPosition();
-	boolean isKirbyInWorld() { return kirbyInWorld; }
+	int getKirbyLocation() { return kirbyInWorld; }
 	class Rect* GetRect();
 	void SetEffectHit(int effectHitDir) { this->effectHitDir = effectHitDir; }
 	void SetAbility(int ability);
@@ -137,7 +147,7 @@ private:
 	ID3D11BlendState* bpoint[2];
 
 	wstring current = L"WalkR";
-	bool kirbyInWorld = true;
+	Location kirbyInWorld = WORLD;
 	class Rect* rect = nullptr;
 	vector<class Rect*> list;
 	bool hitGround = false;
@@ -161,6 +171,7 @@ private:
 	float startEatWalk = 0.0f;
 	float attackDelay = 0.0f;
 	float hitEnemyTime = 0.0f;//moment when kirby hit enemy
+	float openDoorTime = 0.0f;
 	int effectHitDir = -1;
 	bool abilityUse = false;
 	class KirbyEffect* sparkEffect;
@@ -184,6 +195,7 @@ private:
 		L"kirbyouch.png",
 		L"kirbyspark.png",
 		L"kirbybeam.png",
+		L"kirbydoor.png",
 	};
 	wstring motions[PNGNUM] = {
 		L"WalkR",
@@ -201,9 +213,26 @@ private:
 		L"ouch",
 		L"spark",
 		L"beam",
+		L"door",
 	};
 	int split[PNGNUM] = {
-		4,2,4,2,4,6,2,1,2,1,4,3,1,2,2
+		4,2,4,2,4,6,2,1,2,1,4,3,1,2,2,2
+	};
+
+	vector<class Rect*> doors;
+	Vector3 doorPos[DOORNUM] = {
+		Vector3(386.0f, 244.0f, 0.0f),//stage1
+		Vector3(968.0f, 64.0f, 0.0f),//stage2
+		Vector3(8058.0f, 426.0f, 0.0f),//level1
+		Vector3(13098.0f, 358.0f, 0.0f),//level2
+		Vector3(18062.0f, 352.0f, 0.0f),//level3
+	};
+	Vector3 doorSize[DOORNUM] = {
+		Vector3(64.0f, 90.0f, 0.0f),
+		Vector3(64.0f, 90.0f, 0.0f),
+		Vector3(68.0f, 98.0f, 0.0f),
+		Vector3(68.0f, 98.0f, 0.0f),
+		Vector3(56.0f, 88.0f, 0.0f),
 	};
 };
 

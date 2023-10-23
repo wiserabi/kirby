@@ -22,6 +22,7 @@ public:
 	Vector3 getWorldPosition() { return worldPos; }
 	vector<class Rect*> GetRects(){ return rects; }
 	void SetColor(int index, Color color);
+	vector<class Level*> getLevels() { return levels; }
 
 
 private:
@@ -31,9 +32,8 @@ private:
 	class Rect* guiRect = nullptr;
 	vector<class Rect*> rects;
 	vector<class Level*> levels;//stages
-	Vector3 levelPos;
-	class Rect* door1 = nullptr;
-	class Rect* door2 = nullptr;
+
+
 	wstring levelPng[LEVELNUM] = {
 		L"world1stage1",
 		L"world1stage2",
