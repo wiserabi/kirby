@@ -137,6 +137,9 @@ public:
 	void StartUseAbility(class Keyboard* key);
 	class KirbyEffect* GetSparkEffect() { return sparkEffect; }
 	class KirbyEffect* GetBeamEffect() { return beamEffect; }
+	void SetSlopeAngle(float angle);
+	void SetUpperSlope(bool upperSlope);
+	void SetDownSlope(bool downSlope);
 
 private:
 	int health;
@@ -181,6 +184,10 @@ private:
 	class KirbyEffect* getAbilityEffect;
 	class KirbyEffect* removeAbilityEffect;
 	int doorIdx = -1;
+	bool upperSlope = false;
+	bool downSlope = false;
+	float angle = 0.0f;
+
 
 	wstring animationPng[PNGNUM] = {
 		L"kirbywalkright.png",

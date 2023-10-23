@@ -45,7 +45,7 @@ void World::Render()
 	for (int i = 0; i < LEVELNUM; i++) {
 		levels[i]->Render();
 	}
-	//guiRect->Render();
+	guiRect->Render();
 }
 
 void World::PostRender()
@@ -54,7 +54,7 @@ void World::PostRender()
 
 void World::GUI()
 {
-	//guiRect->GUI();
+	guiRect->GUI();
 }
 
 Vector3 World::GetLT()
@@ -91,5 +91,5 @@ void World::Update()
 		levels[i]->Update();
 	}
 
-	//guiRect->Update();
+	guiRect->Update();
 }

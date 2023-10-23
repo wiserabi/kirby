@@ -507,9 +507,22 @@ bool KirbyCharacter::Exhaling(float delta, Keyboard* key)
 
 bool KirbyCharacter::Walk(float delta, Keyboard* key)
 {
+	//cout << "upperSlope: " << upperSlope << "downSlope: " << downSlope << "\n";
 	if (key->Press(VK_RIGHT)) {
 		__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 		dir += Values::RightVec;
+
+		dir.y = 0;
+		if (upperSlope) {
+			dir.y += tan(angle);
+			//cout << "right upp: " << dir.y << "\n";
+		}
+		else if (downSlope) {
+			dir.y -= tan(-angle);
+			//cout << "right down: " << dir.y << "\n";
+
+		}
+		
 		//block left and right while inhaling motion
 		if (state != inhaling) {
 			__super::SetLeft(false);
@@ -524,7 +537,7 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 			current = L"WalkR";
 			state = walking;
 		}
-		else if (!hitGround && state == walking) {
+		else if (!hitGround && state == walking && !upperSlope && !downSlope) {
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
@@ -539,6 +552,19 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 	else if (key->Press(VK_LEFT)) {
 		__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 		dir += Values::LeftVec;
+
+		dir.y = 0;
+		if (upperSlope) {
+			dir.y -= tan(angle);
+			//cout << "left up: " << dir.y << "\n";
+
+		}
+		else if (downSlope) {
+			dir.y += tan(-angle);
+			//cout << "left down: " << dir.y << "\n";
+
+		}
+		
 		if (state != inhaling) {
 			__super::SetLeft(true);
 		}
@@ -550,7 +576,7 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 			current = L"WalkR";
 			state = walking;
 		}
-		else if (!hitGround && state == walking) {
+		else if (!hitGround && state == walking && !upperSlope && !downSlope) {
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
@@ -1232,7 +1258,7 @@ bool KirbyCharacter::RemoveAbility(float delta, Keyboard* key)
 
 bool KirbyCharacter::OpenDoorStart(float delta, Keyboard* key)
 {
-	if (state != opendoor) {
+	if (state == walking || state == idle) {
 		doorIdx = CheckOpenDoor();
 	}
 	if (key->Press(VK_UP) && doorIdx > -1) {
@@ -1256,6 +1282,7 @@ bool KirbyCharacter::OpenDoor(float delta, Keyboard* key)
 		else {
 			openDoorTime = Time::Get()->Running();
 			Teleportation(doorIdx);
+			doorIdx = -1;
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
@@ -1372,4 +1399,20 @@ void KirbyCharacter::StartUseAbility(class Keyboard* key)
 
 		startSqueeze = Time::Get()->Running();
 	}
+}
+
+void KirbyCharacter::SetSlopeAngle(float angle)
+{
+	this->angle = angle;
+}
+
+void KirbyCharacter::SetUpperSlope(bool upperSlope)
+{
+	this->upperSlope = upperSlope;
+}
+
+void KirbyCharacter::SetDownSlope(bool downSlope)
+{
+	this->downSlope = downSlope;
+
 }

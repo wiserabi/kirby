@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "KirbyGame.h"
+#include "Geomatries/Rect.h"
 
 #include "Geomatries/AnimationRect.h"
 #include "KirbyCharacter.h"
@@ -121,8 +122,11 @@ void KirbyGame::Update()
 	}
 
 	int tmpLocation = kirby->getKirbyLocation();
+
 	//if kirby is in the world
 	if (tmpLocation == WORLD) {
+		kirby->SetDownSlope(false);
+		kirby->SetUpperSlope(false);
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
 		vector<Rect*> worldRects = world->GetRects();
 		for (size_t i = 0; i < worldRects.size(); i++) {
@@ -154,13 +158,23 @@ void KirbyGame::Update()
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
 		vector<Level*> levels = world->GetLevels();
 		vector<Rect*> levelRects = levels[tmpLocation - 1]->GetRects();
+
 		for (size_t i = 0; i < levelRects.size(); i++) {
 			KirbyCollisionWithWorld(kirbyBox, levelRects[i]);
+		}
+		Vector3 kirbyPos = kirby->GetPosition();
+		if (!(10092.0f < kirbyPos.x && kirbyPos.x < 10512.0f) &&
+			!(10588.0f < kirbyPos.x && kirbyPos.x < 11012.0f) &&
+			!(11400.0f < kirbyPos.x && kirbyPos.x < 11736.0f) &&
+			!(12384.0f < kirbyPos.x && kirbyPos.x < 12815.0f)) {
+			kirby->SetUpperSlope(false);
+			kirby->SetDownSlope(false);
 		}
 		SetCameraBound();
 	}
 
 	hud->Update();
+
 }
 
 void KirbyGame::Render()
@@ -500,20 +514,35 @@ void KirbyGame::SetKirbyBlowAir()
 	effects[5]->StartTimer(2.0f);
 }
 
-void KirbyGame::KirbyCollisionWithWorld(BoundingBox* kirbyBox, Rect* worldRect)
+bool KirbyGame::KirbyCollisionWithWorld(BoundingBox* kirbyBox, Rect* worldRect)
 {
 	BoundingBox* worldBox = nullptr;
 	worldBox = worldRect->GetBox();
+	Vector3 kirbyPos = kirby->GetPosition();
+
+	bool ret = false;
+	
 	//if there is collision
 	if (BoundingBox::OBB(kirbyBox, worldBox)) {
+		ret = true;
 		//world->SetColor(i, Values::Blue);
-		if (worldRect->GetRotation() > 0.1f || worldRect->GetRotation() < -0.1f) {
-			cout << "slope\n";
+		float rotation = worldRect->GetRotation();
+		if (rotation > 0.1f) {//upper
+			kirby->SetUpperSlope(true);
+			kirby->SetDownSlope(false);
+			kirby->SetSlopeAngle(rotation);
+		}
+		else if (rotation < -0.1f) {//down
+			kirby->SetDownSlope(true);
+			kirby->SetUpperSlope(false);
+			kirby->SetSlopeAngle(rotation);
+			//cout << "down" << rotation << "\n";
 		}
 		else {
 			FixKirbyPosition(worldRect);
 		}
 	}
+	return ret;
 }
 
 void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, BoundingBox* kirbyBox)
