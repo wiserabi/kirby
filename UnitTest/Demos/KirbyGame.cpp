@@ -502,10 +502,17 @@ void KirbyGame::SetKirbyBlowAir()
 
 void KirbyGame::KirbyCollisionWithWorld(BoundingBox* kirbyBox, Rect* worldRect)
 {
+	BoundingBox* worldBox = nullptr;
+	worldBox = worldRect->GetBox();
 	//if there is collision
-	if (BoundingBox::OBB(kirbyBox, worldRect->GetBox())) {
+	if (BoundingBox::OBB(kirbyBox, worldBox)) {
 		//world->SetColor(i, Values::Blue);
-		FixKirbyPosition(worldRect);
+		if (worldRect->GetRotation() > 0.1f || worldRect->GetRotation() < -0.1f) {
+			cout << "slope\n";
+		}
+		else {
+			FixKirbyPosition(worldRect);
+		}
 	}
 }
 

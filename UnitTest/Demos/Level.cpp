@@ -7,7 +7,7 @@
 Level::Level(Vector3 pos, wstring pngName)
 {
 	this->position = pos;
-	size = Vector3(WinMaxHeight * 6 + 60, WinMaxHeight + 10, 0);
+	size = Vector3(WinMaxHeight * 6 + 60, WinMaxHeight, 0);
 	levelMap = new TextureRect(position, size, 0.0f,
 		TexturePath + L"backGround/" + pngName + L".png");
 	FileReader fr;
