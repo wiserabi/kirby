@@ -290,6 +290,12 @@ bool KirbyCharacter::Move1(float delta, class Keyboard* key)
 
 bool KirbyCharacter::Move2(float delta, class Keyboard* key)
 {
+	if (OpenDoor(delta, key)) {
+		return true;
+	}
+	if (OpenDoorStart(delta, key)) {
+		return true;
+	}
 	if (Attack(delta, key)) {
 		return true;
 	}
@@ -1224,35 +1230,89 @@ bool KirbyCharacter::RemoveAbility(float delta, Keyboard* key)
 	return false;
 }
 
-bool KirbyCharacter::OpenDoor(float delta, Keyboard* key)
+bool KirbyCharacter::OpenDoorStart(float delta, Keyboard* key)
 {
-	if ((state == idle || state == walking) && key->Press(VK_UP)) {
-		current = L"door";
-		if (openDoorTime - Time::Get()->Running() < 0.2f) {
-			ChangeAnimation(current, 0.0f, dir, 0, true);
-		}
-		else if (openDoorTime - Time::Get()->Running() < 0.4f) {
-			ChangeAnimation(current, 0.0f, dir, 1, true);
-		}
-		else {
-			
-			state = falldown;
-			startFalling = Time::Get()->Running();
-		}
+	if (state != opendoor) {
+		doorIdx = CheckOpenDoor();
+	}
+	if (key->Press(VK_UP) && doorIdx > -1) {
+		state = opendoor;
+		openDoorTime = Time::Get()->Running();
 		return true;
 	}
 	return false;
 }
 
-bool KirbyCharacter::CheckOpenDoor()
+bool KirbyCharacter::OpenDoor(float delta, Keyboard* key)
+{
+	if (state == opendoor) {
+		current = L"door";
+		if (Time::Get()->Running() - openDoorTime < 0.2f) {
+			ChangeAnimation(current, 0.0f, dir, 0, true);
+		}
+		else if (Time::Get()->Running() - openDoorTime < 0.4f) {
+			ChangeAnimation(current, 0.0f, dir, 1, true);
+		}
+		else {
+			openDoorTime = Time::Get()->Running();
+			Teleportation(doorIdx);
+			state = falldown;
+			startFalling = Time::Get()->Running();
+		}
+		return true;
+	}
+
+	return false;
+}
+
+int KirbyCharacter::CheckOpenDoor()
 {
 	for (size_t i = 0; i < DOORNUM; i++)
 	{
 		Vector3 doorLT = doors[i]->GetLT();
 		Vector3 doorRB = doors[i]->GetRB();
-
+		Vector3 kirbyLT = rect->GetLT();
+		Vector3 kirbyRB = rect->GetRB();
+		
+		float left = max(kirbyLT.x, doorLT.x);
+		float top = min(kirbyLT.y, doorLT.y);
+		float right = min(kirbyRB.x, doorRB.x);
+		float bottom = max(kirbyRB.y, doorRB.y);
+		if (left >= right || top <= bottom) {
+			//if there is no intersection
+			continue;
+		}
+		if (abs(left - right) >= ((kirbyRB.x - kirbyLT.x) * 0.2f)) {
+			return i;//which door is open?
+		}
 	}
-	return false;
+	return -1;
+}
+
+void KirbyCharacter::Teleportation(int doorIdx)
+{
+	if (doorIdx == 0) {
+		position = Vector3(4100.0f, 600.0f, 0.0);
+		__super::SetLeft(false);
+		kirbyInWorld = LEVEL1;
+	}
+	else if (doorIdx == 2) {
+		position = Vector3(9100.0f, 600.0f, 0.0f);
+		__super::SetLeft(false);
+		kirbyInWorld = LEVEL2;
+	}
+	else if (doorIdx == 3) {
+		position = doorPos[4];
+		__super::SetLeft(false);
+
+		kirbyInWorld = LEVEL3;
+	}
+	else if (doorIdx == 4) {
+		position = doorPos[0];
+		__super::SetLeft(false);
+
+		kirbyInWorld = WORLD;
+	}
 }
 
 void KirbyCharacter::SetHitEnemy()

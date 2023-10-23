@@ -64,7 +64,7 @@ void Camera::Move()
 	if (cameraAutoMove) {
 		position.x = kirbyPos.x - WinMaxWidth / 2;
 		position.y = kirbyPos.y - WinMaxHeight / 2;
-
+		
 		if (position.x < topLeft.x) {
 			position.x = topLeft.x;
 		}
@@ -77,6 +77,7 @@ void Camera::Move()
 		if (position.y > topLeft.y) {
 			position.y = topLeft.y;
 		}
+		//cout << position.x << " : " << position.y << "\n";
 	}
 	else {
 		if (key->Press('1')) {

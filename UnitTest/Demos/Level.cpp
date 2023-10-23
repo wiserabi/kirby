@@ -62,3 +62,13 @@ void Level::PostRender()
 void Level::GUI()
 {
 }
+
+Vector3 Level::GetLT()
+{
+	return levelMap->GetLT();
+}
+
+Vector3 Level::GetRB()
+{
+	return levelMap->GetRB();
+}

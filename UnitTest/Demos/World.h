@@ -22,7 +22,7 @@ public:
 	Vector3 getWorldPosition() { return worldPos; }
 	vector<class Rect*> GetRects(){ return rects; }
 	void SetColor(int index, Color color);
-	vector<class Level*> getLevels() { return levels; }
+	vector<class Level*> GetLevels() { return levels; }
 
 
 private:

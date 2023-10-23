@@ -111,8 +111,10 @@ public:
 	bool HitEnemy(float delta, class Keyboard* key);
 	bool UseAbility(float delta, class Keyboard* key);
 	bool RemoveAbility(float delta, class Keyboard* key);
+	bool OpenDoorStart(float delta, class Keyboard* key);
 	bool OpenDoor(float delta, class Keyboard* key);
-	bool CheckOpenDoor();
+	int CheckOpenDoor();
+	void Teleportation(int doorIdx);
 
 	void SetHitEnemy();
 	float GetHitEnemy();
@@ -178,6 +180,7 @@ private:
 	class KirbyEffect* beamEffect;
 	class KirbyEffect* getAbilityEffect;
 	class KirbyEffect* removeAbilityEffect;
+	int doorIdx = -1;
 
 	wstring animationPng[PNGNUM] = {
 		L"kirbywalkright.png",

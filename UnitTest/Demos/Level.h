@@ -11,6 +11,9 @@ public:
 	virtual void Render() override;
 	virtual void PostRender() override;
 	virtual void GUI() override;
+	Vector3 GetLT();
+	Vector3 GetRB();
+	vector<class Rect*> GetRects() { return rects; }
 
 private:
 	Vector3 position;

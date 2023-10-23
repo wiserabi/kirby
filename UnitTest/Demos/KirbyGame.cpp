@@ -4,6 +4,7 @@
 #include "Geomatries/AnimationRect.h"
 #include "KirbyCharacter.h"
 #include "World.h"
+#include "Level.h"
 #include "UI/HUD.h"
 #include "Geomatries/Rect.h"
 #include "Enemy.h"
@@ -105,6 +106,9 @@ void KirbyGame::Update()
 	else if ((kirbyPrevState == eatidle || kirbyPrevState == eatandwalk) && kirbyCurState == attacking) {
 		SetThrowStar();
 	}
+	else if (kirbyPrevState == opendoor && kirbyCurState == falldown) {
+		SetCameraBound();
+	}
 	
 	kirby->SetHitGround(false);
 	kirby->SetHitLeft(false);
@@ -116,8 +120,9 @@ void KirbyGame::Update()
 		enemies[j]->SetHitRight(false);
 	}
 
+	int tmpLocation = kirby->getKirbyLocation();
 	//if kirby is in the world
-	if (kirby->getKirbyLocation() == WORLD) {
+	if (tmpLocation == WORLD) {
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
 		vector<Rect*> worldRects = world->GetRects();
 		for (size_t i = 0; i < worldRects.size(); i++) {
@@ -143,10 +148,19 @@ void KirbyGame::Update()
 				i--;
 			}
 		}
+		SetCameraBound();
+	}
+	else {//kirby in levels
+		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
+		vector<Level*> levels = world->GetLevels();
+		vector<Rect*> levelRects = levels[tmpLocation - 1]->GetRects();
+		for (size_t i = 0; i < levelRects.size(); i++) {
+			KirbyCollisionWithWorld(kirbyBox, levelRects[i]);
+		}
+		SetCameraBound();
 	}
 
 	hud->Update();
-	SetCameraBound();
 }
 
 void KirbyGame::Render()
@@ -192,10 +206,40 @@ void KirbyGame::SetCameraBound()
 		Camera::Get()->SetBound(cameraTL, cameraRB);
 	}
 	else if(kirby->getKirbyLocation() == LEVEL1){
+		vector<class Level*> levels = world->GetLevels();
+		
+		Vector3 levelLT = levels[0]->GetLT();
+		Vector3 levelRB = levels[0]->GetRB();
+		//BR = BottomRight
+
+		Vector3 cameraTL = Vector3(levelLT.x, levelLT.y - WinMaxHeight, 0);
+		Vector3 cameraRB = Vector3(levelRB.x - WinMaxWidth, levelRB.y, 0);
+
+		Camera::Get()->SetBound(cameraTL, cameraRB);
 	}
 	else if (kirby->getKirbyLocation() == LEVEL2) {
+		vector<class Level*> levels = world->GetLevels();
+
+		Vector3 levelLT = levels[1]->GetLT();
+		Vector3 levelRB = levels[1]->GetRB();
+		//BR = BottomRight
+
+		Vector3 cameraTL = Vector3(levelLT.x, levelLT.y - WinMaxHeight, 0);
+		Vector3 cameraRB = Vector3(levelRB.x - WinMaxWidth, levelRB.y, 0);
+
+		Camera::Get()->SetBound(cameraTL, cameraRB);
 	}
 	else if (kirby->getKirbyLocation() == LEVEL3) {
+		vector<class Level*> levels = world->GetLevels();
+
+		Vector3 levelLT = levels[2]->GetLT();
+		Vector3 levelRB = levels[2]->GetRB();
+		//BR = BottomRight
+
+		Vector3 cameraTL = Vector3(levelLT.x, levelLT.y - WinMaxHeight, 0);
+		Vector3 cameraRB = Vector3(levelRB.x - WinMaxWidth, levelRB.y, 0);
+
+		Camera::Get()->SetBound(cameraTL, cameraRB);
 	}
 }
 
