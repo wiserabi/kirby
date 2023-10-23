@@ -1302,12 +1302,12 @@ void KirbyCharacter::Teleportation(int doorIdx)
 		kirbyInWorld = LEVEL2;
 	}
 	else if (doorIdx == 3) {
-		position = doorPos[4];
+		position = Vector3(14100.0f, 600.0f, 0.0f);
 		__super::SetLeft(false);
 
 		kirbyInWorld = LEVEL3;
 	}
-	else if (doorIdx == 4) {
+	else if (doorIdx == 4) {//back to world
 		position = doorPos[0];
 		__super::SetLeft(false);
 
