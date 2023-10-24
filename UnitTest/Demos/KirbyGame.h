@@ -23,8 +23,9 @@ public:
     void EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, BoundingBox* kirbyBox);
     void EnemyAttackCollideKirby(class Rect* effect);//where to move kirby when collide with effect
     void CheckAbility();
-    int CheckSlopeRange();
+    int CheckSlopeRange(float positionX);
     void SetKirbyPosForSlope(int idx, Vector3 kirbyPos, float rotation);
+    void SetEnemyPosForSlope(int idx, Vector3 enemyPos, float rotation, class Enemy* enemy);
 
 private:
     class KirbyCharacter* kirby = nullptr;

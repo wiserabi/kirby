@@ -526,14 +526,14 @@ bool KirbyGame::KirbyCollisionWithWorld(BoundingBox* kirbyBox, Rect* worldRect)
 		Vector3 dir = kirby->GetDirection();
 
 		if (rotation > 0.1f) {//upper
-			int idx = CheckSlopeRange();
+			int idx = CheckSlopeRange(kirbyPos.x);
 			int state = kirby->GetState();
 			if (idx > -1 && state != jump && !(state == inhaled && dir.y > 0.2f)) {
 				SetKirbyPosForSlope(idx, kirbyPos, rotation);
 			}
 		}
 		else if (rotation < -0.1f) {//down
-			int idx = CheckSlopeRange();
+			int idx = CheckSlopeRange(kirbyPos.x);
 			int state = kirby->GetState();
 			if (idx > -1 && state != jump && !(state == inhaled && dir.y > 0.2f)) {
 				SetKirbyPosForSlope(idx, kirbyPos, rotation);
@@ -551,17 +551,36 @@ void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, 
 	//assume there are enemies in the world
 	for (size_t j = 0; j < enemies.size(); j++)
 	{
-		//check enemy collision with world
 		BoundingBox* enemyBox = nullptr;
 		Rect* enemyRect = enemies[j]->GetRect();
 		if (enemyRect) {
 			enemyBox = enemyRect->GetBox();
 		}
 
+		//check enemy collision with world
+		float rotation = worldRect->GetRotation();
+		//when hit with slope calculate y value of that slope
+		Vector3 enemyPos = enemies[j]->GetPosition();
+
 		if (enemyBox && BoundingBox::OBB(enemyBox, worldRect->GetBox())) {
-			//world->SetColor(i, Values::Red);
-			FixEnemyPosition(worldRect, j);
+			if (rotation > 0.1f) {//upper
+				int idx = CheckSlopeRange(enemyPos.x);
+				if (idx > -1) {
+					SetEnemyPosForSlope(idx, enemyPos, rotation, enemies[j]);
+				}
+			}
+			else if (rotation < -0.1f) {//down
+				int idx = CheckSlopeRange(enemyPos.x);
+				if (idx > -1) {
+					SetEnemyPosForSlope(idx, enemyPos, rotation, enemies[j]);
+				}
+			}
+			else {
+				FixEnemyPosition(worldRect, j);
+			}
 		}
+
+
 		float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
 		//check if enemy attack effect hit kirby
 		if (enemies[j]->GetState() < 3) {//if kirby is not dead
@@ -752,11 +771,10 @@ void KirbyGame::CheckAbility()
 	}
 }
 
-int KirbyGame::CheckSlopeRange()
+int KirbyGame::CheckSlopeRange(float positionX)
 {
-	Vector3 kirbyPos = kirby->GetPosition();
 	for (int i = 0; i < slopeRange.size(); i++) {
-		if (slopeRange[i].first <= kirbyPos.x && kirbyPos.x <= slopeRange[i].second) {
+		if (slopeRange[i].first <= positionX && positionX <= slopeRange[i].second) {
 			return i;
 		}
 	}
@@ -770,30 +788,54 @@ void KirbyGame::SetKirbyPosForSlope(int idx, Vector3 kirbyPos, float rotation)
 	{
 	case 0:
 		kirbyPos.y = floor + (kirbyPos.x - slopeRange[0].first);
-		kirby->SetHitGround(true);
 		break;
 	case 1:
 		kirbyPos.y = floor2 + (kirbyPos.x - slopeRange[1].first) * tan27;
-		kirby->SetHitGround(true);
 		break;
 	case 2:
 		kirbyPos.y = floor2 + (slopeRange[2].second - kirbyPos.x) * tan27;
-		kirby->SetHitGround(true);
 		break;
 	case 3:
 		kirbyPos.y = floor + (slopeRange[3].second - kirbyPos.x);
-		kirby->SetHitGround(true);
 		break;
 	case 4:
 		kirbyPos.y = floor + (kirbyPos.x - slopeRange[4].first) * tan27;
-		kirby->SetHitGround(true);
 		break;
 	case 5:
 		kirbyPos.y = floor + (slopeRange[5].second - kirbyPos.x) * tan27;
-		kirby->SetHitGround(true);
 		break;
 	default:
 		break;
 	}
+	kirby->SetHitGround(true);
 	kirby->SetPosition(kirbyPos);
+}
+
+void KirbyGame::SetEnemyPosForSlope(int idx, Vector3 enemyPos, float rotation, class Enemy* enemy)
+{
+	switch (idx)
+	{
+	case 0:
+		enemyPos.y = floor + (enemyPos.x - slopeRange[0].first);
+		break;
+	case 1:
+		enemyPos.y = floor2 + (enemyPos.x - slopeRange[1].first) * tan27;
+		break;
+	case 2:
+		enemyPos.y = floor2 + (slopeRange[2].second - enemyPos.x) * tan27;
+		break;
+	case 3:
+		enemyPos.y = floor + (slopeRange[3].second - enemyPos.x);
+		break;
+	case 4:
+		enemyPos.y = floor + (enemyPos.x - slopeRange[4].first) * tan27;
+		break;
+	case 5:
+		enemyPos.y = floor + (slopeRange[5].second - enemyPos.x) * tan27;
+		break;
+	default:
+		break;
+	}
+	enemy->SetHitGround(true);
+	enemy->SetPosition(enemyPos);
 }
