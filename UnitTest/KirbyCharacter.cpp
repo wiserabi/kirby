@@ -507,21 +507,9 @@ bool KirbyCharacter::Exhaling(float delta, Keyboard* key)
 
 bool KirbyCharacter::Walk(float delta, Keyboard* key)
 {
-	//cout << "upperSlope: " << upperSlope << "downSlope: " << downSlope << "\n";
 	if (key->Press(VK_RIGHT)) {
 		__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 		dir += Values::RightVec;
-
-		dir.y = 0;
-		if (upperSlope) {
-			dir.y += tan(angle);
-			//cout << "right upp: " << dir.y << "\n";
-		}
-		else if (downSlope) {
-			dir.y -= tan(-angle);
-			//cout << "right down: " << dir.y << "\n";
-
-		}
 		
 		//block left and right while inhaling motion
 		if (state != inhaling) {
@@ -537,7 +525,7 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 			current = L"WalkR";
 			state = walking;
 		}
-		else if (!hitGround && state == walking && !upperSlope && !downSlope) {
+		else if (!hitGround && state == walking) {
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
@@ -552,18 +540,6 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 	else if (key->Press(VK_LEFT)) {
 		__super::GetAnimator()->SetPlayRate(current, 1.0f / 10.0f);
 		dir += Values::LeftVec;
-
-		dir.y = 0;
-		if (upperSlope) {
-			dir.y -= tan(angle);
-			//cout << "left up: " << dir.y << "\n";
-
-		}
-		else if (downSlope) {
-			dir.y += tan(-angle);
-			//cout << "left down: " << dir.y << "\n";
-
-		}
 		
 		if (state != inhaling) {
 			__super::SetLeft(true);
@@ -576,7 +552,7 @@ bool KirbyCharacter::Walk(float delta, Keyboard* key)
 			current = L"WalkR";
 			state = walking;
 		}
-		else if (!hitGround && state == walking && !upperSlope && !downSlope) {
+		else if (!hitGround && state == walking) {
 			state = falldown;
 			startFalling = Time::Get()->Running();
 		}
@@ -1401,18 +1377,8 @@ void KirbyCharacter::StartUseAbility(class Keyboard* key)
 	}
 }
 
-void KirbyCharacter::SetSlopeAngle(float angle)
+Vector3 KirbyCharacter::GetDirection()
 {
-	this->angle = angle;
+	return this->dir;
 }
 
-void KirbyCharacter::SetUpperSlope(bool upperSlope)
-{
-	this->upperSlope = upperSlope;
-}
-
-void KirbyCharacter::SetDownSlope(bool downSlope)
-{
-	this->downSlope = downSlope;
-
-}

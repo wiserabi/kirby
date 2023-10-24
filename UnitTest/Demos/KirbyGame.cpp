@@ -22,6 +22,12 @@ void KirbyGame::Init()
 		SoundPath + L"Vegetable-Valley.mp3", true);
 	Sounds::Get()->Play("Vegetable-Valley.mp3", 0.1f);
 	*/
+	slopeRange.push_back({ 10092.0f , 10232.0f });//up 45degree
+	slopeRange.push_back({ 10232.0f , 10502.0f });//up 27degree
+	slopeRange.push_back({ 10590.0f , 10854.0f });//down 27degree
+	slopeRange.push_back({ 10854.0f , 10994.0f });//down 45degree
+	slopeRange.push_back({ 11468.0f , 11746.0f });//up 27degree
+	slopeRange.push_back({ 12384.0f , 12790.0f });//down 27degree
 
 	hud = new HUD();
 	world = new World();
@@ -125,8 +131,6 @@ void KirbyGame::Update()
 
 	//if kirby is in the world
 	if (tmpLocation == WORLD) {
-		kirby->SetDownSlope(false);
-		kirby->SetUpperSlope(false);
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
 		vector<Rect*> worldRects = world->GetRects();
 		for (size_t i = 0; i < worldRects.size(); i++) {
@@ -163,13 +167,6 @@ void KirbyGame::Update()
 			KirbyCollisionWithWorld(kirbyBox, levelRects[i]);
 		}
 		Vector3 kirbyPos = kirby->GetPosition();
-		if (!(10092.0f < kirbyPos.x && kirbyPos.x < 10512.0f) &&
-			!(10588.0f < kirbyPos.x && kirbyPos.x < 11012.0f) &&
-			!(11400.0f < kirbyPos.x && kirbyPos.x < 11736.0f) &&
-			!(12384.0f < kirbyPos.x && kirbyPos.x < 12815.0f)) {
-			kirby->SetUpperSlope(false);
-			kirby->SetDownSlope(false);
-		}
 		SetCameraBound();
 	}
 
@@ -520,29 +517,33 @@ bool KirbyGame::KirbyCollisionWithWorld(BoundingBox* kirbyBox, Rect* worldRect)
 	worldBox = worldRect->GetBox();
 	Vector3 kirbyPos = kirby->GetPosition();
 
-	bool ret = false;
-	
 	//if there is collision
 	if (BoundingBox::OBB(kirbyBox, worldBox)) {
-		ret = true;
 		//world->SetColor(i, Values::Blue);
 		float rotation = worldRect->GetRotation();
+		//when hit with slope calculate y value of that slope
+
+		Vector3 dir = kirby->GetDirection();
+
 		if (rotation > 0.1f) {//upper
-			kirby->SetUpperSlope(true);
-			kirby->SetDownSlope(false);
-			kirby->SetSlopeAngle(rotation);
+			int idx = CheckSlopeRange();
+			int state = kirby->GetState();
+			if (idx > -1 && state != jump && !(state == inhaled && dir.y > 0.2f)) {
+				SetKirbyPosForSlope(idx, kirbyPos, rotation);
+			}
 		}
 		else if (rotation < -0.1f) {//down
-			kirby->SetDownSlope(true);
-			kirby->SetUpperSlope(false);
-			kirby->SetSlopeAngle(rotation);
-			//cout << "down" << rotation << "\n";
+			int idx = CheckSlopeRange();
+			int state = kirby->GetState();
+			if (idx > -1 && state != jump && !(state == inhaled && dir.y > 0.2f)) {
+				SetKirbyPosForSlope(idx, kirbyPos, rotation);
+			}
 		}
 		else {
 			FixKirbyPosition(worldRect);
 		}
 	}
-	return ret;
+	return true;
 }
 
 void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, BoundingBox* kirbyBox)
@@ -749,4 +750,50 @@ void KirbyGame::CheckAbility()
 	else {
 		kirby->SetAbility(Ability::none);
 	}
+}
+
+int KirbyGame::CheckSlopeRange()
+{
+	Vector3 kirbyPos = kirby->GetPosition();
+	for (int i = 0; i < slopeRange.size(); i++) {
+		if (slopeRange[i].first <= kirbyPos.x && kirbyPos.x <= slopeRange[i].second) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+void KirbyGame::SetKirbyPosForSlope(int idx, Vector3 kirbyPos, float rotation)
+{
+	switch (idx)
+	{
+	case 0:
+		kirbyPos.y = floor + (kirbyPos.x - slopeRange[0].first);
+		kirby->SetHitGround(true);
+		break;
+	case 1:
+		kirbyPos.y = floor2 + (kirbyPos.x - slopeRange[1].first) * tan27;
+		kirby->SetHitGround(true);
+		break;
+	case 2:
+		kirbyPos.y = floor2 + (slopeRange[2].second - kirbyPos.x) * tan27;
+		kirby->SetHitGround(true);
+		break;
+	case 3:
+		kirbyPos.y = floor + (slopeRange[3].second - kirbyPos.x);
+		kirby->SetHitGround(true);
+		break;
+	case 4:
+		kirbyPos.y = floor + (kirbyPos.x - slopeRange[4].first) * tan27;
+		kirby->SetHitGround(true);
+		break;
+	case 5:
+		kirbyPos.y = floor + (slopeRange[5].second - kirbyPos.x) * tan27;
+		kirby->SetHitGround(true);
+		break;
+	default:
+		break;
+	}
+	kirby->SetPosition(kirbyPos);
 }
