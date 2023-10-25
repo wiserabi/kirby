@@ -139,6 +139,8 @@ public:
 	class KirbyEffect* GetSparkEffect() { return sparkEffect; }
 	class KirbyEffect* GetBeamEffect() { return beamEffect; }
 	Vector3 GetDirection();//get direction vector of kirby
+	int GetCurrentAbility();//return kirby ability
+
 
 private:
 	int health;

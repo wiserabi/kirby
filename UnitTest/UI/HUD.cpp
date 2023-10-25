@@ -2,31 +2,185 @@
 #include "HUD.h"
 
 #include "UI/ProgressBar.h"
+#include "Utilities/Animator.h"
+#include "Geomatries/TextureRect.h"
 
 HUD::HUD()
 {
-	HPBar = new ProgressBar({ -322, -298, 0 }, { 720, 160, 0 }, 0.0f,
-		TexturePath + L"HUD/Normal.png", UI::LEFT_TO_RIGHT);
+	frameUI = new ProgressBar({ -322.0f, -274.0f, 0.0f }, { 740.0f, 160.0f, 0.0f }, 0.0f,
+		HudPath + L"Normal.png", UI::LEFT_TO_RIGHT);
+	LoadStateImage();
+	LoadNumberImage();
+	LoadHealthImage();
+	LoadLifeImage();
 }
 
 HUD::~HUD()
 {
-	SAFE_DELETE(HPBar);
+	SAFE_DELETE(frameUI);
+	
 }
 
 void HUD::Update()
 {
-	if (Keyboard::Get()->Down(VK_F3))
-	{
-		percent -= 0.1f;
-		HPBar->UpdateProgressBar(percent);
+	frameUI->Update();
+	stateImg[4]->Update();
+
+	if (Time::Get()->Running() - healthAnimStart > 0.1f) {
+		if (hpAnimIdx) {
+			hpAnimIdx = false;
+		}
+		else {
+			hpAnimIdx = true;
+		}
+		healthAnimStart = Time::Get()->Running();
+	}
+	if (hpAnimIdx) {
+		for (int i = 0; i < hpLeft; i++) {
+			health[i]->Update();
+		}
+	}
+	else {
+		for (int i = 6; i < 6 + hpLeft; i++) {
+			health[i]->Update();
+		}
 	}
 
-	HPBar->Update();
+	if (Time::Get()->Running() - lifeAnimStart > 0.2f) {
+		lifeAnimIdx = (lifeAnimIdx + 1) % 4;
+		lifeAnimStart = Time::Get()->Running();
+	}
+
+	life[lifeAnimIdx]->Update();
+	number[0]->Update();
+	number[1]->Update();
+	number[2]->Update();
+	number[3]->Update();
+	number[4]->Update();
+	number[5]->Update();
+	number[6]->Update();
+
+	number[7]->Update();
+	number[8 + 9 * lifeLeft]->Update();
 
 }
 
 void HUD::Render()
 {
-	HPBar->Render();
+	frameUI->Render();
+	stateImg[4]->Render();
+	if (hpAnimIdx) {
+		for (int i = 0; i < hpLeft; i++) {
+			health[i]->Render();
+		}
+	}
+	else {
+		for (int i = 6; i < 6 + hpLeft; i++) {
+			health[i]->Render();
+		}
+	}
+	life[lifeAnimIdx]->Render();
+	number[0]->Render();
+	number[1]->Render();
+	number[2]->Render();
+	number[3]->Render();
+	number[4]->Render();
+	number[4]->Render();
+	number[5]->Render();
+	number[6]->Render();
+	
+	number[7]->Render();
+	
+	number[8 + 9 * lifeLeft]->Render();//life
+
+}
+
+void HUD::LoadStateImage()
+{
+
+	for (size_t i = 0; i < 6; i++)
+	{
+		stateImg.push_back(new ProgressBar({ 108.0f,-274.0f, 0.0f }, 
+			{ 95.0f, 114.0f, 0.0f }, 0.0f,
+			HudPath + statePng[i], UI::LEFT_TO_RIGHT));
+	}
+}
+
+void HUD::LoadLifeImage()
+{
+	for (size_t i = 0; i < 3; i++) {
+		life.push_back(new ProgressBar({ 236.0f,-269.0f, 0.0f },
+			{ 40.0f, 36.0f, 0.0f }, 0.0f,
+			HudPath + lifePng[i], UI::LEFT_TO_RIGHT));
+	}
+	life.push_back(new ProgressBar({ 236.0f,-269.0f, 0.0f },
+		{ 40.0f, 36.0f, 0.0f }, 0.0f,
+		HudPath + lifePng[1], UI::LEFT_TO_RIGHT));
+}
+
+void HUD::LoadHealthImage()
+{
+	for (size_t i = 0; i < 3; i++) {
+		health.push_back(new ProgressBar({ -108.0f,-251.0f, 0.0f },
+			{ 28.0f, 40.0f, 0.0f }, 0.0f,
+			HudPath + healthPng[i], UI::LEFT_TO_RIGHT));
+		health.push_back(new ProgressBar({ -80.0f,-251.0f, 0.0f },
+			{ 28.0f, 40.0f, 0.0f }, 0.0f,
+			HudPath + healthPng[i], UI::LEFT_TO_RIGHT));
+		health.push_back(new ProgressBar({ -52.0f,-251.0f, 0.0f },
+			{ 28.0f, 40.0f, 0.0f }, 0.0f,
+			HudPath + healthPng[i], UI::LEFT_TO_RIGHT));
+		health.push_back(new ProgressBar({ -24.0f,-251.0f, 0.0f },
+			{ 28.0f, 40.0f, 0.0f }, 0.0f,
+			HudPath + healthPng[i], UI::LEFT_TO_RIGHT));
+		health.push_back(new ProgressBar({ 4.0f,-251.0f, 0.0f },
+			{ 28.0f, 40.0f, 0.0f }, 0.0f,
+			HudPath + healthPng[i], UI::LEFT_TO_RIGHT));
+		health.push_back(new ProgressBar({ 32.0f,-251.0f, 0.0f },
+			{ 28.0f, 40.0f, 0.0f }, 0.0f,
+			HudPath + healthPng[i], UI::LEFT_TO_RIGHT));
+	}
+}
+
+void HUD::LoadNumberImage()
+{
+	for (size_t i = 0; i < 10; i++) {
+		number.push_back(new ProgressBar({ -107.0f,-296.0f, 0.0f },
+			{ 24.0f, 24.0f, 0.0f }, 0.0f,
+			HudPath + numberPng[i], UI::LEFT_TO_RIGHT));
+		number.push_back(new ProgressBar({ -83.0f,-296.0f, 0.0f },
+			{ 24.0f, 24.0f, 0.0f }, 0.0f,
+			HudPath + numberPng[i], UI::LEFT_TO_RIGHT));
+		number.push_back(new ProgressBar({ -59.0f,-296.0f, 0.0f },
+			{ 24.0f, 24.0f, 0.0f }, 0.0f,
+			HudPath + numberPng[i], UI::LEFT_TO_RIGHT));
+		number.push_back(new ProgressBar({ -35.0f,-296.0f, 0.0f },
+			{ 24.0f, 24.0f, 0.0f }, 0.0f,
+			HudPath + numberPng[i], UI::LEFT_TO_RIGHT));
+		number.push_back(new ProgressBar({ -11.0f,-296.0f, 0.0f },
+			{ 24.0f, 24.0f, 0.0f }, 0.0f,
+			HudPath + numberPng[i], UI::LEFT_TO_RIGHT));
+		number.push_back(new ProgressBar({ 13.0f,-296.0f, 0.0f },
+			{ 24.0f, 24.0f, 0.0f }, 0.0f,
+			HudPath + numberPng[i], UI::LEFT_TO_RIGHT));
+		number.push_back(new ProgressBar({ 37.0f,-296.0f, 0.0f },
+			{ 24.0f, 24.0f, 0.0f }, 0.0f,
+			HudPath + numberPng[i], UI::LEFT_TO_RIGHT));
+
+		number.push_back(new ProgressBar({ 299.0f,-273.0f, 0.0f },
+			{ 24.0f, 24.0f, 0.0f }, 0.0f,
+			HudPath + numberPng[i], UI::LEFT_TO_RIGHT));
+		number.push_back(new ProgressBar({ 323.0f,-273.0f, 0.0f },
+			{ 24.0f, 24.0f, 0.0f }, 0.0f,
+			HudPath + numberPng[i], UI::LEFT_TO_RIGHT));
+
+	}
+}
+
+void HUD::SetCurrentAbility(int ability)
+{
+}
+
+void HUD::SetState(int state)
+{
 }

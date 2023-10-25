@@ -68,7 +68,7 @@ void KirbyGame::Update()
 	
 	State kirbyCurState = kirby->GetState();
 	State kirbyPrevState = kirby->GetPrevState();
-	cout << kirbyPrevState << " : " << kirbyCurState << "\n";
+	//cout << kirbyPrevState << " : " << kirbyCurState << "\n";
 
 	//set blow air effect of kirby
 	if (kirbyPrevState == inhaled && kirbyCurState == exhaling) {
@@ -171,7 +171,6 @@ void KirbyGame::Render()
 	kirby->Render();
 
 	hud->Render();
-
 }
 
 void KirbyGame::PostRender()

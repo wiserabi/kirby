@@ -1416,3 +1416,11 @@ Vector3 KirbyCharacter::GetDirection()
 	return this->dir;
 }
 
+int KirbyCharacter::GetCurrentAbility()
+{
+	if (abilityUse) {
+		return ability;
+	}
+	return Ability::none;
+}
+
