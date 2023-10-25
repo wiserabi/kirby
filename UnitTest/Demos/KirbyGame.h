@@ -47,4 +47,5 @@ private:
     Rect* effectRect = nullptr;
     BoundingBox* enemyBox = nullptr;
     Rect* enemyRect = nullptr;
+    int kirbyLocation = 0;
 };

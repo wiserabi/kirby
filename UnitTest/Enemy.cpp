@@ -89,7 +89,7 @@ Enemy::Enemy(Vector3 position, Vector3 size, string name, class EnemyInfo* infos
     rect->SetColor(Color(0.5f, 0.5f, 0.5f, 0.7f));
     idleTimer = Time::Get()->Running();
     deathEffect.StartTimer(1000000.0f);
-    beamEffect.StartTimer(1000000.0f);
+    //beamEffect.StartTimer(1000000.0f);
 }
 
 Enemy::~Enemy()
@@ -275,6 +275,12 @@ void Enemy::SetDeathStart()
     deathStart = Time::Get()->Running();
     deathEffect.SetEnemyDeathEffect(position);
     deathEffect.StartTimer(0.8f);
+    if (sparkEffect.isTimerSet()) {
+        sparkEffect.StartTimer(0.01f);
+    }
+    else if (beamEffect.isTimerSet()) {
+        beamEffect.StartTimer(0.01f);
+    }
     state = DEATH;
     SAFE_DELETE(rect);
 }

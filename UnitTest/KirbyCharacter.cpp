@@ -149,6 +149,10 @@ void KirbyCharacter::Move()
 	float delta = Time::Delta();
 	dir = Values::ZeroVec3;
 	
+	//developer mode
+	if (Teleport(delta, key)) {
+		return;
+	}
 	//update kirby previous and current state
 	prevState = state;
 	ChangeBoundingBox();
@@ -1295,17 +1299,17 @@ int KirbyCharacter::CheckOpenDoor()
 void KirbyCharacter::Teleportation(int doorIdx)
 {
 	if (doorIdx == 0) {
-		position = Vector3(4100.0f, 600.0f, 0.0);
+		position = stageStartPoint[0];
 		__super::SetLeft(false);
 		kirbyInWorld = LEVEL1;
 	}
 	else if (doorIdx == 2) {
-		position = Vector3(9100.0f, 600.0f, 0.0f);
+		position = stageStartPoint[1];
 		__super::SetLeft(false);
 		kirbyInWorld = LEVEL2;
 	}
 	else if (doorIdx == 3) {
-		position = Vector3(14100.0f, 600.0f, 0.0f);
+		position = stageStartPoint[2];
 		__super::SetLeft(false);
 
 		kirbyInWorld = LEVEL3;
@@ -1316,6 +1320,36 @@ void KirbyCharacter::Teleportation(int doorIdx)
 
 		kirbyInWorld = WORLD;
 	}
+}
+
+bool KirbyCharacter::Teleport(float delta, Keyboard* key)
+{
+	if (key->Down(VK_F4)) {
+		if (kirbyInWorld == WORLD) {
+			position = stageStartPoint[0];
+			__super::SetLeft(false);
+			kirbyInWorld = LEVEL1;
+		}
+		else if(kirbyInWorld == LEVEL1){
+			position = stageStartPoint[1];
+			__super::SetLeft(false);
+			kirbyInWorld = LEVEL2;
+		}
+		else if (kirbyInWorld == LEVEL2) {
+			position = stageStartPoint[2];
+			__super::SetLeft(false);
+			kirbyInWorld = LEVEL3;
+		}
+		else if (kirbyInWorld == LEVEL3) {
+			position = doorPos[0];
+			__super::SetLeft(false);
+			kirbyInWorld = WORLD;
+		}
+		state = falldown;
+		hitEnemyTime = 0.0f;
+		return true;
+	}
+	return false;
 }
 
 void KirbyCharacter::SetHitEnemy()

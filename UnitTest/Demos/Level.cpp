@@ -34,10 +34,27 @@ Level::Level(Vector3 pos, wstring pngName)
 	slopeRange.push_back({ 12384.0f , 12790.0f });//down 27degree
 
 	enemyInfo = new EnemyInfo();
-	//6034 700
-	enemies.push_back(new Enemy({ position.x + 100.0f, position.y + 500.0f, 0 }, { 128.0f, 128.0f, 0.0f }, "sparky", enemyInfo));
-	enemies.push_back(new Enemy({ position.x + 100.0f, position.y + 100.0f, 0 }, { 128.0f, 128.0f, 0.0f }, "waddledee", enemyInfo));
-	enemies.push_back(new Enemy({ position.x + 100.0f, position.y + 800.0f, 0 }, { 128.0f, 128.0f, 0.0f }, "waddledoo", enemyInfo));
+	//if stage 3 make additional wall that limits enemy movement
+	if (pngName.compare(L"world1stage3") == 0) {
+		limitEnemyMove.push_back(new Rect({ 16170.0f, 600.0f, 0.0f },
+			{ 60.0f, 600.0f, 0.0f }, 0.0f));
+		limitEnemyMove.push_back(new Rect({ 16900.0f, 600.0f, 0.0f }, 
+			{ 50.0f, 600.0f, 0.0f}, 0.0f));
+		limitEnemyMove.push_back(new Rect({ 17290.0f, 600.0f, 0.0f },
+			{ 60.0f, 600.0f, 0.0f }, 0.0f));
+		limitEnemyMove.push_back(new Rect({ 17730.0f, 550.0f, 0.0f },
+			{ 60.0f, 550.0f, 0.0f }, 0.0f));
+
+	}
+
+
+	for (int i = 0; i < 20; i++) {
+		choice = rand() % 3;
+		xDistance = rand() % 100 + 150;
+		enemyName = enemyNames[choice];
+
+		enemies.push_back(new Enemy({ position.x - 1000.0f + xDistance * i, position.y + 100.0f, 0 }, { 128.0f, 128.0f, 0.0f }, enemyName, enemyInfo));
+	}
 }
 
 Level::~Level()
@@ -79,12 +96,13 @@ void Level::Update()
 	for (int i = 0; i < rects.size(); i++) {
 		rects[i]->Update();
 	}
-	EnemyCollisions();
-	//update all the enemies
-	for (class Enemy* enemy : enemies) {
-		enemy->SetKirbyPos(kirbyPosition);
-		enemy->Update();
+	for (size_t i = 0; i < limitEnemyMove.size(); i++)
+	{
+		limitEnemyMove[i]->Update();
 	}
+
+	EnemyCollisions();
+
 }
 
 void Level::Render()
@@ -96,6 +114,10 @@ void Level::Render()
 	}
 	for (int i = 0; i < rects.size(); i++) {
 		rects[i]->Render();
+	}
+	for (size_t i = 0; i < limitEnemyMove.size(); i++)
+	{
+		limitEnemyMove[i]->Render();
 	}
 }
 
@@ -124,11 +146,17 @@ void Level::SetKirbyPosition(Vector3 kirbyPosition)
 
 void Level::EnemyCollisions()
 {
-	//assume there are enemies in the world
+	//enemies in level
 	for (size_t i = 0; i < enemies.size(); i++)
 	{
-		Rect* enemyRect = enemies[i]->GetRect();
-		EnemyCollisionLevel(enemyRect, i);
+		if (CheckEnemyInRange(enemies, i)) {
+			Rect* enemyRect = enemies[i]->GetRect();
+			//collision of enemy and level
+			EnemyCollisionLevel(enemyRect, i);
+
+			enemies[i]->SetKirbyPos(kirbyPosition);
+			enemies[i]->Update();
+		}
 	}
 }
 
@@ -137,6 +165,14 @@ void Level::EnemyCollisionLevel(Rect* enemyRect, int enemyIdx)
 	BoundingBox* enemyBox = nullptr;
 	if (enemyRect) {
 		enemyBox = enemyRect->GetBox();
+	}
+	//limit enemy movement
+	for (size_t i = 0; i < limitEnemyMove.size(); i++)
+	{
+		BoundingBox* limitBox = limitEnemyMove[i]->GetBox();
+		if (enemyBox && BoundingBox::OBB(enemyBox, limitBox)) {
+			FixEnemyPosition(limitEnemyMove[i], enemyIdx);
+		}
 	}
 	//iterate level rects
 	for (int i = 0; i < rects.size(); i++) {
@@ -277,4 +313,15 @@ void Level::SetEnemyPosForSlope(int idx, Vector3 enemyPos, float rotation, class
 	}
 	enemy->SetHitGround(true);
 	enemy->SetPosition(enemyPos);
+}
+
+bool Level::CheckEnemyInRange(vector<Enemy*> enemies, int enemyIdx)
+{
+	//measure x distance between kirby and enemy
+	float distanceX = abs(kirbyPosition.x - enemies[enemyIdx]->GetPosition().x);
+	if (distanceX < WinMaxWidth / 2 + 200.0f) {
+		return true;
+	}
+
+	return false;
 }

@@ -115,6 +115,7 @@ public:
 	bool OpenDoor(float delta, class Keyboard* key);
 	int CheckOpenDoor();
 	void Teleportation(int doorIdx);
+	bool Teleport(float delta, class Keyboard* key);//developer mode
 
 	void SetHitEnemy();
 	float GetHitEnemy();
@@ -173,7 +174,7 @@ private:
 	float stopInhale = 0.0f;
 	float startEatWalk = 0.0f;
 	float attackDelay = 0.0f;
-	float hitEnemyTime = 0.0f;//moment when kirby hit enemy
+	float hitEnemyTime = 0.0f;//moment when kirby hit by enemy
 	float openDoorTime = 0.0f;
 	int effectHitDir = -1;
 	bool abilityUse = false;
@@ -238,6 +239,11 @@ private:
 		Vector3(68.0f, 98.0f, 0.0f),
 		Vector3(68.0f, 98.0f, 0.0f),
 		Vector3(56.0f, 88.0f, 0.0f),
+	};
+	Vector3 stageStartPoint[3] = {
+		Vector3(4100.0f, 600.0f, 0.0),//level1
+		Vector3(9100.0f, 600.0f, 0.0),//level2
+		Vector3(14100.0f, 600.0f, 0.0)//level3
 	};
 };
 

@@ -58,11 +58,14 @@ void KirbyGame::Update()
 
 	Sound();
 	world->SetKirbyPos(kirby->GetPosition());
+	kirbyLocation = kirby->getKirbyLocation();
+	world->SetKirbyLocation(kirbyLocation);
+
 	world->Update();
 
 	kirby->Move();
 	kirby->Update();
-
+	
 	State kirbyCurState = kirby->GetState();
 	State kirbyPrevState = kirby->GetPrevState();
 
@@ -538,7 +541,7 @@ void KirbyGame::CheckHitByEnemy(vector<Enemy*> enemies, int idx)
 
 	float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
 	//check if enemy attack effect hit kirby
-	if (enemies[idx]->GetState() < 3) {//if kirby is not dead
+	if (enemies[idx]->GetState() < 3) {//if enemy is not dead
 		Rect* attackEffectRect = nullptr;
 		//cout << enemies[j]->GetName() << "\n";
 		string enemyName = enemies[idx]->GetName();
@@ -560,7 +563,7 @@ void KirbyGame::CheckHitByEnemy(vector<Enemy*> enemies, int idx)
 			EnemyAttackCollideKirby(attackEffectRect);
 		}
 	}
-	BoundingBox* enemyBox = GetEnemyBox(enemies, idx);
+	enemyBox = GetEnemyBox(enemies, idx);
 	BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
 
 	//check if kirby collides with enemy

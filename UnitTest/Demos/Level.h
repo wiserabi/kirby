@@ -23,6 +23,7 @@ public:
 	int CheckSlopeRange(float positionX);
 
 	void SetEnemyPosForSlope(int idx, Vector3 enemyPos, float rotation, Enemy* enemy);
+	bool CheckEnemyInRange(vector<Enemy*> enemies, int enemyIdx);//update enemy only when it is in range
 
 private:
 	Vector3 position;
@@ -38,4 +39,13 @@ private:
 	float floor = 340.0f;
 	float floor2 = 476.0f;
 	float tan27 = 0.509525449f;
+	string enemyNames[3] = {
+		"sparky",
+		"waddledee",
+		"waddledoo"
+	};
+	int choice = 0;
+	float xDistance = 0.0f;
+	string enemyName;
+	vector<Rect*> limitEnemyMove;
 };

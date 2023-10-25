@@ -11,8 +11,8 @@ World::World()
 	worldSize = Vector3(2000, 2000, 0);
 	worldMap = new TextureRect(worldPos, worldSize, 0.0f,
 		TexturePath + L"backGround/world1.png");
-	//guiRect = new Rect(worldPos - Vector3(950, 100, 0), Vector3(100, 600, 0), 0.0f);
-	//guiRect->SetColor(Values::Magenta);
+	guiRect = new Rect(worldPos - Vector3(950, 100, 0), Vector3(100, 600, 0), 0.0f);
+	guiRect->SetColor(Values::Magenta);
 	FileReader fr;
 	vector<Vector3> tmp = fr.ReadFile(CoordPath + "world1.txt");
 	for (int i = 0; i < tmp.size() / 2; i++) {
@@ -45,7 +45,10 @@ void World::Render()
 	for (int i = 0; i < LEVELNUM; i++) {
 		levels[i]->Render();
 	}
-	//guiRect->Render();
+	if (enableGui) {
+		guiRect->Render();
+	}
+
 }
 
 void World::PostRender()
@@ -54,7 +57,9 @@ void World::PostRender()
 
 void World::GUI()
 {
-	//guiRect->GUI();
+	if (enableGui) {
+		guiRect->GUI();
+	}
 }
 
 Vector3 World::GetLT()
@@ -96,9 +101,27 @@ void World::Update()
 	for (int i = 0; i < 10; i++) {
 		rects[i]->Update();
 	}
-	for (int i = 0; i < LEVELNUM; i++) {
-		levels[i]->Update();
+	
+	if (kirbyLocation == 1) {//level1
+		levels[0]->Update();
+	}
+	else if (kirbyLocation == 2) {//level2
+		levels[1]->Update();
+	}
+	else if (kirbyLocation == 3) {//level3
+		levels[2]->Update();
 	}
 
-	//guiRect->Update();
+	if (Keyboard::Get()->Down(VK_F2)) {
+		if (enableGui) {
+			enableGui = false;
+		}
+		else {
+			enableGui = true;
+		}
+	}
+	if (enableGui) {
+		guiRect->Update();
+
+	}
 }

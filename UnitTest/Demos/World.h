@@ -24,7 +24,7 @@ public:
 	void SetColor(int index, Color color);
 	vector<class Level*> GetLevels() { return levels; }
 	void SetKirbyPos(Vector3 kirbyPos);
-	void SetKirby();
+	void SetKirbyLocation(int kirbyLocation) { this->kirbyLocation = kirbyLocation; };
 
 private:
 	Vector3 worldSize;
@@ -34,6 +34,8 @@ private:
 	vector<class Rect*> rects;
 	vector<class Level*> levels;//stages
 	Vector3 kirbyPos;
+	bool enableGui = false;
+	int kirbyLocation = 0;
 
 	wstring levelPng[LEVELNUM] = {
 		L"world1stage1",
