@@ -23,7 +23,8 @@ public:
 	vector<class Rect*> GetRects(){ return rects; }
 	void SetColor(int index, Color color);
 	vector<class Level*> GetLevels() { return levels; }
-
+	void SetKirbyPos(Vector3 kirbyPos);
+	void SetKirby();
 
 private:
 	Vector3 worldSize;
@@ -32,7 +33,7 @@ private:
 	class Rect* guiRect = nullptr;
 	vector<class Rect*> rects;
 	vector<class Level*> levels;//stages
-
+	Vector3 kirbyPos;
 
 	wstring levelPng[LEVELNUM] = {
 		L"world1stage1",

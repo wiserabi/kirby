@@ -25,6 +25,7 @@ public:
 	Vector3 GetPosition() { return position; }
 
 	void SetDirection(Vector3 direction) { this->direction = direction; }
+	Vector3 GetSize() { return size; }
 	
 	void SetVelocity(float velocity) { this->velocity = velocity; }
 	void ChangeAnimation(wstring clipName, float speed, Vector3 dir, uint currentFrame, bool setFrame);

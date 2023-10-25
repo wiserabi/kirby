@@ -7,8 +7,8 @@ HUD::HUD()
 {
 	float width = -WinMaxWidth / 2 + 30;
 	float height = WinMaxHeight / 2 - 30;
-	HPBar = new ProgressBar({ -372, -256, 0 }, { 744, 192, 0 }, 0.0f, 
-		TexturePath + L"HUD/mapUi.png", UI::LEFT_TO_RIGHT);
+	HPBar = new ProgressBar({ -272, -298, 0 }, { 620, 160, 0 }, 0.0f,
+		TexturePath + L"HUD/Normal.png", UI::LEFT_TO_RIGHT);
 }
 
 HUD::~HUD()

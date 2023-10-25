@@ -38,7 +38,7 @@ TextureRect::TextureRect(Vector3 position, Vector3 size, float rotation, wstring
     il->Create(VertexTexture::descs, VertexTexture::count, vs->GetBlob());
 
     wb = new WorldBuffer();
-
+    
     HRESULT hr = D3DX11CreateShaderResourceViewFromFile
     (
         DEVICE,

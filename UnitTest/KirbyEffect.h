@@ -33,7 +33,7 @@ public:
 	void SetKirbyPos(Vector3 kirbyPos, bool left = true); 
 	void LoadTextureList();
 	void SetKirbyEat();
-	void SetKirbySwallow(vector<pair<class Enemy*, int>>& enemySwallowed);
+	void SetKirbySwallow(vector<pair<wstring, Vector3>> enemySwallow);
 	void SetKirbyBlowStar();//kirby default attack with swallowed enemy
 	void SetKirbyStarExplodeOnEnemy(Vector3 Pos);//when star hits enemy
 	void SetEnemyDeathEffect(Vector3 pos);//when enemy gets killed effect
@@ -45,7 +45,7 @@ public:
 	void SetRemoveAbilityEffect();
 
 	void UpdateEatEffect();
-	bool UpdateSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow);
+	void UpdateSwallowEffect();
 	bool UpdateBlowEffect(float UpdateBlowEffect);//return true if enemy has been hit
 	void UpdateExplodeOnEnemy();
 	void UpdateDeathEffect(float delta);
@@ -60,7 +60,7 @@ public:
 	bool isTimerSet() { return setTimer; };
 	void StartTimer(float duration);
 	void UpdateEffect(float deltaTime);
-	void RenderSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow);
+	void RenderSwallowEffect();
 	void RenderDeathEffect();
 	void RenderHitEffect();
 	void RenderBlowAir();
@@ -118,4 +118,5 @@ private:
 	class Rect* rectEffect0 = nullptr;
 	vector<Vector3> effectStartPositions;
 	Vector3 randVec = Values::ZeroVec3;
+	vector<class TextureRect*> enemySwallow;
 };

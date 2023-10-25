@@ -1,6 +1,8 @@
 #pragma once
-
+#include "Geomatries/Rect.h"
+#include "EnemyInfo.h"
 #include "KirbyEffect.h"
+#include "Geomatries/AnimationRect.h"
 
 class Enemy : public AnimationRect{
 public:

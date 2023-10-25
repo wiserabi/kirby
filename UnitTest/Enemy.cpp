@@ -1,9 +1,6 @@
 #include "stdafx.h"
-#include "Geomatries/Rect.h"
-#include "Geomatries/AnimationRect.h"
-#include "Enemy.h"
-#include "EnemyInfo.h"
 
+#include "Enemy.h"
 #include <fstream>
 #include <sstream>
 

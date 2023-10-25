@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "KirbyGame.h"
 #include "Geomatries/Rect.h"
+#include "Geomatries/TextureRect.h"
 
 #include "Geomatries/AnimationRect.h"
 #include "KirbyCharacter.h"
@@ -11,8 +12,6 @@
 #include "Enemy.h"
 #include "EnemyInfo.h"
 #include "KirbyEffect.h"
-
-#define SWALLOWRANGE 200.0f
 
 void KirbyGame::Init()
 {
@@ -31,20 +30,6 @@ void KirbyGame::Init()
 
 	hud = new HUD();
 	world = new World();
-	enemyInfo = new EnemyInfo();
-
-	enemies.push_back(new Enemy({ 1000, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
-	enemies.push_back(new Enemy({ 1000, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
-
-	enemies.push_back(new Enemy({ 500, 430, 0 }, { 128, 128, 1 }, "sparky", enemyInfo));
-	enemies.push_back(new Enemy({ 500, 430, 0 }, { 128, 128, 1 }, "sparky", enemyInfo));
-	
-	enemies.push_back(new Enemy({ 700, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
-	enemies.push_back(new Enemy({ 700, 430, 0 }, { 128, 128, 1 }, "waddledee", enemyInfo));
-	
-	enemies.push_back(new Enemy({ 800, 430, 0 }, { 128, 128, 1 }, "waddledoo", enemyInfo));
-	enemies.push_back(new Enemy({ 800, 430, 0 }, { 128, 128, 1 }, "waddledoo", enemyInfo));
-
 
 	effects.push_back(new KirbyEffect());//used for kirby inhaling
 	effects.push_back(new KirbyEffect());//pulling enemy as effect
@@ -62,11 +47,6 @@ void KirbyGame::Destroy()
 	}
 	effects.clear();
 
-	for (int i = 0; i < enemies.size(); i++) {
-		SAFE_DELETE(enemies[i]);
-	}
-	enemies.clear();
-	SAFE_DELETE(enemyInfo);
 	SAFE_DELETE(kirby);
 	SAFE_DELETE(hud);
 	SAFE_DELETE(world);
@@ -77,18 +57,11 @@ void KirbyGame::Update()
 	CheckReset();
 
 	Sound();
+	world->SetKirbyPos(kirby->GetPosition());
 	world->Update();
-
-	for (class Enemy* enemy : enemies) {
-		enemy->SetKirbyPos(kirby->GetPosition());
-		enemy->Update();
-	}
 
 	kirby->Move();
 	kirby->Update();
-
-	//check if there is a timer set for animation
-	UpdateEffect();
 
 	State kirbyCurState = kirby->GetState();
 	State kirbyPrevState = kirby->GetPrevState();
@@ -105,10 +78,6 @@ void KirbyGame::Update()
 		//kirby stopped inhaling moment
 		effects[0]->StartTimer(0.1f);
 	}
-	//check if kirby is inhaling
-	else if (kirbyCurState == inhaling) {
-		CheckInhaleEnemy();
-	}
 	//when changed to throw star
 	else if ((kirbyPrevState == eatidle || kirbyPrevState == eatandwalk) && kirbyCurState == attacking) {
 		SetThrowStar();
@@ -121,12 +90,6 @@ void KirbyGame::Update()
 	kirby->SetHitLeft(false);
 	kirby->SetHitRight(false);
 
-	for (size_t j = 0; j < enemies.size(); j++) {
-		enemies[j]->SetHitGround(false);
-		enemies[j]->SetHitLeft(false);
-		enemies[j]->SetHitRight(false);
-	}
-
 	int tmpLocation = kirby->getKirbyLocation();
 
 	//if kirby is in the world
@@ -136,10 +99,8 @@ void KirbyGame::Update()
 		for (size_t i = 0; i < worldRects.size(); i++) {
 			KirbyCollisionWithWorld(kirbyBox, worldRects[i]);
 
-			EnemyCollisions(enemies, worldRects[i], kirbyBox);
-
-			BoundingBox* effectBox = nullptr;
-			Rect* effectRect = effects[2]->GetRect();
+			effectBox = nullptr;
+			effectRect = effects[2]->GetRect();
 			if (effectRect) {
 				effectBox = effectRect->GetBox();
 			}
@@ -149,13 +110,6 @@ void KirbyGame::Update()
 			}
 		}
 		
-		for (size_t i = 0; i < enemies.size(); i++)
-		{
-			if(enemies[i]->CheckDeath()) {
-				enemies.erase(enemies.begin() + i);
-				i--;
-			}
-		}
 		SetCameraBound();
 	}
 	else {//kirby in levels
@@ -163,34 +117,57 @@ void KirbyGame::Update()
 		vector<Level*> levels = world->GetLevels();
 		vector<Rect*> levelRects = levels[tmpLocation - 1]->GetRects();
 
+		prevTimerSet = curTimerSet;
+		curTimerSet = effects[1]->isTimerSet();
+		//timer for effects[1] finished? inhaling enemy finish?
+		if (prevTimerSet && !curTimerSet) {
+			kirby->SetAttackDelay();
+			kirby->SetState(eatidle);
+			effects[0]->StartTimer(0.1f);
+		}
+		if (kirbyCurState == inhaling && !effects[1]->isTimerSet()) {
+			CheckInhaleEnemy(tmpLocation - 1, levels);
+		}
+		//interaction between enemy and kirby
+		EnemyAndKirby(tmpLocation - 1, levels);
+		//iterate level rects for kirby collision with level
 		for (size_t i = 0; i < levelRects.size(); i++) {
 			KirbyCollisionWithWorld(kirbyBox, levelRects[i]);
+			
+			BoundingBox* effectBox = nullptr;
+			Rect* effectRect = effects[2]->GetRect();
+			if (effectRect) {
+				effectBox = effectRect->GetBox();
+			}
+			//check if big star thrown by kirby hits the wall
+			if (effectRect && effectBox && BoundingBox::OBB(effectBox, levelRects[i]->GetBox())) {
+				effects[2]->StopEffect();
+			}
 		}
 		Vector3 kirbyPos = kirby->GetPosition();
 		SetCameraBound();
 	}
 
 	hud->Update();
-
+	//check if there is a timer set for animation
+	UpdateEffect();
 }
 
 void KirbyGame::Render()
 {
 	world->Render();
-	for (int i = 0; i < enemies.size(); i++) {
-		enemies[i]->Render();
-	}
 
 	for (size_t i = 0; i < effects.size(); i++)
 	{
 		effects[i]->RenderEffect();
 	}
-	effects[1]->RenderSwallowEffect(enemySwallowed);
+	effects[1]->RenderSwallowEffect();
 	effects[4]->RenderHitEffect();
 
 	kirby->Render();
 
 	hud->Render();
+
 }
 
 void KirbyGame::PostRender()
@@ -324,63 +301,11 @@ void KirbyGame::FixKirbyPosition(class Rect* worldRect)
 	}
 }
 
-void KirbyGame::FixEnemyPosition(Rect* worldRect, int idx)
-{
-	pair<Vector3, Vector3> intersection;
-	IntersectRect(enemies[idx]->GetRect(), worldRect, intersection);
-
-	Vector3 enemyPos = enemies[idx]->GetPosition();
-	Vector3 enemySize = enemies[idx]->GetRect()->GetSize();
-
-	Vector3 enemyLT = enemies[idx]->GetLT();
-	Vector3 enemyRB = enemies[idx]->GetRB();
-
-	Vector3 worldRectPos = worldRect->GetPosition();
-	Vector3 worldLT = worldRect->GetLT();
-	Vector3 worldRB = worldRect->GetRB();
-
-	Vector3 tmp = enemyPos - worldRectPos;
-	if (intersection.first == Values::ZeroVec3 &&
-		intersection.second == Values::ZeroVec3) {
-		return;
-	}
-	// Determine the collision direction based on the intersection size
-	if (intersection.first.x - intersection.second.x >
-		intersection.second.y - intersection.first.y) {
-		if (enemyLT.x < worldLT.x) {
-			// Right collision
-			enemyPos.x = worldLT.x - enemySize.x / 2 + 1;
-			enemies[idx]->SetPosition(enemyPos);
-			enemies[idx]->SetHitRight(true);
-		}
-		else {
-			// Left collision
-			enemyPos.x = worldRB.x + enemySize.x / 2 - 1;
-			enemies[idx]->SetPosition(enemyPos);
-			enemies[idx]->SetHitLeft(true);
-		}
-	}
-	else
-	{
-		if (enemyLT.y > worldLT.y) {
-			// Down collision
-			enemyPos.y = worldLT.y + enemySize.y / 2 - 1;
-			enemies[idx]->SetPosition(enemyPos);
-			enemies[idx]->SetHitGround(true);
-		}
-		else {
-			// Up collision
-			enemyPos.y = worldRB.y - enemySize.y / 2;
-			enemies[idx]->SetPosition(enemyPos);
-		}
-	}
-}
 
 void KirbyGame::CheckReset()
 {
 	if (Keyboard::Get()->Down('R')) {
 		Sounds::Get()->Pause("Vegetable-Valley.mp3");
-		vector<class Enemy*>().swap(enemies);
 
 		KirbyGame::Init();
 	}
@@ -404,89 +329,12 @@ void KirbyGame::UpdateEffect()
 	//start kirby Effect of inhaling
 	effects[0]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
 	effects[0]->UpdateEffect(Time::Get()->Delta());
-	if (kirby->GetState() == swallowing) {
-		//start kirby Effect of swallowing enemy
-		effects[1]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+	effects[1]->UpdateEffect(Time::Get()->Delta());
 
-		//finish when all enemies reach p1 or timer goes out
-		if (effects[1]->UpdateSwallowEffect(enemySwallowed)) {
-			//kirby idle motion after eat enemy
-			kirby->SetAttackDelay();
-			kirby->SetState(eatidle);
-			effects[1]->StartTimer(0.1f);
-			CheckAbility();
-			vector<pair<Enemy*, int>>().swap(enemySwallowed);
-			effects[0]->StartTimer(0.1f);
-		}
-	}
 	effects[2]->UpdateEffect(Time::Get()->Delta());
 	effects[3]->UpdateEffect(Time::Get()->Delta());
 	effects[4]->UpdateHitEffect(Time::Get()->Delta());
 	effects[5]->UpdateBlowAir(Time::Get()->Delta());
-}
-
-void KirbyGame::CheckInhaleEnemy()
-{
-	//cout << "kirby is inhaling!" << "\n";
-	Vector3 kirbyPos = kirby->GetPosition();
-
-	//check whether kirby is facing right or left
-	if (kirby->GetLeft()) {
-		//check all enemies on left
-		for (int i = 0; i < enemies.size(); i++) {
-			Enemy* enemy = enemies[i];
-			Vector3 pos = enemy->GetPosition();
-			//check enemy in inhaling range, if enemy is not dead
-			if (enemy->GetState() != 3 && pos.y <= kirbyPos.y + 120.0f && pos.y >= kirbyPos.y - 120.0f &&
-				pos.x <= kirbyPos.x && kirbyPos.x - SWALLOWRANGE < pos.x) {
-				//cout << "Enemy is in range!" << "\n";
-				int curframe = enemies[i]->GetAnimator()->GetCurrentFrameIndex();
-				//erase spark and beam effect
-				if (enemies[i]->GetBeamEffectRect()) {
-					enemies[i]->StopBeamEffect();
-				}
-				else if (enemies[i]->GetSparkEffectRect()) {
-					enemies[i]->StopSparkEffect();
-				}
-
-				enemySwallowed.push_back({ enemies[i] , curframe });
-				enemies.erase(enemies.begin() + i);
-				i--;
-			}
-		}
-	}
-	else {
-		//check all enemies on right
-		for (int i = 0; i < enemies.size(); i++) {
-			Enemy* enemy = enemies[i];
-			Vector3 pos = enemy->GetPosition();
-			//check enemy in inhaling range, if enemy is not dead
-			if (enemy->GetState() != 3 && pos.y <= kirbyPos.y + 120.0f && pos.y >= kirbyPos.y - 120.0f &&
-				pos.x >= kirbyPos.x && kirbyPos.x + SWALLOWRANGE > pos.x) {
-				//cout << "Enemy is in range!" << "\n";
-				int curframe = enemies[i]->GetAnimator()->GetCurrentFrameIndex();
-				//erase spark and beam effect
-				if (enemies[i]->GetBeamEffectRect()) {
-					enemies[i]->StopBeamEffect();
-				}
-				else if (enemies[i]->GetSparkEffectRect()) {
-					enemies[i]->StopSparkEffect();
-				}
-				enemySwallowed.push_back({ enemy, curframe });
-				enemies.erase(enemies.begin() + i);
-				i--;
-			}
-		}
-	}
-	//change kirby state to swallowing
-	//all other kirby states are not allowed during this state
-	//move enemy through bezier curve
-	if (!enemySwallowed.empty()) {
-		effects[1]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
-		effects[1]->SetKirbySwallow(enemySwallowed);
-		effects[1]->StartTimer(100000.0f);
-		kirby->SetState(swallowing);
-	}
 }
 
 void KirbyGame::SetThrowStar()
@@ -544,231 +392,6 @@ bool KirbyGame::KirbyCollisionWithWorld(BoundingBox* kirbyBox, Rect* worldRect)
 		}
 	}
 	return true;
-}
-
-void KirbyGame::EnemyCollisions(vector<class Enemy*>& enemies, Rect* worldRect, BoundingBox* kirbyBox)
-{
-	//assume there are enemies in the world
-	for (size_t j = 0; j < enemies.size(); j++)
-	{
-		BoundingBox* enemyBox = nullptr;
-		Rect* enemyRect = enemies[j]->GetRect();
-		if (enemyRect) {
-			enemyBox = enemyRect->GetBox();
-		}
-
-		//check enemy collision with world
-		float rotation = worldRect->GetRotation();
-		//when hit with slope calculate y value of that slope
-		Vector3 enemyPos = enemies[j]->GetPosition();
-
-		if (enemyBox && BoundingBox::OBB(enemyBox, worldRect->GetBox())) {
-			if (rotation > 0.1f) {//upper
-				int idx = CheckSlopeRange(enemyPos.x);
-				if (idx > -1) {
-					SetEnemyPosForSlope(idx, enemyPos, rotation, enemies[j]);
-				}
-			}
-			else if (rotation < -0.1f) {//down
-				int idx = CheckSlopeRange(enemyPos.x);
-				if (idx > -1) {
-					SetEnemyPosForSlope(idx, enemyPos, rotation, enemies[j]);
-				}
-			}
-			else {
-				FixEnemyPosition(worldRect, j);
-			}
-		}
-
-
-		float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
-		//check if enemy attack effect hit kirby
-		if (enemies[j]->GetState() < 3) {//if kirby is not dead
-			Rect* attackEffectRect = nullptr;
-			//cout << enemies[j]->GetName() << "\n";
-			string enemyName = enemies[j]->GetName();
-			if (enemyName.compare("waddledoo") == 0) {
-				attackEffectRect = enemies[j]->GetBeamEffectRect();
-			}
-			else if (enemyName.compare("sparky") == 0) {
-				attackEffectRect = enemies[j]->GetSparkEffectRect();
-			}
-
-			BoundingBox* attackBoundingBox = nullptr;
-			if (attackEffectRect) {
-				attackBoundingBox = attackEffectRect->GetBox();
-			}
-			//if enemy attack hit kirby
-			if (attackBoundingBox && invulnerableTime > 2.0f && 
-				BoundingBox::OBB(kirbyBox, attackBoundingBox)) {
-				EnemyAttackCollideKirby(attackEffectRect);
-			}
-		}
-		
-		//check if kirby blow air collides with enemy
-		BoundingBox* effectBox = nullptr;
-		Rect* effectRect = effects[5]->GetRect();
-		if (effectRect) {
-			effectBox = effectRect->GetBox();
-		}
-
-		if (effectBox && enemyBox && BoundingBox::OBB(effectBox, enemyBox)) {
-			effects[5]->StartTimer(0.1f);
-			enemies[j]->SetDeathStart();//start enemy death timer
-			continue;
-		}
-
-		effectBox = nullptr;
-		effectRect = effects[2]->GetRect();
-		if (effectRect) {
-			effectBox = effectRect->GetBox();
-		}
-
-		//check if big star that kirby throws hit enemy
-		if (effectBox && enemyBox && BoundingBox::OBB(effectBox, enemyBox)) {
-			effects[3]->SetKirbyStarExplodeOnEnemy(enemies[j]->GetPosition());
-			effects[3]->StartTimer(0.2f);
-
-			effects[2]->StartTimer(0.01f);
-			enemies[j]->SetDeathStart();//start enemy death timer
-			continue;
-		}
-		
-		//check if kirby collides with enemy
-		if (enemyBox && invulnerableTime > 2.0f && BoundingBox::OBB(kirbyBox, enemyBox)) {
-			effects[4]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
-			effects[4]->SetHitEffect();
-			effects[4]->StartTimer(0.5f);//set duration of effect
-
-			//while kirby was hit while inhaling
-			if (kirby->GetState() == inhaling) {
-				effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
-				effects[1]->StartTimer(0.1f);//remove enemy pulling effect
-			}
-
-			kirby->SetState(hitEnemy);
-			kirby->SetHitEnemy();
-			continue;
-		}
-		
-		//check if kirby kills enemy with effect
-		KirbyEffect* beam = kirby->GetBeamEffect();
-		KirbyEffect* spark = kirby->GetSparkEffect();
-		Rect* beamSparkRect = nullptr;
-		BoundingBox* beamSparkBox = nullptr;
-
-		//if effects are alive
-		if (beam->isTimerSet()) {
-			beamSparkRect = beam->GetRect();
-		}
-		else if (spark->isTimerSet()) {
-			beamSparkRect = spark->GetRect();
-		}
-		//get bounding box
-		if (beamSparkRect) {
-			beamSparkBox = beamSparkRect->GetBox();
-		}
-		//check if hits enemy
-		if (beamSparkBox && enemyBox && BoundingBox::OBB(beamSparkBox, enemyBox)) {
-			effects[3]->SetKirbyStarExplodeOnEnemy(enemies[j]->GetPosition());
-			effects[3]->StartTimer(0.2f);
-
-			enemies[j]->SetDeathStart();//start enemy death timer
-		}
-	}
-}
-
-void KirbyGame::EnemyAttackCollideKirby(Rect* effect)
-
-{
-	pair<Vector3, Vector3> intersection;
-	IntersectRect(kirby->GetRect(), effect, intersection);
-
-	Vector3 kirbyPos = kirby->GetRect()->GetPosition();
-	Vector3 kirbySize = kirby->GetRect()->GetSize();
-
-	Vector3 kirbyLT = kirby->GetRect()->GetLT();
-	Vector3 kirbyRB = kirby->GetRect()->GetRB();
-
-	Vector3 effectRectPos = effect->GetPosition();
-	Vector3 effectLT = effect->GetLT();
-	Vector3 effectRB = effect->GetRB();
-
-	Vector3 tmp = kirbyPos - effectRectPos;
-	if (intersection.first == Values::ZeroVec3 &&
-		intersection.second == Values::ZeroVec3) {
-		return;
-	}
-	// Determine the collision direction based on the intersection size
-	if (intersection.first.x - intersection.second.x >
-		intersection.second.y - intersection.first.y) {
-		if (kirbyLT.x < effectLT.x) {
-			// Right collision
-			kirbyPos.x = effectLT.x - kirbySize.x / 2 + 1;
-			//kirby->SetPosition(kirbyPos);
-			kirby->SetEffectHit(1);//right hit
-		}
-		else {
-			// Left collision
-			kirbyPos.x = effectRB.x + kirbySize.x / 2 - 1;
-			//kirby->SetPosition(kirbyPos);
-			kirby->SetEffectHit(2);//left hit
-		}
-	}
-	else
-	{
-		if (kirbyLT.y > effectLT.y) {
-			// Down collision
-			kirbyPos.y = effectLT.y + kirbySize.y / 2 - 1;
-			//kirby->SetPosition(kirbyPos);
-			kirby->SetEffectHit(3);//down hit
-		}
-		else {
-			// Up collision
-			kirbyPos.y = effectRB.y - kirbySize.y / 2;
-		}
-	}
-
-	//while kirby was hit while inhaling
-	if (kirby->GetState() == inhaling) {
-		effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
-		effects[1]->StartTimer(0.1f);//remove enemy pulling effect
-	}
-	kirby->SetState(hitEnemy);
-	kirby->SetHitEnemy();
-}
-
-void KirbyGame::CheckAbility()
-{
-	if (enemySwallowed.size() == 0) {
-		return;
-	}
-	int abi = -1;
-	for (pair<Enemy*, int> enemy : enemySwallowed) {
-		string ability = enemy.first->GetAbility();
-		int cmp1 = ability.compare("spark");
-		int cmp2 = ability.compare("beam");
-		
-		//enemy has ability
-		if (cmp1 == 0 && cmp2 == 0) {//random if both swallowed
-			abi = rand() % 2;
-		}
-		else if (cmp1 == 0) {
-			abi = 0;
-		}
-		else if (cmp2 == 0) {
-			abi = 1;
-		}
-	}
-	if (abi == 0) {
-		kirby->SetAbility(0);
-	}
-	else if (abi == 1) {
-		kirby->SetAbility(1);
-	}
-	else {
-		kirby->SetAbility(Ability::none);
-	}
 }
 
 int KirbyGame::CheckSlopeRange(float positionX)
@@ -838,4 +461,270 @@ void KirbyGame::SetEnemyPosForSlope(int idx, Vector3 enemyPos, float rotation, c
 	}
 	enemy->SetHitGround(true);
 	enemy->SetPosition(enemyPos);
+}
+
+void KirbyGame::CheckInhaleEnemy(int kirbyLocation, vector<Level*> levels)
+{
+	//vector that stores inhaled enemy
+	vector<pair<wstring, Vector3>> enemySwallowed;
+
+	//get enemies in current level
+	vector<Enemy*> enemies = levels[kirbyLocation]->GetEnemies();
+	
+	//get kirby position
+	Vector3 kirbyPos = kirby->GetPosition();
+
+	//get kirby facing direction
+	bool left = kirby->GetLeft();
+
+	for (int i = 0; i < enemies.size(); i++) {
+		Vector3 enemyPos = enemies[i]->GetPosition();
+		//get x distance between kirby and enemy
+		int distanceX = abs(enemyPos.x - kirbyPos.x);
+		//get y distance between kirby and enemy
+		int distanceY = abs(enemyPos.y - kirbyPos.y);
+		if (enemies[i]->GetState() != 3 && 
+			(distanceX < 200.0f && distanceY < 120.0f) &&
+			((left && kirbyPos.x > enemyPos.x) || 
+			(!left && kirbyPos.x <= enemyPos.x))) {
+			//push back swallowed enemy info
+			int frameIdx = enemies[i]->GetAnimator()->GetCurrentFrameIndex();
+			wstring path = TexturePath + 
+						String::ToWString(enemies[i]->GetName() + to_string(frameIdx)) +
+						L".png";
+			//cout << enemies[i]->GetName() << frameIdx << "\n";
+			enemySwallowed.push_back({ path, enemies[i]->GetPosition() });
+
+			//erase spark and beam effect
+			if (enemies[i]->GetSparkEffectRect()) {
+				enemies[i]->StopSparkEffect();
+				kirby->SetAbility(Ability::spark);
+			}
+			else if (enemies[i]->GetBeamEffectRect()) {
+				enemies[i]->StopBeamEffect();
+				kirby->SetAbility(Ability::beam);
+			}
+			else {
+				kirby->SetAbility(Ability::none);
+			}
+			//set ability for kirby
+			if (enemies[i]->GetAbility().compare("spark") == 0) {
+				kirby->SetAbility(Ability::spark);
+			}
+			else if (enemies[i]->GetAbility().compare("beam") == 0) {
+				kirby->SetAbility(Ability::beam);
+			}
+			else {
+				kirby->SetAbility(Ability::none);
+			}
+			enemies[i]->SetDeathStart();
+		}
+	}
+	//change kirby state to swallowing
+	//all other kirby states are not allowed during this state
+	//move enemy through bezier curve
+	if (enemySwallowed.size()) {
+		effects[1]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+		effects[1]->SetKirbySwallow(enemySwallowed);
+		effects[1]->StartTimer(2.0f);
+		kirby->SetState(swallowing);
+	}
+}
+
+void KirbyGame::CheckHitByEnemy(vector<Enemy*> enemies, int idx)
+{
+	//get kirby position
+	Vector3 kirbyPos = kirby->GetPosition();
+
+	float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
+	//check if enemy attack effect hit kirby
+	if (enemies[idx]->GetState() < 3) {//if kirby is not dead
+		Rect* attackEffectRect = nullptr;
+		//cout << enemies[j]->GetName() << "\n";
+		string enemyName = enemies[idx]->GetName();
+		if (enemyName.compare("waddledoo") == 0) {
+			attackEffectRect = enemies[idx]->GetBeamEffectRect();
+		}
+		else if (enemyName.compare("sparky") == 0) {
+			attackEffectRect = enemies[idx]->GetSparkEffectRect();
+		}
+
+		BoundingBox* attackBoundingBox = nullptr;
+		if (attackEffectRect) {
+			attackBoundingBox = attackEffectRect->GetBox();
+		}
+		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
+		//if enemy attack hit kirby
+		if (attackBoundingBox && invulnerableTime > 2.0f &&
+			BoundingBox::OBB(kirbyBox, attackBoundingBox)) {
+			EnemyAttackCollideKirby(attackEffectRect);
+		}
+	}
+	BoundingBox* enemyBox = GetEnemyBox(enemies, idx);
+	BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
+
+	//check if kirby collides with enemy
+	if (enemyBox && invulnerableTime > 2.0f && BoundingBox::OBB(kirbyBox, enemyBox)) {
+		effects[4]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+		effects[4]->SetHitEffect();
+		effects[4]->StartTimer(0.5f);//set duration of effect
+
+		//while kirby was hit while inhaling
+		if (kirby->GetState() == inhaling) {
+			effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
+			effects[1]->StartTimer(0.1f);//remove enemy pulling effect
+		}
+
+		kirby->SetState(hitEnemy);
+		kirby->SetHitEnemy();
+	}
+}
+
+void KirbyGame::EnemyAttackCollideKirby(Rect* effect)
+
+{
+	pair<Vector3, Vector3> intersection;
+	IntersectRect(kirby->GetRect(), effect, intersection);
+
+	Vector3 kirbyPos = kirby->GetRect()->GetPosition();
+	Vector3 kirbySize = kirby->GetRect()->GetSize();
+
+	Vector3 kirbyLT = kirby->GetRect()->GetLT();
+	Vector3 kirbyRB = kirby->GetRect()->GetRB();
+
+	Vector3 effectRectPos = effect->GetPosition();
+	Vector3 effectLT = effect->GetLT();
+	Vector3 effectRB = effect->GetRB();
+
+	Vector3 tmp = kirbyPos - effectRectPos;
+	if (intersection.first == Values::ZeroVec3 &&
+		intersection.second == Values::ZeroVec3) {
+		return;
+	}
+	// Determine the collision direction based on the intersection size
+	if (intersection.first.x - intersection.second.x >
+		intersection.second.y - intersection.first.y) {
+		if (kirbyLT.x < effectLT.x) {
+			// Right collision
+			kirbyPos.x = effectLT.x - kirbySize.x / 2 + 1;
+			//kirby->SetPosition(kirbyPos);
+			kirby->SetEffectHit(1);//right hit
+		}
+		else {
+			// Left collision
+			kirbyPos.x = effectRB.x + kirbySize.x / 2 - 1;
+			//kirby->SetPosition(kirbyPos);
+			kirby->SetEffectHit(2);//left hit
+		}
+	}
+	else
+	{
+		if (kirbyLT.y > effectLT.y) {
+			// Down collision
+			kirbyPos.y = effectLT.y + kirbySize.y / 2 - 1;
+			//kirby->SetPosition(kirbyPos);
+			kirby->SetEffectHit(3);//down hit
+		}
+		else {
+			// Up collision
+			kirbyPos.y = effectRB.y - kirbySize.y / 2;
+		}
+	}
+
+	//while kirby was hit while inhaling
+	if (kirby->GetState() == inhaling) {
+		effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
+		effects[1]->StartTimer(0.1f);//remove enemy pulling effect
+	}
+	kirby->SetState(hitEnemy);
+	kirby->SetHitEnemy();
+}
+
+void KirbyGame::EnemyAndKirby(int kirbyLocation, vector<class Level*> levels)
+{
+	//get enemies in current level
+	vector<Enemy*> enemies = levels[kirbyLocation]->GetEnemies();
+	for (size_t i = 0; i < enemies.size(); i++)
+	{
+		//is kirby hit by enemy?
+		CheckHitByEnemy(enemies, i);
+		//check if kirby blow air collides with enemy
+		CheckBlowAirHitEnemy(enemies, i);
+		//check star hit enemy
+		CheckStarHitEnemy(enemies, i);
+
+		KillEnemyWithEffect(enemies, i);
+	}
+}
+
+void KirbyGame::CheckBlowAirHitEnemy(vector<Enemy*> enemies, int idx)
+{		
+	//check if kirby blow air collides with enemy
+	effectBox = nullptr;
+	effectRect = effects[5]->GetRect();
+	if (effectRect) {
+		effectBox = effectRect->GetBox();
+	}
+	BoundingBox* enemyBox = GetEnemyBox(enemies, idx);
+
+	if (effectBox && enemyBox && BoundingBox::OBB(effectBox, enemyBox)) {
+		effects[5]->StartTimer(0.1f);
+		enemies[idx]->SetDeathStart();//start enemy death timer
+	}
+}
+
+void KirbyGame::CheckStarHitEnemy(vector<Enemy*> enemies, int idx)
+{
+	effectBox = nullptr;
+	effectRect = effects[2]->GetRect();
+	if (effectRect) {
+		effectBox = effectRect->GetBox();
+	}
+	BoundingBox* enemyBox = GetEnemyBox(enemies, idx);
+	//check if big star that kirby throws hit enemy
+	if (effectBox && enemyBox && BoundingBox::OBB(effectBox, enemyBox)) {
+		effects[3]->SetKirbyStarExplodeOnEnemy(enemies[idx]->GetPosition());
+		effects[3]->StartTimer(0.2f);
+
+		effects[2]->StartTimer(0.01f);
+		enemies[idx]->SetDeathStart();//start enemy death timer
+	}
+}
+
+void KirbyGame::KillEnemyWithEffect(vector<Enemy*> enemies, int idx)
+{
+	//check if kirby kills enemy with effect
+	KirbyEffect* beam = kirby->GetBeamEffect();
+	KirbyEffect* spark = kirby->GetSparkEffect();
+	Rect* beamSparkRect = nullptr;
+	BoundingBox* beamSparkBox = nullptr;
+
+	//if effects are alive
+	if (beam->isTimerSet()) {
+		beamSparkRect = beam->GetRect();
+	}
+	else if (spark->isTimerSet()) {
+		beamSparkRect = spark->GetRect();
+	}
+	//get bounding box
+	if (beamSparkRect) {
+		beamSparkBox = beamSparkRect->GetBox();
+	}
+	//check if hits enemy
+	if (beamSparkBox && enemyBox && BoundingBox::OBB(beamSparkBox, enemyBox)) {
+		effects[3]->SetKirbyStarExplodeOnEnemy(enemies[idx]->GetPosition());
+		effects[3]->StartTimer(0.2f);
+
+		enemies[idx]->SetDeathStart();//start enemy death timer
+	}
+}
+
+BoundingBox* KirbyGame::GetEnemyBox(vector<Enemy*> enemies, int idx)
+{
+	enemyBox = nullptr;
+	enemyRect = enemies[idx]->GetRect();
+	if (enemyRect) {
+		enemyBox = enemyRect->GetBox();
+	}
+	return enemyBox;
 }

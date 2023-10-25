@@ -5,7 +5,6 @@
 #include "Geomatries/Rect.h"
 
 #include "Utilities/Animator.h"
-#include "Enemy.h"
 
 #define THROWSTARSPEED 200
 
@@ -86,17 +85,24 @@ void KirbyEffect::SetKirbyEat()
 	}
 }
 
-void KirbyEffect::SetKirbySwallow(vector<pair<class Enemy*, int>>& enemySwallowed)
+void KirbyEffect::SetKirbySwallow(vector<pair<wstring, Vector3>> enemySwallow)
 {
 	currentEffect = Effect::swallowing;
 	curves = new BezierCurves();
+	if (!this->enemySwallow.size()) {
+		for (size_t i = 0; i < enemySwallow.size(); i++)
+		{
+			this->enemySwallow.push_back(new TextureRect(enemySwallow[i].second,
+				{128.0f,128.0f,0.0f}, 0.0f, enemySwallow[i].first));
+		}
+	}
 	//set kirby pos as p1
 	Vector2 tmpP1 = Vector2(kirbyPos.x, kirbyPos.y);
 	//get position of enemy and create curves
-	for (size_t i = 0; i < enemySwallowed.size(); i++)
+	for (size_t i = 0; i < enemySwallow.size(); i++)
 	{
-		Vector3 enemyPos = enemySwallowed[i].first->GetPosition();
-		Vector2 tmpP3 = { enemyPos.x, enemyPos.y };
+		Vector3 enemyPos = enemySwallow[i].second;
+		Vector2 tmpP3 = { enemyPos.x, enemyPos.y};
 		Vector2 tmpP2 = { (enemyPos.x + kirbyPos.x) / 2.0f, kirbyPos.y };
 		curves->Add(tmpP1, tmpP2, tmpP3);
 		curves->CreateWaterdrop(i);
@@ -128,6 +134,7 @@ void KirbyEffect::SetKirbyStarExplodeOnEnemy(Vector3 pos)
 void KirbyEffect::SetEnemyDeathEffect(Vector3 pos)
 {
 	currentEffect = Effect::bigstars;
+	vector<AnimationRect*>().swap(animations);
 	for (int i = 0; i < 4; i++) {
 		animations.push_back(new AnimationRect(pos, Vector3(52.0f, 52.0f, 0.0f), false));
 		animations[i]->SetAnimator(animatorList[currentEffect]);
@@ -268,19 +275,19 @@ void KirbyEffect::UpdateEatEffect()
 	}
 }
 
-bool KirbyEffect::UpdateSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow)
+void KirbyEffect::UpdateSwallowEffect()
 {
 	if (time + duration < Time::Get()->Running()) {
 		curves->Clear();
 		SAFE_DELETE(curves);
+		vector<TextureRect*>().swap(enemySwallow);
 		setTimer = false;
-		return true;
+		return;
 	}
-	bool result = true;
 	//first update the curves
 	curves->Update(false);
 	vector<Line> lines_ = curves->GetLines();
-
+	int ret = 0;
 	//change position of enemies being swallowed according to the lines position
 	for (int i = 0; i < enemySwallow.size(); i++) {
 		if (i >= 50) {
@@ -289,18 +296,16 @@ bool KirbyEffect::UpdateSwallowEffect(vector<pair<class Enemy*, int>>& enemySwal
 		//number of lines == number of enemy being swallowed
 		Line& line = lines_[i];
 		//if enemy pos == kirby pos, water drop will be removed
-		if (line.water_drops.size() == 0) {
-			continue;
-		}
-		result = result & false;
+		ret += line.water_drops.size();
 		for (int j = 0; j < line.water_drops.size(); j++) {
-			enemySwallow[i].first->ChangeAnimation(L"", 0.0f, Values::ZeroVec3, enemySwallow[i].second, true);
-			enemySwallow[i].first->SetPosition(Vector3(line.water_drops[j].x, line.water_drops[j].y, 0.0f));
-			enemySwallow[i].first->Update();
+			enemySwallow[i]->SetPosition(Vector3(line.water_drops[j].x, line.water_drops[j].y, 0.0f));
+			enemySwallow[i]->Update();
 			count++;
 		}
 	}
-	return result;
+	if (ret == 0) {
+		duration = 0.1f;
+	}
 }
 //blow star effect
 bool KirbyEffect::UpdateBlowEffect(float deltaTime)
@@ -487,11 +492,15 @@ void KirbyEffect::UpdateEffect(float deltaTime)
 		UpdateExplodeOnEnemy();
 		return;
 	}
+	if (currentEffect == Effect::swallowing && setTimer) {
+		UpdateSwallowEffect();
+		return;
+	}
 }
 
-void KirbyEffect::RenderSwallowEffect(vector<pair<class Enemy*, int>>& enemySwallow) {
+void KirbyEffect::RenderSwallowEffect() {
 	for (int i = 0; i < enemySwallow.size(); i++) {
-		enemySwallow[i].first->Render();
+		enemySwallow[i]->Render();
 	}
 }
 void KirbyEffect::RenderDeathEffect()

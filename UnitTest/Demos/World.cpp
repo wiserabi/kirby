@@ -11,8 +11,8 @@ World::World()
 	worldSize = Vector3(2000, 2000, 0);
 	worldMap = new TextureRect(worldPos, worldSize, 0.0f,
 		TexturePath + L"backGround/world1.png");
-	guiRect = new Rect(worldPos - Vector3(950, 100, 0), Vector3(100, 600, 0), 0.0f);
-	guiRect->SetColor(Values::Magenta);
+	//guiRect = new Rect(worldPos - Vector3(950, 100, 0), Vector3(100, 600, 0), 0.0f);
+	//guiRect->SetColor(Values::Magenta);
 	FileReader fr;
 	vector<Vector3> tmp = fr.ReadFile(CoordPath + "world1.txt");
 	for (int i = 0; i < tmp.size() / 2; i++) {
@@ -70,6 +70,15 @@ Vector3 World::GetRB()
 void World::SetColor(int index, Color color)
 {
 	rects[index]->SetColor(color);
+}
+
+void World::SetKirbyPos(Vector3 kirbyPos)
+{
+	this->kirbyPos = kirbyPos;
+	for (size_t i = 0; i < levels.size(); i++)
+	{
+		levels[i]->SetKirbyPosition(kirbyPos);
+	}
 }
 
 void World::Init()
