@@ -649,14 +649,16 @@ void KirbyGame::EnemyAndKirby(int kirbyLocation, vector<class Level*> levels)
 	vector<Enemy*> enemies = levels[kirbyLocation]->GetEnemies();
 	for (size_t i = 0; i < enemies.size(); i++)
 	{
-		//is kirby hit by enemy?
-		CheckHitByEnemy(enemies, i);
-		//check if kirby blow air collides with enemy
-		CheckBlowAirHitEnemy(enemies, i);
-		//check star hit enemy
-		CheckStarHitEnemy(enemies, i);
+		if (enemies[i]->GetState() != 3) {
+			//is kirby hit by enemy?
+			CheckHitByEnemy(enemies, i);
+			//check if kirby blow air collides with enemy
+			CheckBlowAirHitEnemy(enemies, i);
+			//check star hit enemy
+			CheckStarHitEnemy(enemies, i);
 
-		KillEnemyWithEffect(enemies, i);
+			KillEnemyWithEffect(enemies, i);
+		}
 	}
 }
 
@@ -689,7 +691,7 @@ void KirbyGame::CheckStarHitEnemy(vector<Enemy*> enemies, int idx)
 		effects[3]->SetKirbyStarExplodeOnEnemy(enemies[idx]->GetPosition());
 		effects[3]->StartTimer(0.2f);
 
-		effects[2]->StartTimer(0.01f);
+		effects[2]->StartTimer(0.1f);
 		enemies[idx]->SetDeathStart();//start enemy death timer
 	}
 }

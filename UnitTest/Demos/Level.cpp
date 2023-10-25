@@ -149,12 +149,12 @@ void Level::EnemyCollisions()
 	//enemies in level
 	for (size_t i = 0; i < enemies.size(); i++)
 	{
-		if (CheckEnemyInRange(enemies, i)) {
-			Rect* enemyRect = enemies[i]->GetRect();
-			//collision of enemy and level
-			EnemyCollisionLevel(enemyRect, i);
+		Rect* enemyRect = enemies[i]->GetRect();
+		//collision of enemy and level
+		EnemyCollisionLevel(enemyRect, i);
+		enemies[i]->SetKirbyPos(kirbyPosition);
 
-			enemies[i]->SetKirbyPos(kirbyPosition);
+		if (CheckEnemyInRange(enemies, i)) {
 			enemies[i]->Update();
 		}
 	}

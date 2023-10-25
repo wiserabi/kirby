@@ -1391,7 +1391,7 @@ void KirbyCharacter::StartUseAbility(class Keyboard* key)
 {
 	if (abilitySet && key->Press(VK_DOWN)) {
 		//kirby copy enemy ability here
-		if (ability == spark || ability == beam || ability == none) {
+		if (ability == spark || ability == beam) {
 			abilityUse = true;
 		}
 
