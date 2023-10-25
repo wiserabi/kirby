@@ -1192,7 +1192,7 @@ bool KirbyCharacter::UseAbility(float delta, Keyboard* key)
 {
 	if (abilityUse && (state == walking || state == idle) && key->Press('S')) {
 		if (ability == Ability::spark) {
-
+			state = idle;
 			//cout << "use spark\n";
 			//if sparkEffect is not active activate
 			if (!sparkEffect->isTimerSet()) {
@@ -1206,6 +1206,7 @@ bool KirbyCharacter::UseAbility(float delta, Keyboard* key)
 
 		}
 		else if (ability == Ability::beam) {
+			state = idle;
 			//cout << "use beam\n";
 			if (!beamEffect->isTimerSet()) {
 				beamEffect->SetBeamEffect(position, __super::GetLeft());

@@ -275,12 +275,9 @@ void Enemy::SetDeathStart()
     deathStart = Time::Get()->Running();
     deathEffect.SetEnemyDeathEffect(position);
     deathEffect.StartTimer(0.8f);
-    if (sparkEffect.isTimerSet()) {
-        sparkEffect.StartTimer(0.01f);
-    }
-    else if (beamEffect.isTimerSet()) {
-        beamEffect.StartTimer(0.01f);
-    }
+    sparkEffect.StartTimer(0.0f);
+    beamEffect.StartTimer(0.0f);
+
     state = DEATH;
     SAFE_DELETE(rect);
 }
