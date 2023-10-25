@@ -649,7 +649,7 @@ void KirbyGame::EnemyAndKirby(int kirbyLocation, vector<class Level*> levels)
 	vector<Enemy*> enemies = levels[kirbyLocation]->GetEnemies();
 	for (size_t i = 0; i < enemies.size(); i++)
 	{
-		if (enemies[i]->GetState() != 3) {
+		if (enemies[i]->GetState() != 3) {//do not check dead enemy
 			//is kirby hit by enemy?
 			CheckHitByEnemy(enemies, i);
 			//check if kirby blow air collides with enemy

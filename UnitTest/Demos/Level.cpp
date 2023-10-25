@@ -53,7 +53,7 @@ Level::Level(Vector3 pos, wstring pngName)
 		xDistance = rand() % 100 + 150;
 		enemyName = enemyNames[choice];
 
-		enemies.push_back(new Enemy({ position.x - 1000.0f + xDistance * i, position.y + 100.0f, 0 }, { 128.0f, 128.0f, 0.0f }, enemyName, enemyInfo));
+		enemies.push_back(new Enemy({ position.x - 1000.0f + xDistance * i, position.y + 200.0f, 0 }, { 128.0f, 128.0f, 0.0f }, enemyName, enemyInfo));
 	}
 }
 
@@ -154,9 +154,9 @@ void Level::EnemyCollisions()
 		EnemyCollisionLevel(enemyRect, i);
 		enemies[i]->SetKirbyPos(kirbyPosition);
 
-		if (CheckEnemyInRange(enemies, i)) {
+		//if (CheckEnemyInRange(enemies, i)) {
 			enemies[i]->Update();
-		}
+		//}
 	}
 }
 

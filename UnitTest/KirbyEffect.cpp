@@ -318,10 +318,10 @@ bool KirbyEffect::UpdateBlowEffect(float deltaTime)
 	}
 	//move effect left
 	if (effectLeft) {
-		effectStartPos += Values::LeftVec * 200 * deltaTime;
+		effectStartPos += Values::LeftVec * 400 * deltaTime;
 	}
 	else {
-		effectStartPos += Values::RightVec * 200 * deltaTime;
+		effectStartPos += Values::RightVec * 400 * deltaTime;
 	}
 
 	rectEffect0->SetPosition(effectStartPos);

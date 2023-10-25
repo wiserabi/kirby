@@ -1346,7 +1346,6 @@ bool KirbyCharacter::Teleport(float delta, Keyboard* key)
 			kirbyInWorld = WORLD;
 		}
 		state = falldown;
-		hitEnemyTime = 0.0f;
 		return true;
 	}
 	return false;
