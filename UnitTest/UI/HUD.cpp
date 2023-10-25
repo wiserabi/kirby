@@ -13,18 +13,36 @@ HUD::HUD()
 	LoadNumberImage();
 	LoadHealthImage();
 	LoadLifeImage();
+
 }
 
 HUD::~HUD()
 {
 	SAFE_DELETE(frameUI);
-	
+	vector<ProgressBar*>().swap(stateImg);
+	vector<ProgressBar*>().swap(health);
+	vector<ProgressBar*>().swap(number);
+	vector<ProgressBar*>().swap(life);
 }
 
 void HUD::Update()
 {
 	frameUI->Update();
-	stateImg[4]->Update();
+	if (prevState != 27 && state == 27 && hpLeft > 0) {
+		hpLeft--;
+	}
+	if (state == 27) {//hit by enemy
+		stateImg[0]->Update();
+	}
+	else if (ability == 0) {//spark
+		stateImg[1]->Update();
+	}
+	else if (ability == 1) {//beam
+		stateImg[2]->Update();
+	}
+	else if (ability == 8) {
+		stateImg[4]->Update();
+	}
 
 	if (Time::Get()->Running() - healthAnimStart > 0.1f) {
 		if (hpAnimIdx) {
@@ -46,6 +64,9 @@ void HUD::Update()
 		}
 	}
 
+	for (int i = 17; i > 11 + hpLeft; i--) {
+		health[i]->Update();
+	}
 	if (Time::Get()->Running() - lifeAnimStart > 0.2f) {
 		lifeAnimIdx = (lifeAnimIdx + 1) % 4;
 		lifeAnimStart = Time::Get()->Running();
@@ -68,7 +89,19 @@ void HUD::Update()
 void HUD::Render()
 {
 	frameUI->Render();
-	stateImg[4]->Render();
+	if (state == 27) {//hit by enemy
+		stateImg[0]->Render();
+	}
+	else if (ability == 0) {//spark
+		stateImg[1]->Render();
+	}
+	else if (ability == 1) {//beam
+		stateImg[2]->Render();
+	}
+	else if (ability == 8) {
+		stateImg[4]->Render();
+	}
+	
 	if (hpAnimIdx) {
 		for (int i = 0; i < hpLeft; i++) {
 			health[i]->Render();
@@ -78,6 +111,9 @@ void HUD::Render()
 		for (int i = 6; i < 6 + hpLeft; i++) {
 			health[i]->Render();
 		}
+	}
+	for (int i = 17; i > 11 + hpLeft; i--) {
+		health[i]->Render();
 	}
 	life[lifeAnimIdx]->Render();
 	number[0]->Render();
@@ -179,8 +215,15 @@ void HUD::LoadNumberImage()
 
 void HUD::SetCurrentAbility(int ability)
 {
+	this->ability = ability;
 }
 
 void HUD::SetState(int state)
 {
+	this->state = state;
+}
+
+void HUD::SetPrevState(int prevState)
+{
+	this->prevState = prevState;
 }

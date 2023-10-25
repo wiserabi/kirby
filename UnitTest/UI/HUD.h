@@ -16,6 +16,7 @@ public:
 
 	void SetCurrentAbility(int ability);
 	void SetState(int state);
+	void SetPrevState(int prevState);
 
 private:
 	class ProgressBar* frameUI = nullptr;
@@ -27,6 +28,7 @@ private:
 	float percent = 1.0f;
 	int ability = 8;//none
 	int state = 0;//idle
+	int prevState = 0;//prevState
 	float healthAnimStart = Time::Get()->Running();
 	float lifeAnimStart = Time::Get()->Running();
 	bool hpAnimIdx = false;

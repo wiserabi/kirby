@@ -151,7 +151,9 @@ void KirbyGame::Update()
 		Vector3 kirbyPos = kirby->GetPosition();
 		SetCameraBound();
 	}
-
+	hud->SetCurrentAbility(kirby->GetCurrentAbility());
+	hud->SetState(kirby->GetState());
+	hud->SetPrevState(kirby->GetPrevState());
 	hud->Update();
 	//check if there is a timer set for animation
 	UpdateEffect();
