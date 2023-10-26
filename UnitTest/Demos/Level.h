@@ -54,4 +54,5 @@ private:
 	vector<class KirbyEffect*> deathEffects;
 	Vector3 grave = Vector3(-2000.0f, -2000.f, 0.0f);
 	int enemyDeathCnt = 0;
+	class TreeBoss* boss = nullptr;
 };

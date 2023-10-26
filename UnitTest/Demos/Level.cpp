@@ -5,6 +5,7 @@
 #include "ReadCoordinate.h"
 #include "Enemy.h"
 #include "EnemyInfo.h"
+#include "Boss.h"
 
 Level::Level(Vector3 pos, wstring pngName)
 {
@@ -44,10 +45,10 @@ Level::Level(Vector3 pos, wstring pngName)
 			{ 60.0f, 600.0f, 0.0f }, 0.0f));
 		limitEnemyMove.push_back(new Rect({ 17730.0f, 550.0f, 0.0f },
 			{ 60.0f, 550.0f, 0.0f }, 0.0f));
-
 	}
 }
 
+//this constructor is for boss level
 Level::Level(Vector3 pos, Vector3 size, wstring pngName)
 {
 	this->position = pos;
@@ -66,6 +67,8 @@ Level::Level(Vector3 pos, Vector3 size, wstring pngName)
 		float angle_in_radians = angle_in_degrees * (3.141592 / 180.0f);
 		rects.push_back(new Rect(pos, size, angle_in_radians));
 	}
+	boss = new TreeBoss(Vector3(21491.0f, -95.0f, 0.0f),
+		Vector3(290.0f, 430.0f, 0.0f));
 }
 
 Level::~Level()
@@ -75,6 +78,7 @@ Level::~Level()
 	vector<Enemy*>().swap(enemies);
 	SAFE_DELETE(levelMap);
 	vector<Rect*>().swap(rects);
+	SAFE_DELETE(boss);
 }
 
 void Level::Init()
@@ -87,6 +91,9 @@ void Level::Destroy()
 
 void Level::Update()
 {
+	if (boss) {
+		boss->Update();
+	}
 	//check enemy death
 	for (int i = 0; i < enemies.size(); i++) {
 		if (enemies[i]->GetState() == 3) {//if enemy in death state
@@ -145,6 +152,10 @@ void Level::Render()
 	for (size_t i = 0; i < deathEffects.size(); i++)
 	{
 		deathEffects[i]->RenderDeathEffect();
+	}
+
+	if (boss) {
+		boss->Render();
 	}
 }
 
