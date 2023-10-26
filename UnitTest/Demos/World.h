@@ -1,6 +1,6 @@
 #pragma once
 
-#define LEVELNUM 3
+#define LEVELNUM 4
 
 class World : IObject
 {
@@ -41,5 +41,6 @@ private:
 		L"world1stage1",
 		L"world1stage2",
 		L"world1stage3",
+		L"boss1stage",
 	};
 };

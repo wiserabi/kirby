@@ -1334,6 +1334,11 @@ void KirbyCharacter::Teleportation(int doorIdx)
 		__super::SetLeft(false);
 		kirbyInWorld = LEVEL1;
 	}
+	else if (doorIdx == 1) {
+		position = stageStartPoint[3];
+		__super::SetLeft(false);
+		kirbyInWorld = BOSS;
+	}
 	else if (doorIdx == 2) {
 		position = stageStartPoint[1];
 		__super::SetLeft(false);
@@ -1372,6 +1377,11 @@ bool KirbyCharacter::Teleport(float delta, Keyboard* key)
 			kirbyInWorld = LEVEL3;
 		}
 		else if (kirbyInWorld == LEVEL3) {
+			position = doorPos[0];
+			__super::SetLeft(false);
+			kirbyInWorld = WORLD;
+		}
+		else if (kirbyInWorld == BOSS) {
 			position = doorPos[0];
 			__super::SetLeft(false);
 			kirbyInWorld = WORLD;

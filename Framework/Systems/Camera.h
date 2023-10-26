@@ -30,5 +30,5 @@ private:
 	Vector3 topLeft = Values::ZeroVec3;
 	Vector3 bottomRight = Values::ZeroVec3;
 	Vector3 kirbyPos = Values::ZeroVec3;
-	bool cameraAutoMove;
+	bool cameraAutoMove = true;
 };

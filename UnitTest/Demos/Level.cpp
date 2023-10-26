@@ -46,14 +46,25 @@ Level::Level(Vector3 pos, wstring pngName)
 			{ 60.0f, 550.0f, 0.0f }, 0.0f));
 
 	}
+}
 
-
-	for (int i = 0; i < 20; i++) {
-		choice = rand() % 3;
-		xDistance = rand() % 100 + 150;
-		enemyName = enemyNames[choice];
-
-		enemies.push_back(new Enemy({ position.x - 1000.0f + xDistance * i, position.y + 200.0f, 0 }, { 128.0f, 128.0f, 0.0f }, enemyName, enemyInfo));
+Level::Level(Vector3 pos, Vector3 size, wstring pngName)
+{
+	this->position = pos;
+	levelMap = new TextureRect(position, size, 0.0f,
+		TexturePath + L"backGround/" + pngName + L".png");
+	FileReader fr;
+	wstring txtName = pngName + L".txt";
+	vector<Vector3> tmp = fr.ReadFile(CoordPath + String::ToString(txtName));
+	for (int i = 0; i < tmp.size() / 2; i++) {
+		Vector3 pos = tmp[2 * i];
+		Vector3 size = tmp[2 * i + 1];
+		float angle_in_degrees = (float)pos.z;
+		pos.z = 0.0f;
+		size.z = 0.0f;
+		//cout << pos.z << "\n";
+		float angle_in_radians = angle_in_degrees * (3.141592 / 180.0f);
+		rects.push_back(new Rect(pos, size, angle_in_radians));
 	}
 }
 
@@ -349,4 +360,15 @@ bool Level::CheckEnemyInRange(vector<Enemy*> enemies, int enemyIdx)
 	}
 
 	return false;
+}
+
+void Level::CreateRandomEnemies()
+{
+	for (int i = 0; i < 20; i++) {
+		choice = rand() % 3;
+		xDistance = rand() % 100 + 150;
+		enemyName = enemyNames[choice];
+
+		enemies.push_back(new Enemy({ position.x - 1000.0f + xDistance * i, position.y + 200.0f, 0 }, { 128.0f, 128.0f, 0.0f }, enemyName, enemyInfo));
+	}
 }

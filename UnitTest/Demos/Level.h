@@ -4,6 +4,7 @@ class Level : IObject
 {
 public:
 	Level(Vector3 pos, wstring pngName);
+	Level(Vector3 pos, Vector3 size, wstring pngName);
 	~Level();
 	virtual void Init() override;
 	virtual void Destroy() override;
@@ -11,6 +12,7 @@ public:
 	virtual void Render() override;
 	virtual void PostRender() override;
 	virtual void GUI() override;
+	
 	Vector3 GetLT();
 	Vector3 GetRB();
 	vector<class Rect*> GetRects() { return rects; }
@@ -24,6 +26,7 @@ public:
 	int GetEnemyDeathCount() { return enemyDeathCnt; }
 	void SetEnemyPosForSlope(int idx, Vector3 enemyPos, float rotation, Enemy* enemy);
 	bool CheckEnemyInRange(vector<Enemy*> enemies, int enemyIdx);//update enemy only when it is in range
+	void CreateRandomEnemies();
 
 private:
 	Vector3 position;

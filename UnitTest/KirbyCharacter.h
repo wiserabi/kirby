@@ -8,6 +8,7 @@ enum Location {
 	LEVEL1,
 	LEVEL2,
 	LEVEL3,
+	BOSS
 };
 enum Ability
 {
@@ -243,10 +244,11 @@ private:
 		Vector3(68.0f, 98.0f, 0.0f),
 		Vector3(56.0f, 88.0f, 0.0f),
 	};
-	Vector3 stageStartPoint[3] = {
+	Vector3 stageStartPoint[4] = {
 		Vector3(4100.0f, 600.0f, 0.0),//level1
 		Vector3(9100.0f, 600.0f, 0.0),//level2
-		Vector3(14100.0f, 600.0f, 0.0)//level3
+		Vector3(14100.0f, 600.0f, 0.0),//level3
+		Vector3(20800.0f, 1300.0f, 0.0f),//boss
 	};
 };
 

@@ -253,6 +253,18 @@ void KirbyGame::SetCameraBound()
 
 		Camera::Get()->SetBound(cameraTL, cameraRB);
 	}
+	else if (kirby->getKirbyLocation() == BOSS) {
+		vector<class Level*> levels = world->GetLevels();
+
+		Vector3 levelLT = levels[3]->GetLT();
+		Vector3 levelRB = levels[3]->GetRB();
+		//BR = BottomRight
+
+		Vector3 cameraTL = Vector3(levelLT.x, levelLT.y - WinMaxHeight, 0);
+		Vector3 cameraRB = Vector3(levelRB.x - WinMaxWidth, levelRB.y, 0);
+
+		Camera::Get()->SetBound(cameraTL, cameraRB);
+	}
 }
 
 void IntersectRect(Rect* kirbyRect, Rect* worldRect, pair<Vector3, Vector3>& intersection) {

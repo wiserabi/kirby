@@ -21,10 +21,14 @@ World::World()
 		rects.push_back(new Rect(pos, size, pos.z));
 	}
 	Vector3 levelPos = Vector3(1000.0f, 500.0f, 0.0f);
-	for (int i = 0; i < LEVELNUM; i++) {
+	for (int i = 0; i < 3; i++) {
 		levelPos.x += WinMaxHeight * 7;
 		levels.push_back(new Level(levelPos, levelPng[i]));
+		levels[i]->CreateRandomEnemies();
 	}
+	levelPos.x += WinMaxHeight * 7;
+	levels.push_back(new Level(levelPos, Vector3(WinMaxWidth, WinMaxWidth * 1.48f, 0.0f), 
+		levelPng[3]));
 
 }
 
@@ -101,7 +105,6 @@ void World::Update()
 	for (int i = 0; i < 10; i++) {
 		rects[i]->Update();
 	}
-	
 	if (kirbyLocation == 1) {//level1
 		levels[0]->Update();
 	}
@@ -111,7 +114,9 @@ void World::Update()
 	else if (kirbyLocation == 3) {//level3
 		levels[2]->Update();
 	}
-
+	else if (kirbyLocation == 4) {//boss
+		levels[3]->Update();
+	}
 	if (Keyboard::Get()->Down(VK_F2)) {
 		if (enableGui) {
 			enableGui = false;
