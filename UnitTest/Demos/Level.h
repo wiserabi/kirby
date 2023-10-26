@@ -48,4 +48,6 @@ private:
 	float xDistance = 0.0f;
 	string enemyName;
 	vector<Rect*> limitEnemyMove;
+	vector<class KirbyEffect*> deathEffects;
+	Vector3 grave = Vector3(-2000.0f, -2000.f, 0.0f);
 };

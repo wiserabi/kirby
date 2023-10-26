@@ -88,8 +88,6 @@ Enemy::Enemy(Vector3 position, Vector3 size, string name, class EnemyInfo* infos
     //set color to see gray bounding box
     rect->SetColor(Color(0.5f, 0.5f, 0.5f, 0.7f));
     idleTimer = Time::Get()->Running();
-    deathEffect.StartTimer(1000000.0f);
-    //beamEffect.StartTimer(1000000.0f);
 }
 
 Enemy::~Enemy()
@@ -155,9 +153,8 @@ void Enemy::Update()
             attackPlayer();
         }
         break;
-    case DEATH:
-        deathEffect.UpdateDeathEffect(Time::Delta());
-        return;
+    default:
+        break;
     }
     if (rect) {
         rect->SetPosition({ position.x, position.y, 0 });
@@ -168,10 +165,6 @@ void Enemy::Update()
 
 void Enemy::Render()
 {
-    if (state == DEATH) {
-        deathEffect.RenderDeathEffect();
-        return;
-    }
     if (state == ATTACK) {
         map<string, EnemyData> data = infos->GetData();
         //cout << data[name].ability << "\n";
@@ -265,20 +258,11 @@ void Enemy::rangedAttackPlayer()
 {
 }
 
-bool Enemy::CheckDeath()
-{
-    return !deathEffect.isTimerSet();
-}
-
 void Enemy::SetDeathStart()
 {
-    deathStart = Time::Get()->Running();
-    deathEffect.SetEnemyDeathEffect(position);
-    deathEffect.StartTimer(0.8f);
     sparkEffect.StartTimer(0.0f);
     beamEffect.StartTimer(0.0f);
 
     state = DEATH;
-    SAFE_DELETE(rect);
 }
 

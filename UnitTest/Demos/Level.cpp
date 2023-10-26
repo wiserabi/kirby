@@ -78,17 +78,16 @@ void Level::Update()
 {
 	//check enemy death
 	for (int i = 0; i < enemies.size(); i++) {
-		if (enemies[i]->CheckDeath()) {
+		if (enemies[i]->GetState() == 3) {//if enemy in death state
+			deathEffects.push_back(new KirbyEffect());
+			deathEffects.back()->SetEnemyDeathEffect(enemies[i]->GetPosition());
+			deathEffects.back()->StartTimer(0.8f);
+
+			//change position of enemy to grave
+			enemies[i]->SetPosition(grave);
+
 			enemies.erase(enemies.begin() + i);
 			i--;
-		}
-		else {
-			//set enemy collision to default
-			enemies[i]->SetHitGround(false);
-			enemies[i]->SetHitLeft(false);
-			enemies[i]->SetHitRight(false);
-			//set kirby position for enemy to chase
-			enemies[i]->SetKirbyPos(kirbyPosition);
 		}
 	}
 
@@ -102,7 +101,18 @@ void Level::Update()
 	}
 
 	EnemyCollisions();
-
+	//remove death effects
+	for (size_t i = 0; i < deathEffects.size(); i++)
+	{
+		if (!deathEffects[i]->isTimerSet()) {
+			deathEffects.erase(deathEffects.begin() + i);
+			i--;
+		}
+		else {
+			//else update
+			deathEffects[i]->UpdateDeathEffect(Time::Delta());
+		}
+	}
 }
 
 void Level::Render()
@@ -118,6 +128,10 @@ void Level::Render()
 	for (size_t i = 0; i < limitEnemyMove.size(); i++)
 	{
 		limitEnemyMove[i]->Render();
+	}
+	for (size_t i = 0; i < deathEffects.size(); i++)
+	{
+		deathEffects[i]->RenderDeathEffect();
 	}
 }
 
@@ -149,14 +163,23 @@ void Level::EnemyCollisions()
 	//enemies in level
 	for (size_t i = 0; i < enemies.size(); i++)
 	{
-		Rect* enemyRect = enemies[i]->GetRect();
-		//collision of enemy and level
-		EnemyCollisionLevel(enemyRect, i);
-		enemies[i]->SetKirbyPos(kirbyPosition);
+		if (enemies[i]->GetState() != 3) {
+			//set enemy collision to default
+			enemies[i]->SetHitGround(false);
+			enemies[i]->SetHitLeft(false);
+			enemies[i]->SetHitRight(false);
+			//set kirby position for enemy to chase
+			enemies[i]->SetKirbyPos(kirbyPosition);
 
-		//if (CheckEnemyInRange(enemies, i)) {
+			Rect* enemyRect = enemies[i]->GetRect();
+			//collision of enemy and level
+			EnemyCollisionLevel(enemyRect, i);
+			enemies[i]->SetKirbyPos(kirbyPosition);
+
+			//if (CheckEnemyInRange(enemies, i)) {
 			enemies[i]->Update();
-		//}
+			//}
+		}
 	}
 }
 

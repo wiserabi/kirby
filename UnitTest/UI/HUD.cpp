@@ -30,6 +30,10 @@ void HUD::Update()
 	frameUI->Update();
 	if (prevState != 27 && state == 27 && hpLeft > 0) {
 		hpLeft--;
+		if (hpLeft == 0 && lifeLeft > 0) {
+			hpLeft = 6;
+			lifeLeft--;
+		}
 	}
 	if (state == 27) {//hit by enemy
 		stateImg[0]->Update();

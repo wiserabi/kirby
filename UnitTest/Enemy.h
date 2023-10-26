@@ -26,7 +26,6 @@ public:
     void AttackPlayer();
     void rangedAttackPlayer();
     int GetState() { return state; }
-    bool CheckDeath();//check whether enemy is death
 
     void SetHitGround(bool hitGround) { this->hitGround = hitGround; }
     void SetHitLeft(bool hitLeft) { this->hitLeft = hitLeft; }
@@ -60,10 +59,8 @@ private:
     bool hitGround = false;
     bool hitLeft = false;
     bool hitRight = false;
-    class KirbyEffect deathEffect;
     class KirbyEffect sparkEffect;
     class KirbyEffect beamEffect;
-    float deathStart;
     float startAttack;
     float hitwallTime;
     bool hitwall = false;
