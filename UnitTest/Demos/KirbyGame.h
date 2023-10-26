@@ -49,4 +49,5 @@ private:
     Rect* enemyRect = nullptr;
     int kirbyLocation = 0;
     int deathCnt = 0;
+    bool nothing = false;
 };

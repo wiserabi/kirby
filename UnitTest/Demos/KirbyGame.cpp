@@ -163,6 +163,7 @@ void KirbyGame::Update()
 	hud->SetCurrentAbility(kirby->GetCurrentAbility());
 	hud->SetState(kirby->GetState());
 	hud->SetPrevState(kirby->GetPrevState());
+	hud->SetNothing(kirby->GetNothing());
 	
 	hud->Update();
 	//check if there is a timer set for animation

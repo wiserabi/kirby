@@ -25,6 +25,7 @@ HUD::~HUD()
 	vector<ProgressBar*>().swap(health);
 	vector<ProgressBar*>().swap(number);
 	vector<ProgressBar*>().swap(life);
+	result.clear();
 }
 
 void HUD::Update()
@@ -44,7 +45,10 @@ void HUD::Update()
 			lifeLeft--;
 		}
 	}
-	if (state == 27) {//hit by enemy
+	if (nothing) {
+		stateImg[3]->Update();
+	}
+	else if (state == 27) {//hit by enemy
 		stateImg[0]->Update();
 	}
 	else if (ability == 0) {//spark
@@ -53,7 +57,7 @@ void HUD::Update()
 	else if (ability == 1) {//beam
 		stateImg[2]->Update();
 	}
-	else if (ability == 8) {
+	else if (ability == 8) {//none
 		stateImg[4]->Update();
 	}
 
@@ -88,10 +92,13 @@ void HUD::Update()
 	life[lifeAnimIdx]->Update();
 
 	CalcScoreDigits();
-	for (int i = 0; i < result.size(); i++) {
+	/*
+	 	for (int i = 0; i < result.size(); i++) {
 		cout << result[i] << " ";
-	}
-	cout << "\n";
+		}
+		cout << "\n";
+	*/
+
 	for (int i = 0; i < 7; i++) {
 		number[i + 9 * result[i]]->Update();
 	}
@@ -104,7 +111,10 @@ void HUD::Update()
 void HUD::Render()
 {
 	frameUI->Render();
-	if (state == 27) {//hit by enemy
+	if (nothing) {
+		stateImg[3]->Render();
+	}
+	else if (state == 27) {//hit by enemy
 		stateImg[0]->Render();
 	}
 	else if (ability == 0) {//spark

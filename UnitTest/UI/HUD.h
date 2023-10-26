@@ -19,6 +19,7 @@ public:
 	void SetPrevState(int prevState);
 	void SetEnemyDeathCnt(int enemyDeathCnt);
 	void CalcScoreDigits();
+	void SetNothing(bool nothing) { this->nothing = nothing; }
 
 private:
 	class ProgressBar* frameUI = nullptr;
@@ -40,6 +41,7 @@ private:
 	int score = 0;
 	int enemyDeathCnt = 0;
 	vector<int> result;
+	bool nothing = false;
 
 	wstring statePng[6] = {
 		L"stateOuch.png",

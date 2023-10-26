@@ -140,7 +140,7 @@ public:
 	class KirbyEffect* GetBeamEffect() { return beamEffect; }
 	Vector3 GetDirection();//get direction vector of kirby
 	int GetCurrentAbility();//return kirby ability
-
+	int GetNothing() { return nothing; };//there was no ability on enemy
 
 private:
 	int health;
@@ -185,7 +185,8 @@ private:
 	class KirbyEffect* getAbilityEffect;
 	class KirbyEffect* removeAbilityEffect;
 	int doorIdx = -1;
-
+	bool nothing = false;
+	float nothingTimer = 0.0f;
 
 	wstring animationPng[PNGNUM] = {
 		L"kirbywalkright.png",

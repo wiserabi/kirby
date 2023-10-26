@@ -82,6 +82,9 @@ KirbyCharacter::~KirbyCharacter()
 
 void KirbyCharacter::Update()
 {	
+	if (nothing && Time::Get()->Running() - nothingTimer > 0.5f) {
+		nothing = false;
+	}
 	beamEffect->UpdateBeamEffect(Time::Delta(), __super::GetLeft());
 	sparkEffect->UpdateSparkEffect(Time::Delta());
 	getAbilityEffect->UpdateKirbyAbilityEffect();
@@ -1140,6 +1143,13 @@ bool KirbyCharacter::HitEnemy(float delta, Keyboard* key)
 	int velocity = VELOCITY * delta;
 
 	dir = Values::ZeroVec3;
+	//remove ability when hit by enemy
+	if (abilityUse) {
+		abilityUse = false;
+		removeAbilityEffect->SetKirbyPos(position, __super::GetLeft());
+		removeAbilityEffect->SetRemoveAbilityEffect();
+		removeAbilityEffect->StartTimer(5.0f);
+	}
 
 	//when kirby was moving left
 	if (__super::GetLeft()) {
@@ -1412,7 +1422,11 @@ void KirbyCharacter::StartUseAbility(class Keyboard* key)
 		if (ability == spark || ability == beam) {
 			abilityUse = true;
 		}
-
+		else {
+			nothing = true;
+			nothingTimer = Time::Get()->Running();
+		}
+		
 		getAbilityEffect->SetKirbyPos(position);
 		getAbilityEffect->SetGetKirbyAbilityEffect();
 		getAbilityEffect->StartTimer(0.5f);
