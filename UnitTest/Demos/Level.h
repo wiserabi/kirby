@@ -21,7 +21,7 @@ public:
 	void FixEnemyPosition(Rect* levelRect, int idx);
 	vector<class Enemy*> GetEnemies();
 	int CheckSlopeRange(float positionX);
-
+	int GetEnemyDeathCount() { return enemyDeathCnt; }
 	void SetEnemyPosForSlope(int idx, Vector3 enemyPos, float rotation, Enemy* enemy);
 	bool CheckEnemyInRange(vector<Enemy*> enemies, int enemyIdx);//update enemy only when it is in range
 
@@ -50,4 +50,5 @@ private:
 	vector<Rect*> limitEnemyMove;
 	vector<class KirbyEffect*> deathEffects;
 	Vector3 grave = Vector3(-2000.0f, -2000.f, 0.0f);
+	int enemyDeathCnt = 0;
 };

@@ -1190,9 +1190,18 @@ bool KirbyCharacter::HitEnemy(float delta, Keyboard* key)
 
 bool KirbyCharacter::UseAbility(float delta, Keyboard* key)
 {
-	if (abilityUse && (state == walking || state == idle) && key->Press('S')) {
+	if (abilityUse && (state == walking || state == idle || state == jumpdown)
+		&& key->Press('S')) {
 		if (ability == Ability::spark) {
-			state = idle;
+			if (hitGround) {
+				dir.x = 0;
+			}
+			if (state != jumpdown) {
+				state = idle;
+			}
+			else {
+				dir.y = -1;
+			}
 			//cout << "use spark\n";
 			//if sparkEffect is not active activate
 			if (!sparkEffect->isTimerSet()) {
@@ -1201,12 +1210,21 @@ bool KirbyCharacter::UseAbility(float delta, Keyboard* key)
 			}
 			else {
 				current = L"spark";
-				ChangeAnimation(current, 0.0f, dir, 0, false);
+				ChangeAnimation(current, VELOCITY * delta, dir, 0, false);
 			}
 
 		}
 		else if (ability == Ability::beam) {
-			state = idle;
+			if (hitGround) {
+				dir.x = 0;
+			}
+			if (state != jumpdown) {
+				state = idle;
+			}
+			else {
+				dir.y = -1;
+			}
+
 			//cout << "use beam\n";
 			if (!beamEffect->isTimerSet()) {
 				beamEffect->SetBeamEffect(position, __super::GetLeft());
@@ -1214,7 +1232,7 @@ bool KirbyCharacter::UseAbility(float delta, Keyboard* key)
 			}
 			else {
 				current = L"beam";
-				ChangeAnimation(current, 0.0f, dir, 3, false);
+				ChangeAnimation(current, VELOCITY * delta, dir, 3, false);
 			}
 		}
 		else if (ability == Ability::none) {

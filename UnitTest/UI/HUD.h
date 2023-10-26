@@ -17,6 +17,8 @@ public:
 	void SetCurrentAbility(int ability);
 	void SetState(int state);
 	void SetPrevState(int prevState);
+	void SetEnemyDeathCnt(int enemyDeathCnt);
+	void CalcScoreDigits();
 
 private:
 	class ProgressBar* frameUI = nullptr;
@@ -25,7 +27,6 @@ private:
 	vector<class ProgressBar*> life;
 	vector<class ProgressBar*> stateImg;
 
-	float percent = 1.0f;
 	int ability = 8;//none
 	int state = 0;//idle
 	int prevState = 0;//prevState
@@ -36,6 +37,9 @@ private:
 
 	int hpLeft = 6;
 	int lifeLeft = 4;
+	int score = 0;
+	int enemyDeathCnt = 0;
+	vector<int> result;
 
 	wstring statePng[6] = {
 		L"stateOuch.png",

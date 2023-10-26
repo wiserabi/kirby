@@ -79,14 +79,16 @@ void Level::Update()
 	//check enemy death
 	for (int i = 0; i < enemies.size(); i++) {
 		if (enemies[i]->GetState() == 3) {//if enemy in death state
+			enemyDeathCnt++;
 			deathEffects.push_back(new KirbyEffect());
 			deathEffects.back()->SetEnemyDeathEffect(enemies[i]->GetPosition());
 			deathEffects.back()->StartTimer(0.8f);
 
 			//change position of enemy to grave
 			enemies[i]->SetPosition(grave);
-
+			//erase enemy from vector
 			enemies.erase(enemies.begin() + i);
+
 			i--;
 		}
 	}

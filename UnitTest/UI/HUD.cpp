@@ -13,7 +13,9 @@ HUD::HUD()
 	LoadNumberImage();
 	LoadHealthImage();
 	LoadLifeImage();
-
+	for (int i = 0; i < 7; i++) {
+		result.push_back(0);
+	}
 }
 
 HUD::~HUD()
@@ -27,6 +29,13 @@ HUD::~HUD()
 
 void HUD::Update()
 {
+	//update death cnt
+	score = enemyDeathCnt * 400;
+	//limit score
+	if (score > 9999999) {
+		score = 9999999;
+	}
+
 	frameUI->Update();
 	if (prevState != 27 && state == 27 && hpLeft > 0) {
 		hpLeft--;
@@ -77,13 +86,15 @@ void HUD::Update()
 	}
 
 	life[lifeAnimIdx]->Update();
-	number[0]->Update();
-	number[1]->Update();
-	number[2]->Update();
-	number[3]->Update();
-	number[4]->Update();
-	number[5]->Update();
-	number[6]->Update();
+
+	CalcScoreDigits();
+	for (int i = 0; i < result.size(); i++) {
+		cout << result[i] << " ";
+	}
+	cout << "\n";
+	for (int i = 0; i < 7; i++) {
+		number[i + 9 * result[i]]->Update();
+	}
 
 	number[7]->Update();
 	number[8 + 9 * lifeLeft]->Update();
@@ -120,14 +131,10 @@ void HUD::Render()
 		health[i]->Render();
 	}
 	life[lifeAnimIdx]->Render();
-	number[0]->Render();
-	number[1]->Render();
-	number[2]->Render();
-	number[3]->Render();
-	number[4]->Render();
-	number[4]->Render();
-	number[5]->Render();
-	number[6]->Render();
+
+	for (int i = 0; i < 7; i++) {
+		number[i + 9 * result[i]]->Render();
+	}
 	
 	number[7]->Render();
 	
@@ -230,4 +237,19 @@ void HUD::SetState(int state)
 void HUD::SetPrevState(int prevState)
 {
 	this->prevState = prevState;
+}
+
+void HUD::SetEnemyDeathCnt(int enemyDeathCnt)
+{
+	this->enemyDeathCnt = enemyDeathCnt;
+}
+
+void HUD::CalcScoreDigits()
+{
+	int i = 6;
+	while (score > 0 && i >= 0) {
+		result[i] = score % 10;
+		score /= 10;
+		i--;
+	}
 }

@@ -96,6 +96,14 @@ void KirbyGame::Update()
 
 	int tmpLocation = kirby->getKirbyLocation();
 
+	//get levels from world
+	vector<Level*> levels = world->GetLevels();
+	deathCnt = 0;
+	for (size_t i = 0; i < levels.size(); i++)
+	{
+		deathCnt += levels[i]->GetEnemyDeathCount();
+	}
+
 	//if kirby is in the world
 	if (tmpLocation == WORLD) {
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
@@ -118,8 +126,9 @@ void KirbyGame::Update()
 	}
 	else {//kirby in levels
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
-		vector<Level*> levels = world->GetLevels();
 		vector<Rect*> levelRects = levels[tmpLocation - 1]->GetRects();
+
+		hud->SetEnemyDeathCnt(deathCnt);
 
 		prevTimerSet = curTimerSet;
 		curTimerSet = effects[1]->isTimerSet();
@@ -154,6 +163,7 @@ void KirbyGame::Update()
 	hud->SetCurrentAbility(kirby->GetCurrentAbility());
 	hud->SetState(kirby->GetState());
 	hud->SetPrevState(kirby->GetPrevState());
+	
 	hud->Update();
 	//check if there is a timer set for animation
 	UpdateEffect();
