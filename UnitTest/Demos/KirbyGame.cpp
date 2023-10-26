@@ -104,6 +104,14 @@ void KirbyGame::Update()
 		deathCnt += levels[i]->GetEnemyDeathCount();
 	}
 
+	if (Keyboard::Get()->Down(VK_F5)) {
+		if (invincibleDuration < 3.0f) {
+			invincibleDuration = 100000.0f;
+		}
+		else {
+			invincibleDuration = 2.0f;
+		}
+	}
 	//if kirby is in the world
 	if (tmpLocation == WORLD) {
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
@@ -571,7 +579,7 @@ void KirbyGame::CheckHitByEnemy(vector<Enemy*> enemies, int idx)
 		}
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
 		//if enemy attack hit kirby
-		if (attackBoundingBox && invulnerableTime > 2.0f &&
+		if (attackBoundingBox && invulnerableTime > invincibleDuration &&
 			BoundingBox::OBB(kirbyBox, attackBoundingBox)) {
 			EnemyAttackCollideKirby(attackEffectRect);
 		}
@@ -580,7 +588,8 @@ void KirbyGame::CheckHitByEnemy(vector<Enemy*> enemies, int idx)
 	BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
 
 	//check if kirby collides with enemy
-	if (enemyBox && invulnerableTime > 2.0f && BoundingBox::OBB(kirbyBox, enemyBox)) {
+	if (enemyBox && invulnerableTime > invincibleDuration && 
+		BoundingBox::OBB(kirbyBox, enemyBox)) {
 		effects[4]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
 		effects[4]->SetHitEffect();
 		effects[4]->StartTimer(0.5f);//set duration of effect

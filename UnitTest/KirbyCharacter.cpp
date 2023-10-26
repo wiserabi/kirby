@@ -156,9 +156,11 @@ void KirbyCharacter::Move()
 	if (Teleport(delta, key)) {
 		return;
 	}
+
 	//update kirby previous and current state
 	prevState = state;
 	ChangeBoundingBox();
+	
 	if (state == hitEnemy) {
 		HitEnemy(delta, key);
 		return;

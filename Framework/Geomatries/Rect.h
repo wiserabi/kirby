@@ -49,4 +49,5 @@ private:
 
     BoundingBox* box = nullptr;
     bool bOpen = true;
+    bool render = false;
 };

@@ -50,4 +50,5 @@ private:
     int kirbyLocation = 0;
     int deathCnt = 0;
     bool nothing = false;
+    float invincibleDuration = 2.0f;
 };
