@@ -74,9 +74,10 @@ public:
 
 	void RenderEffect();
 	void StopEffect();
-	class Rect* GetRect() { return rectEffect0; };
+	class Rect* GetRect() { return rectEffect0; }
+	vector<class Rect*> GetRects() { return rectEffects; }
 	
-	int GetCurrentEffect() { return currentEffect; };
+	int GetCurrentEffect() { return currentEffect; }
 	vector<class AnimationRect*> GetAnimationRects() { return animations; }
 
 private:
@@ -118,6 +119,8 @@ private:
 	bool setTimer = false;
 	float duration = 0.0f;
 	class Rect* rectEffect0 = nullptr;
+	vector<class Rect*> rectEffects;
+
 	vector<Vector3> effectStartPositions;
 	Vector3 randVec = Values::ZeroVec3;
 	vector<class TextureRect*> enemySwallow;

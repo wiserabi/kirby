@@ -34,6 +34,7 @@ public:
 	void SetBossHitTimer();
 	int GetBossState();
 	void CreateBlowAtk();
+	int BossBlowHitKirby(BoundingBox* kirbyBox);
 
 private:
 	Vector3 position;

@@ -712,7 +712,24 @@ void KirbyGame::BossAndKirby(int kirbyLocation, vector<class Level*> levels)
 		bossBox = bossRect->GetBox();
 	}
 	float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
+	
+	if (invulnerableTime > invincibleDuration &&
+		levels[kirbyLocation]->BossBlowHitKirby(kirby->GetRect()->GetBox()) > -1) {
+		effects[4]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+		effects[4]->SetHitEffect();
+		effects[4]->StartTimer(0.5f);//set duration of effect
 
+		//while kirby was hit while inhaling
+		if (kirby->GetState() == inhaling) {
+			effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
+			if (effects[1]->isTimerSet()) {
+				effects[1]->StartTimer(0.1f);//remove enemy pulling effect
+			}
+		}
+
+		kirby->SetState(hitEnemy);
+		kirby->SetHitEnemy();
+	}
 	CheckStarHitBoss(bossRect, kirbyLocation, levels);
 
 	//if kirby collides with boss
@@ -725,7 +742,9 @@ void KirbyGame::BossAndKirby(int kirbyLocation, vector<class Level*> levels)
 		//while kirby was hit while inhaling
 		if (kirby->GetState() == inhaling) {
 			effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
-			effects[1]->StartTimer(0.1f);//remove enemy pulling effect
+			if (effects[1]->isTimerSet()) {
+				effects[1]->StartTimer(0.1f);//remove enemy pulling effect
+			}
 		}
 		
 		kirby->SetState(hitEnemy);

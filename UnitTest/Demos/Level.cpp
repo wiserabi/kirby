@@ -482,3 +482,23 @@ void Level::CreateBlowAtk()
 		bossBlowEffect.StartTimer(8.0f);
 	}
 }
+
+int Level::BossBlowHitKirby(BoundingBox* kirbyBox)
+{
+	if (bossBlowEffect.isTimerSet()) {
+		vector<Rect*> blowRects = bossBlowEffect.GetRects();
+		for (int i = 0; i < blowRects.size(); i++) {
+			BoundingBox* blowBox = nullptr;
+			if (blowRects[i]) {
+				blowBox = blowRects[i]->GetBox();
+			}
+			//if boss blow air hits kirby
+			if (blowBox && BoundingBox::OBB(kirbyBox, blowBox)) {
+				return i;
+			}
+
+		}
+	}
+
+	return -1;
+}

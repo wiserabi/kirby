@@ -246,7 +246,9 @@ void KirbyEffect::SetBossBlowEffect(Vector3 bossPos)
 		animations.push_back(new AnimationRect(bossPos, Vector3(128.0f, 128.0f, 0.0f), true));
 		animations[i]->SetAnimator(animatorList[Effect::blow]);
 		effectStartPositions.push_back(bossPos);
-		blowStart.push_back(Time::Get()->Running() + (float)i * 0.5);
+		blowStart.push_back(Time::Get()->Running() + (float)(i * 0.5));
+		rectEffects.push_back(new Rect(bossPos, Vector3(64.0f, 64.0f, 0.0f), 0.0f));
+		//rectEffects[i]->SetColor({ 0.5f, 0.5f, 0.5f, 0.5f });
 	}
 }
 
@@ -487,6 +489,7 @@ void KirbyEffect::UpdateBossBlowEffect(float delta)
 
 	if (time + duration < Time::Get()->Running()) {
 		vector<AnimationRect*>().swap(animations);
+		vector<Rect*>().swap(rectEffects);
 		blowStart.clear();
 		effectStartPositions.clear();
 		setTimer = false;
@@ -497,6 +500,9 @@ void KirbyEffect::UpdateBossBlowEffect(float delta)
 			effectStartPositions[i] += (Values::LeftVec + Values::DownVec * 0.15) * 600 * delta;
 			animations[i]->SetPosition(effectStartPositions[i]);
 			animations[i]->Update();
+
+			rectEffects[i]->SetPosition(effectStartPositions[i]);
+			rectEffects[i]->Update();
 		}
 	}
 
@@ -599,6 +605,7 @@ void KirbyEffect::RenderBossBlowEffect()
 	for (size_t i = 0; i < animations.size(); i++)
 	{
 		animations[i]->Render();
+		rectEffects[i]->Render();
 	}
 }
 
