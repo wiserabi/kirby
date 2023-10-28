@@ -67,6 +67,8 @@ Level::Level(Vector3 pos, Vector3 size, wstring pngName)
 		float angle_in_radians = angle_in_degrees * (3.141592 / 180.0f);
 		rects.push_back(new Rect(pos, size, angle_in_radians));
 	}
+	enemyInfo = new EnemyInfo();
+
 	boss = new TreeBoss(Vector3(21491.0f, -95.0f, 0.0f),
 		Vector3(290.0f, 430.0f, 0.0f));
 }
@@ -91,7 +93,19 @@ void Level::Destroy()
 
 void Level::Update()
 {
+	//only apply for boss
 	if (boss) {
+		int bossPrevState = boss->GetPrevState();
+		int bossState = boss->GetState();
+		//atk => apple atk
+		if (bossPrevState == 1 && bossState == 2) {
+			CreateApples();
+		}
+		//clear apple
+		if (bossPrevState == 2 && bossState == 0) {
+			vector<Enemy*>().swap(enemies);
+		}
+
 		boss->Update();
 	}
 	//check enemy death
@@ -382,4 +396,55 @@ void Level::CreateRandomEnemies()
 
 		enemies.push_back(new Enemy({ position.x - 1000.0f + xDistance * i, position.y + 200.0f, 0 }, { 128.0f, 128.0f, 0.0f }, enemyName, enemyInfo));
 	}
+}
+
+void Level::CreateApples()
+{
+	enemyName = "apple";
+
+	appleX[0] = rand() % 500 + 1;
+	appleX[1] = rand() % 500 + 1;
+	appleX[2] = rand() % 500 + 1;
+
+	while (abs(appleX[0] - appleX[1]) < 150 ||
+		abs(appleX[0] - appleX[2]) < 150 ||
+		abs(appleX[1] - appleX[2]) < 150)
+	{
+		appleX[0] = rand() % 500 + 1;
+		appleX[1] = rand() % 500 + 1;
+		appleX[2] = rand() % 500 + 1;
+	}
+
+	for (size_t i = 0; i < 3; i++)
+	{
+		appleX[i] = position.x - appleX[i];
+		enemies.push_back(new Enemy({ appleX[i], position.y - 280.0f, 0 }, 
+			{ 64.0f, 64.0f, 0.0f }, enemyName, enemyInfo));
+
+		if (kirbyPosition.x < appleX[i]) {
+			enemies[i]->SetLeft(true);
+		}
+		else {
+			enemies[i]->SetLeft(false);
+		}
+	}
+	int order[3] = { 0, 1, 2 };
+	//shuffle
+	for (int i = 0; i < 20; i++) {
+		int tmp1 = rand() % 3;
+		int tmp2 = rand() % 3;
+		int tmp = order[tmp1];
+		order[tmp1] = order[tmp2];
+		order[tmp2] = tmp;
+	}
+	//set order
+	for (size_t i = 0; i < 3; i++)
+	{
+		enemies[order[i]]->WaitApple(2.0f * i);
+	}
+}
+
+Rect* Level::GetBossRect()
+{
+	return boss->GetRect();
 }

@@ -2,7 +2,7 @@
 
 #define BOSSPNGNUM 4
 
-enum State {
+enum BossState {
     idle,
     atk,
     appleatk,
@@ -22,15 +22,20 @@ public:
     virtual void SetAnimator(class Animator* animator);
 
     void Idle();
-    void AppleAtk();
-    void Attack();
+    void AppleAtk();//throw apple
+    void Attack();//blow wind
     void SetHit();
     void SetDeath();
-
+    int GetState();//get state of boss
+    int GetPrevState();
+    class Rect* GetRect();
 
 private:
     int health = 6;
-    State state = idle;
+    BossState state = idle;
+    BossState prevState = idle;
+    
+    float timer = Time::Get()->Running();
     wstring png[BOSSPNGNUM] = {
         L"treebossidle.png",
         L"treebossatk.png",

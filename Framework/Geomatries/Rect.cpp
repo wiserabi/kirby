@@ -48,9 +48,6 @@ Rect::~Rect()
 
 void Rect::Update()
 {
-    if (Keyboard::Get()->Down(VK_F1)) {
-        render = !render;
-    }
     D3DXMatrixScaling(&S, size.x, size.y, size.z);
     D3DXMatrixRotationZ(&R, rotation);
     D3DXMatrixTranslation(&T, position.x, position.y, position.z);
@@ -63,22 +60,20 @@ void Rect::Update()
 
 void Rect::Render()
 {
-    if (render) {
-        //IA
-        vb->SetIA();
-        ib->SetIA();
-        il->SetIA();
-        DC->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    //IA
+    vb->SetIA();
+    ib->SetIA();
+    il->SetIA();
+    DC->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        //VS
-        vs->SetShader();
-        wb->SetVSBuffer(0);
+    //VS
+    vs->SetShader();
+    wb->SetVSBuffer(0);
 
-        //PS
-        ps->SetShader();
+    //PS
+    ps->SetShader();
 
-        DC->DrawIndexed(ib->GetCount(), 0, 0);
-    }
+    DC->DrawIndexed(ib->GetCount(), 0, 0);
 }
 
 void Rect::SetPosition(Vector3 pos)

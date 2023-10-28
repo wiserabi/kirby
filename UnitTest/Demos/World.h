@@ -24,7 +24,7 @@ public:
 	void SetColor(int index, Color color);
 	vector<class Level*> GetLevels() { return levels; }
 	void SetKirbyPos(Vector3 kirbyPos);
-	void SetKirbyLocation(int kirbyLocation) { this->kirbyLocation = kirbyLocation; };
+	void SetKirbyLocation(int kirbyLocation) { this->kirbyLocation = kirbyLocation; }
 
 private:
 	Vector3 worldSize;

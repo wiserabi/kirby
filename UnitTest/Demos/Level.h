@@ -27,6 +27,8 @@ public:
 	void SetEnemyPosForSlope(int idx, Vector3 enemyPos, float rotation, Enemy* enemy);
 	bool CheckEnemyInRange(vector<Enemy*> enemies, int enemyIdx);//update enemy only when it is in range
 	void CreateRandomEnemies();
+	void CreateApples();//one of boss pattern
+	class Rect* GetBossRect();
 
 private:
 	Vector3 position;
@@ -55,4 +57,5 @@ private:
 	Vector3 grave = Vector3(-2000.0f, -2000.f, 0.0f);
 	int enemyDeathCnt = 0;
 	class TreeBoss* boss = nullptr;
+	float appleX[3];
 };

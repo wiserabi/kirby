@@ -16,11 +16,11 @@
 void KirbyGame::Init()
 {
 	kirby = new KirbyCharacter({ 720, 360, 1.0 }, { 128, 128, 1 });
-	/*
+	
 	Sounds::Get()->AddSound("Vegetable-Valley.mp3",
 		SoundPath + L"Vegetable-Valley.mp3", true);
 	Sounds::Get()->Play("Vegetable-Valley.mp3", 0.1f);
-	*/
+	
 	slopeRange.push_back({ 10092.0f , 10232.0f });//up 45degree
 	slopeRange.push_back({ 10232.0f , 10502.0f });//up 27degree
 	slopeRange.push_back({ 10590.0f , 10854.0f });//down 27degree
@@ -54,12 +54,13 @@ void KirbyGame::Destroy()
 
 void KirbyGame::Update()
 {
+	kirbyLocation = kirby->getKirbyLocation();
+	world->SetKirbyLocation(kirbyLocation);
+
 	CheckReset();
 
 	Sound();
 	world->SetKirbyPos(kirby->GetPosition());
-	kirbyLocation = kirby->getKirbyLocation();
-	world->SetKirbyLocation(kirbyLocation);
 
 	world->Update();
 
@@ -86,15 +87,10 @@ void KirbyGame::Update()
 	else if ((kirbyPrevState == eatidle || kirbyPrevState == eatandwalk) && kirbyCurState == attacking) {
 		SetThrowStar();
 	}
-	else if (kirbyPrevState == opendoor && kirbyCurState == falldown) {
-		SetCameraBound();
-	}
-	
+
 	kirby->SetHitGround(false);
 	kirby->SetHitLeft(false);
 	kirby->SetHitRight(false);
-
-	int tmpLocation = kirby->getKirbyLocation();
 
 	//get levels from world
 	vector<Level*> levels = world->GetLevels();
@@ -113,7 +109,7 @@ void KirbyGame::Update()
 		}
 	}
 	//if kirby is in the world
-	if (tmpLocation == WORLD) {
+	if (kirbyLocation == WORLD) {
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
 		vector<Rect*> worldRects = world->GetRects();
 		for (size_t i = 0; i < worldRects.size(); i++) {
@@ -129,12 +125,11 @@ void KirbyGame::Update()
 				effects[2]->StopEffect();
 			}
 		}
-		
 		SetCameraBound();
 	}
 	else {//kirby in levels
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
-		vector<Rect*> levelRects = levels[tmpLocation - 1]->GetRects();
+		vector<Rect*> levelRects = levels[kirbyLocation - 1]->GetRects();
 
 		hud->SetEnemyDeathCnt(deathCnt);
 
@@ -147,10 +142,14 @@ void KirbyGame::Update()
 			effects[0]->StartTimer(0.1f);
 		}
 		if (kirbyCurState == inhaling && !effects[1]->isTimerSet()) {
-			CheckInhaleEnemy(tmpLocation - 1, levels);
+			CheckInhaleEnemy(kirbyLocation - 1, levels);
 		}
 		//interaction between enemy and kirby
-		EnemyAndKirby(tmpLocation - 1, levels);
+		EnemyAndKirby(kirbyLocation - 1, levels);
+		//interaction between boss and kirby
+		if (kirbyLocation == 4) {
+			BossAndKirby(kirbyLocation - 1, levels);
+		}
 		//iterate level rects for kirby collision with level
 		for (size_t i = 0; i < levelRects.size(); i++) {
 			KirbyCollisionWithWorld(kirbyBox, levelRects[i]);
@@ -525,6 +524,7 @@ void KirbyGame::CheckInhaleEnemy(int kirbyLocation, vector<Level*> levels)
 			(!left && kirbyPos.x <= enemyPos.x))) {
 			//push back swallowed enemy info
 			int frameIdx = enemies[i]->GetAnimator()->GetCurrentFrameIndex();
+
 			wstring path = TexturePath + 
 						String::ToWString(enemies[i]->GetName() + to_string(frameIdx)) +
 						L".png";
@@ -561,7 +561,13 @@ void KirbyGame::CheckInhaleEnemy(int kirbyLocation, vector<Level*> levels)
 	//move enemy through bezier curve
 	if (enemySwallowed.size()) {
 		effects[1]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
-		effects[1]->SetKirbySwallow(enemySwallowed);
+		if (kirbyLocation == 3) {
+			effects[1]->SetKirbySwallow(enemySwallowed, { 64.0f, 64.0f, 0.0f });
+		}
+		else {
+			effects[1]->SetKirbySwallow(enemySwallowed, { 128.0f, 128.0f, 0.0f });
+		}
+
 		effects[1]->StartTimer(2.0f);
 		kirby->SetState(swallowing);
 	}
@@ -602,7 +608,7 @@ void KirbyGame::CheckHitByEnemy(vector<Enemy*> enemies, int idx)
 	//check if kirby collides with enemy
 	if (enemyBox && invulnerableTime > invincibleDuration && 
 		BoundingBox::OBB(kirbyBox, enemyBox)) {
-		effects[4]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+		effects[4]->SetKirbyPos(kirbyPos, kirby->GetLeft());
 		effects[4]->SetHitEffect();
 		effects[4]->StartTimer(0.5f);//set duration of effect
 
@@ -694,6 +700,36 @@ void KirbyGame::EnemyAndKirby(int kirbyLocation, vector<class Level*> levels)
 			KillEnemyWithEffect(enemies, i);
 		}
 	}
+}
+
+void KirbyGame::BossAndKirby(int kirbyLocation, vector<class Level*> levels)
+{
+	//get apples in current level
+	vector<Enemy*> apples = levels[kirbyLocation]->GetEnemies();
+	Rect* bossRect = levels[kirbyLocation]->GetBossRect();
+	BoundingBox* bossBox = nullptr;
+	if (bossRect) {
+		bossBox = bossRect->GetBox();
+	}
+	float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
+
+	//if kirby collides with boss
+	if (invulnerableTime > invincibleDuration && 
+		BoundingBox::OBB(bossBox, kirby->GetRect()->GetBox())) {
+		effects[4]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
+		effects[4]->SetHitEffect();
+		effects[4]->StartTimer(0.5f);//set duration of effect
+
+		//while kirby was hit while inhaling
+		if (kirby->GetState() == inhaling) {
+			effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
+			effects[1]->StartTimer(0.1f);//remove enemy pulling effect
+		}
+
+		kirby->SetState(hitEnemy);
+		kirby->SetHitEnemy();
+	}
+
 }
 
 void KirbyGame::CheckBlowAirHitEnemy(vector<Enemy*> enemies, int idx)

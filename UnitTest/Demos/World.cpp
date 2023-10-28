@@ -29,7 +29,6 @@ World::World()
 	levelPos.x += WinMaxHeight * 7;
 	levels.push_back(new Level(levelPos, Vector3(WinMaxWidth, WinMaxWidth * 1.48f, 0.0f), 
 		levelPng[3]));
-
 }
 
 World::~World()

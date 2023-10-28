@@ -45,12 +45,6 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 
 	list.push_back(new Rect(position, size * 11 / 16, 0.0f));//become bigger after eat enemy
 
-
-	for (size_t i = 0; i < list.size(); i++)
-	{
-		list[i]->SetColor(Color(0.5f, 0.5f, 0.5f, 0.7f));
-	}
-
 	rect = list[0];
 
 	sparkEffect = new KirbyEffect();
@@ -61,7 +55,6 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 	for (size_t i = 0; i < DOORNUM; i++)
 	{
 		doors.push_back(new Rect(doorPos[i], doorSize[i], 0.0f));
-		doors[i]->SetColor(Color(0.5f, 0.5f, 0.5f, 0.5f));
 	}
 }
 

@@ -33,7 +33,7 @@ public:
 	void SetKirbyPos(Vector3 kirbyPos, bool left = true); 
 	void LoadTextureList();
 	void SetKirbyEat();
-	void SetKirbySwallow(vector<pair<wstring, Vector3>> enemySwallow);
+	void SetKirbySwallow(vector<pair<wstring, Vector3>> enemySwallow, Vector3 size);
 	void SetKirbyBlowStar();//kirby default attack with swallowed enemy
 	void SetKirbyStarExplodeOnEnemy(Vector3 Pos);//when star hits enemy
 	void SetEnemyDeathEffect(Vector3 pos);//when enemy gets killed effect

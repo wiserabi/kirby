@@ -32,6 +32,38 @@ TreeBoss::~TreeBoss()
 void TreeBoss::Update()
 {
     rect->Update();
+
+    prevState = state;
+
+    switch (state)
+    {
+    case idle:
+        if (Time::Get()->Running() - timer > 2.0f) {
+            state = atk;
+            timer = Time::Get()->Running();
+        }
+        break;
+    case atk:
+        Attack();
+        if (Time::Get()->Running() - timer > 2.0f) {
+            state = appleatk;
+            timer = Time::Get()->Running();
+        }
+        break;
+    case appleatk:
+        AppleAtk();
+        if (Time::Get()->Running() - timer > 11.0f) {
+            state = idle;
+            timer = Time::Get()->Running();
+        }
+        break;
+    case hit:
+        break;
+    case death:
+        break;
+    default:
+        break;
+    }
     ChangeAnimation(current, 0.0f, Values::ZeroVec3, 0, false);
 
     __super::Update();
@@ -54,10 +86,13 @@ void TreeBoss::Idle()
 
 void TreeBoss::AppleAtk()
 {
+    current = png[0];
+   //dir = Values::DownVec;
 }
 
 void TreeBoss::Attack()
 {
+    current = png[1];
 }
 
 void TreeBoss::SetHit()
@@ -66,6 +101,21 @@ void TreeBoss::SetHit()
 
 void TreeBoss::SetDeath()
 {
+}
+
+int TreeBoss::GetState()
+{
+    return state;
+}
+
+int TreeBoss::GetPrevState()
+{
+    return prevState;
+}
+
+Rect* TreeBoss::GetRect()
+{
+    return rect;
 }
 
 void TreeBoss::SetAnimator(class Animator* animator)

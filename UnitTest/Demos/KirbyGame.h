@@ -26,6 +26,7 @@ public:
     void EnemyAttackCollideKirby(Rect* effect);
     //whether kirby is hit by enemy
     void EnemyAndKirby(int kirbyLocation, vector<class Level*> levels);//interactions between enemy and kirby
+    void BossAndKirby(int kirbyLocation, vector<class Level*> levels);//interaction between boss and kirby
     void CheckBlowAirHitEnemy(vector<Enemy*> enemies, int idx);
     void CheckStarHitEnemy(vector<Enemy*> enemies, int idx);
     void KillEnemyWithEffect(vector<Enemy*> enemies, int idx);

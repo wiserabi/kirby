@@ -16,6 +16,11 @@ string Enemy::GetAbility()
     return (infos->GetData())[name].ability;
 }
 
+void Enemy::WaitApple(float time)
+{
+    appleWait = Time::Get()->Running() + time;
+}
+
 
 void Enemy::attackPlayer()
 {
@@ -86,7 +91,6 @@ Enemy::Enemy(Vector3 position, Vector3 size, string name, class EnemyInfo* infos
     //set bounding box for enemy
     rect = new Rect(position, size / 2, 0.0f);
     //set color to see gray bounding box
-    rect->SetColor(Color(0.5f, 0.5f, 0.5f, 0.7f));
     idleTimer = Time::Get()->Running();
 }
 
@@ -103,6 +107,10 @@ void Enemy::Update()
     //cout << state << "\n";
     switch (state) {
     case IDLE:
+        if (name.compare("apple") == 0) {
+            AppleMove();
+            break;
+        }
         MoveIdle();
         if (playerInRange(inRange) && data[name].follow) {
             state = CHASE;
@@ -178,7 +186,9 @@ void Enemy::Render()
     if (rect) {
         rect->Render();
     }
-
+    if (appleWait > Time::Get()->Running()) {
+        return; //wait for other apples to fall
+    }
     __super::Render();
 }
 //left, right
@@ -248,6 +258,87 @@ void Enemy::MoveIdle()
         __super::SetLeft(true);
         Walk();
     }
+}
+
+void Enemy::AppleMove()
+{
+    if (appleWait > Time::Get()->Running()) {
+        return; //wait for other apples to fall
+    }
+    Vector3 dir = Values::ZeroVec3;
+    //show blinking image of apple
+    if (Time::Get()->Running() > appleWait + 1.5f) {
+        dir = Values::DownVec;
+    }
+
+
+    //cout << "appleBounce: " << appleBounce << "\n";
+    //cout << position.x << ":" << position.y << "\n";
+    int velocity = Time::Delta() * VELOCITY * 2.4f;
+
+    if (bouncing) {
+        AppleBounce();
+        return;
+    }
+    //first hit ground
+    if(appleBounce == 0 && hitGround)
+    {
+        bounceTimer = Time::Get()->Running();
+        appleBounce = 1;
+        position.y += 4;
+        bouncing = true;
+    }
+    else if (appleBounce == 1) {
+        bounceTimer = Time::Get()->Running();
+        appleBounce = 2;
+        position.y += 4;
+        bouncing = true;
+    }
+    else if (appleBounce == 2) {
+        bounceTimer = Time::Get()->Running();
+        appleBounce = 3;
+        position.y += 8;
+        bouncing = true;
+    }
+    else if (appleBounce == 3) {//roll
+        if (__super::GetLeft()) {
+            dir = Values::LeftVec;
+        }
+        else {
+            dir = Values::RightVec;
+        }
+    }
+    if (appleBounce == 0) {
+        ChangeAnimation(this->clipname, velocity, dir, 0, true);
+        return;
+    }
+    ChangeAnimation(this->clipname, velocity, dir, 0, false);
+}
+
+void Enemy::AppleBounce()
+{
+    int velocity = Time::Delta() * VELOCITY * 1.6f;
+    Vector3 dir;
+    float dur = bounceDuration[appleBounce - 1];
+    if (Time::Get()->Running() - bounceTimer < (dur / 2.0f)) {
+        dir = Values::UpVec;
+
+    }
+    else if (Time::Get()->Running() - bounceTimer < dur + 0.1f) {
+        dir = Values::DownVec;
+    }
+
+    if (hitGround) {
+        bouncing = false;
+        return;
+    }
+    if (__super::GetLeft()) {
+        dir += Values::LeftVec;
+    }
+    else {
+        dir += Values::RightVec;
+    }
+    ChangeAnimation(this->clipname, velocity, dir, 0, false);
 }
 
 void Enemy::AttackPlayer()

@@ -30,12 +30,6 @@ HUD::~HUD()
 
 void HUD::Update()
 {
-	//update death cnt
-	score = enemyDeathCnt * 400;
-	//limit score
-	if (score > 9999999) {
-		score = 9999999;
-	}
 
 	frameUI->Update();
 	if (prevState != 27 && state == 27 && hpLeft > 0) {
@@ -91,7 +85,16 @@ void HUD::Update()
 
 	life[lifeAnimIdx]->Update();
 
-	CalcScoreDigits();
+	if (score != enemyDeathCnt * 400) {
+		//update death cnt
+		score = enemyDeathCnt * 400;
+		CalcScoreDigits();
+	}
+
+	//limit score
+	if (score > 9999999) {
+		score = 9999999;
+	}
 	/*
 	 	for (int i = 0; i < result.size(); i++) {
 		cout << result[i] << " ";
@@ -141,7 +144,6 @@ void HUD::Render()
 		health[i]->Render();
 	}
 	life[lifeAnimIdx]->Render();
-
 	for (int i = 0; i < 7; i++) {
 		number[i + 9 * result[i]]->Render();
 	}
@@ -257,9 +259,10 @@ void HUD::SetEnemyDeathCnt(int enemyDeathCnt)
 void HUD::CalcScoreDigits()
 {
 	int i = 6;
-	while (score > 0 && i >= 0) {
-		result[i] = score % 10;
-		score /= 10;
+	int tmp = score;
+	while (tmp > 0 && i >= 0) {
+		result[i] = tmp % 10;
+		tmp /= 10;
 		i--;
 	}
 }

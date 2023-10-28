@@ -85,7 +85,7 @@ void KirbyEffect::SetKirbyEat()
 	}
 }
 
-void KirbyEffect::SetKirbySwallow(vector<pair<wstring, Vector3>> enemySwallow)
+void KirbyEffect::SetKirbySwallow(vector<pair<wstring, Vector3>> enemySwallow, Vector3 size)
 {
 	currentEffect = Effect::swallowing;
 	curves = new BezierCurves();
@@ -93,7 +93,7 @@ void KirbyEffect::SetKirbySwallow(vector<pair<wstring, Vector3>> enemySwallow)
 		for (size_t i = 0; i < enemySwallow.size(); i++)
 		{
 			this->enemySwallow.push_back(new TextureRect(enemySwallow[i].second,
-				{128.0f,128.0f,0.0f}, 0.0f, enemySwallow[i].first));
+				size, 0.0f, enemySwallow[i].first));
 		}
 	}
 	//set kirby pos as p1
@@ -119,7 +119,6 @@ void KirbyEffect::SetKirbyBlowStar()
 	effectLeft = left;
 
 	rectEffect0 = new Rect(effectStartPos, Vector3(42.0f, 42.0f, 0.0f), 0.0f);
-	rectEffect0->SetColor(Color(0.5f, 0.5f, 0.5f, 0.7f));
 }
 
 void KirbyEffect::SetKirbyStarExplodeOnEnemy(Vector3 pos)

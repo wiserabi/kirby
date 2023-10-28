@@ -23,6 +23,8 @@ public:
     void Jump();
     void Fly();
     void MoveIdle();
+    void AppleMove();
+    void AppleBounce();
     void AttackPlayer();
     void rangedAttackPlayer();
     int GetState() { return state; }
@@ -38,7 +40,7 @@ public:
     void StopSparkEffect() { beamEffect.StartTimer(0.1f); }
     string GetName() { return name; }
     string GetAbility();
-
+    void WaitApple(float time);
 
 private:
     enum State { IDLE, CHASE, ATTACK, DEATH};
@@ -66,6 +68,11 @@ private:
     bool hitwall = false;
     string name;
     float attackTime = 4.0f;
+    int appleBounce = 0;
+    float bounceTimer = 0.0f;
+    bool bouncing = false;
+    float bounceDuration[3] = { 1.5f, 1.0f, 0.5f };
+    float appleWait = 0.0f;
 
     bool playerOutOfRange(float range) {
         return sqrt(pow(kirbyPos.x - position.x, 2.0f) + pow(kirbyPos.y - position.y, 2.0f)) > range;
