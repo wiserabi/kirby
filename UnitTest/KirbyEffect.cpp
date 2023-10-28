@@ -240,6 +240,16 @@ void KirbyEffect::SetRemoveAbilityEffect()
 	animations[0]->SetAnimator(animatorList[Effect::bigstars]);
 }
 
+void KirbyEffect::SetBossBlowEffect(Vector3 bossPos)
+{
+	for (int i = 0; i < 2; i++) {
+		animations.push_back(new AnimationRect(bossPos, Vector3(128.0f, 128.0f, 0.0f), true));
+		animations[i]->SetAnimator(animatorList[Effect::blow]);
+		effectStartPositions.push_back(bossPos);
+		blowStart.push_back(Time::Get()->Running() + (float)i * 0.5);
+	}
+}
+
 void KirbyEffect::UpdateEatEffect()
 {
 	if (time + duration < Time::Get()->Running()) {
@@ -469,6 +479,30 @@ void KirbyEffect::UpdateRemoveAbilityEffect(float delta)
 	}
 }
 
+void KirbyEffect::UpdateBossBlowEffect(float delta)
+{
+	if (setTimer == false) {
+		return;
+	}
+
+	if (time + duration < Time::Get()->Running()) {
+		vector<AnimationRect*>().swap(animations);
+		blowStart.clear();
+		effectStartPositions.clear();
+		setTimer = false;
+		return;
+	}
+	for (int i = 0; i < 2; i++) {
+		if (blowStart[i] < Time::Get()->Running()) {
+			effectStartPositions[i] += (Values::LeftVec + Values::DownVec * 0.15) * 600 * delta;
+			animations[i]->SetPosition(effectStartPositions[i]);
+			animations[i]->Update();
+		}
+	}
+
+
+}
+
 void KirbyEffect::StartTimer(float duration)
 {
 	setTimer = true;
@@ -553,6 +587,18 @@ void KirbyEffect::RenderRemoveAbilityEffect()
 {
 	if (animations.size()) {
 		animations[0]->Render();
+	}
+}
+
+void KirbyEffect::RenderBossBlowEffect()
+{
+	if (setTimer == false) {
+		return;
+	}
+
+	for (size_t i = 0; i < animations.size(); i++)
+	{
+		animations[i]->Render();
 	}
 }
 

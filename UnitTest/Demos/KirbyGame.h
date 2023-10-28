@@ -29,8 +29,6 @@ public:
     void BossAndKirby(int kirbyLocation, vector<class Level*> levels);//interaction between boss and kirby
     void CheckBlowAirHitEnemy(vector<Enemy*> enemies, int idx);
     void CheckStarHitEnemy(vector<Enemy*> enemies, int idx);
-    void CheckBlowAirHitBoss(BoundingBox* bossBox, int kirbyLocation,
-        vector<class Level*> levels);
     void CheckStarHitBoss(Rect* bossRect, int kirbyLocation,
         vector<class Level*> levels);
 

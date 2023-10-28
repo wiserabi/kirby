@@ -1,5 +1,5 @@
 #pragma once
-
+#include "KirbyEffect.h"
 class Level : IObject
 {
 public:
@@ -33,6 +33,7 @@ public:
 	void SetBossState(int state);
 	void SetBossHitTimer();
 	int GetBossState();
+	void CreateBlowAtk();
 
 private:
 	Vector3 position;
@@ -62,4 +63,5 @@ private:
 	int enemyDeathCnt = 0;
 	class TreeBoss* boss = nullptr;
 	float appleX[3];
+	class KirbyEffect bossBlowEffect;
 };

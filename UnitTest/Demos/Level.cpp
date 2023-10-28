@@ -102,9 +102,14 @@ void Level::Update()
 			CreateApples();
 		}
 		//clear apple
-		if (bossPrevState == 2 && bossState == 0) {
+		else if (bossPrevState == 2 && bossState == 0) {
 			vector<Enemy*>().swap(enemies);
 		}
+		//boss blow air
+		else if (bossPrevState == 0 && bossState == 1) {
+			CreateBlowAtk();
+		}
+		bossBlowEffect.UpdateBossBlowEffect(Time::Delta());
 
 		boss->Update();
 	}
@@ -169,6 +174,7 @@ void Level::Render()
 	}
 
 	if (boss) {
+		bossBlowEffect.RenderBossBlowEffect();
 		boss->Render();
 	}
 }
@@ -467,4 +473,12 @@ void Level::SetBossHitTimer()
 int Level::GetBossState()
 {
 	return boss->GetState();
+}
+
+void Level::CreateBlowAtk()
+{
+	if (boss) {
+		bossBlowEffect.SetBossBlowEffect(boss->GetPosition());
+		bossBlowEffect.StartTimer(8.0f);
+	}
 }

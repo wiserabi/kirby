@@ -43,6 +43,7 @@ public:
 	void SetBeamEffect(Vector3 pos, bool leftSide);
 	void SetGetKirbyAbilityEffect();
 	void SetRemoveAbilityEffect();
+	void SetBossBlowEffect(Vector3 bossPos);
 
 	void UpdateEatEffect();
 	void UpdateSwallowEffect();
@@ -55,7 +56,7 @@ public:
 	void UpdateBeamEffect(float delta, float leftSide);
 	void UpdateKirbyAbilityEffect();
 	void UpdateRemoveAbilityEffect(float delta);
-	
+	void UpdateBossBlowEffect(float delta);
 
 	bool isTimerSet() { return setTimer; };
 	void StartTimer(float duration);
@@ -68,6 +69,7 @@ public:
 	void RenderBeamEffect();
 	void RenderKirbyAbilityEffect();
 	void RenderRemoveAbilityEffect();
+	void RenderBossBlowEffect();
 
 
 	void RenderEffect();
@@ -119,4 +121,5 @@ private:
 	vector<Vector3> effectStartPositions;
 	Vector3 randVec = Values::ZeroVec3;
 	vector<class TextureRect*> enemySwallow;
+	vector<float> blowStart;
 };

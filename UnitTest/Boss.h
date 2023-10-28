@@ -24,7 +24,7 @@ public:
     void Idle();
     void AppleAtk();//throw apple
     void Attack();//blow wind
-    void SetHit();
+
     void SetDeath();
     int GetState();//get state of boss
     void SetState(int state);//set state of boss

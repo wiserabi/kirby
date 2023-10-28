@@ -713,7 +713,6 @@ void KirbyGame::BossAndKirby(int kirbyLocation, vector<class Level*> levels)
 	}
 	float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
 
-	CheckBlowAirHitBoss(bossBox, kirbyLocation, levels);
 	CheckStarHitBoss(bossRect, kirbyLocation, levels);
 
 	//if kirby collides with boss
@@ -766,30 +765,6 @@ void KirbyGame::CheckStarHitEnemy(vector<Enemy*> enemies, int idx)
 
 		effects[2]->StartTimer(0.1f);
 		enemies[idx]->SetDeathStart();//start enemy death timer
-	}
-}
-
-void KirbyGame::CheckBlowAirHitBoss(BoundingBox* bossBox, 
-	int kirbyLocation, vector<class Level*> levels)
-{
-	//check if kirby blow air collides with boss
-	effectBox = nullptr;
-	effectRect = effects[5]->GetRect();
-	if (effectRect) {
-		effectBox = effectRect->GetBox();
-	}
-
-	if (effectBox && enemyBox && BoundingBox::OBB(effectBox, bossBox)) {
-		effects[5]->StartTimer(0.0f);
-		//save current state of boss for later use
-		if (levels[kirbyLocation]->GetBossState() != 3) {
-			levels[kirbyLocation]->SaveBossState();
-			//save time when boss is hit by kirby
-			levels[kirbyLocation]->SetBossHitTimer();
-			//set boss state to 'hit' == 3
-			levels[kirbyLocation]->SetBossState(3);
-		}
-
 	}
 }
 

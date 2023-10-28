@@ -3,6 +3,7 @@
 #include "Geomatries/AnimationRect.h"
 #include "Utilities/Animator.h"
 #include "Boss.h"
+#include "KirbyEffect.h"
 
 TreeBoss::TreeBoss(Vector3 position, Vector3 size) :
     AnimationRect(position, size, false)
@@ -22,7 +23,7 @@ TreeBoss::TreeBoss(Vector3 position, Vector3 size) :
     SetAnimator(tempAnimator);
 
     //set bounding box for enemy
-    rect = new Rect(position, size, 0.0f);
+    rect = new Rect(position + Values::RightVec * 40, size, 0.0f);
 }
 
 TreeBoss::~TreeBoss()
@@ -103,9 +104,6 @@ void TreeBoss::Attack()
     current = png[1];
 }
 
-void TreeBoss::SetHit()
-{
-}
 
 void TreeBoss::SetDeath()
 {
