@@ -448,3 +448,23 @@ Rect* Level::GetBossRect()
 {
 	return boss->GetRect();
 }
+
+void Level::SaveBossState()
+{
+	boss->SaveState();
+}
+
+void Level::SetBossState(int state)
+{
+	boss->SetState(state);
+}
+
+void Level::SetBossHitTimer()
+{
+	boss->SetHitTimer();
+}
+
+int Level::GetBossState()
+{
+	return boss->GetState();
+}

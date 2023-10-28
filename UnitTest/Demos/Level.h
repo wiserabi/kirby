@@ -29,6 +29,10 @@ public:
 	void CreateRandomEnemies();
 	void CreateApples();//one of boss pattern
 	class Rect* GetBossRect();
+	void SaveBossState();
+	void SetBossState(int state);
+	void SetBossHitTimer();
+	int GetBossState();
 
 private:
 	Vector3 position;

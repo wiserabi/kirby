@@ -58,8 +58,16 @@ void TreeBoss::Update()
         }
         break;
     case hit:
+        current = png[3];
+        if (Time::Get()->Running() - hitTimer > 0.6f) {
+            state = saveState;//recall the saved state
+            position.y -= 21;
+            return;
+        }
         break;
     case death:
+        current = png[2];
+
         break;
     default:
         break;
@@ -106,6 +114,25 @@ void TreeBoss::SetDeath()
 int TreeBoss::GetState()
 {
     return state;
+}
+
+void TreeBoss::SetState(int state)
+{
+    this->state = (BossState)state;
+}
+
+void TreeBoss::SaveState()
+{
+    this->saveState = state;
+}
+
+void TreeBoss::SetHitTimer()
+{
+    hitTimer = Time::Get()->Running();
+    if (health > 0) {
+        health--;
+    }
+    position.y += 21;
 }
 
 int TreeBoss::GetPrevState()

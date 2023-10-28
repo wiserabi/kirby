@@ -713,6 +713,9 @@ void KirbyGame::BossAndKirby(int kirbyLocation, vector<class Level*> levels)
 	}
 	float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
 
+	CheckBlowAirHitBoss(bossBox, kirbyLocation, levels);
+	CheckStarHitBoss(bossRect, kirbyLocation, levels);
+
 	//if kirby collides with boss
 	if (invulnerableTime > invincibleDuration && 
 		BoundingBox::OBB(bossBox, kirby->GetRect()->GetBox())) {
@@ -725,7 +728,7 @@ void KirbyGame::BossAndKirby(int kirbyLocation, vector<class Level*> levels)
 			effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
 			effects[1]->StartTimer(0.1f);//remove enemy pulling effect
 		}
-
+		
 		kirby->SetState(hitEnemy);
 		kirby->SetHitEnemy();
 	}
@@ -763,6 +766,59 @@ void KirbyGame::CheckStarHitEnemy(vector<Enemy*> enemies, int idx)
 
 		effects[2]->StartTimer(0.1f);
 		enemies[idx]->SetDeathStart();//start enemy death timer
+	}
+}
+
+void KirbyGame::CheckBlowAirHitBoss(BoundingBox* bossBox, 
+	int kirbyLocation, vector<class Level*> levels)
+{
+	//check if kirby blow air collides with boss
+	effectBox = nullptr;
+	effectRect = effects[5]->GetRect();
+	if (effectRect) {
+		effectBox = effectRect->GetBox();
+	}
+
+	if (effectBox && enemyBox && BoundingBox::OBB(effectBox, bossBox)) {
+		effects[5]->StartTimer(0.0f);
+		//save current state of boss for later use
+		if (levels[kirbyLocation]->GetBossState() != 3) {
+			levels[kirbyLocation]->SaveBossState();
+			//save time when boss is hit by kirby
+			levels[kirbyLocation]->SetBossHitTimer();
+			//set boss state to 'hit' == 3
+			levels[kirbyLocation]->SetBossState(3);
+		}
+
+	}
+}
+
+void KirbyGame::CheckStarHitBoss(Rect* bossRect, int kirbyLocation, vector<class Level*> levels)
+{
+	effectBox = nullptr;
+	effectRect = effects[2]->GetRect();
+	if (effectRect) {
+		effectBox = effectRect->GetBox();
+	}
+
+	BoundingBox* bossBox = nullptr;
+	if (bossRect) {
+		bossBox = bossRect->GetBox();
+	}
+	//check if big star that kirby throws hit enemy
+	if (effectBox && enemyBox && BoundingBox::OBB(effectBox, bossBox)) {
+		effects[3]->SetKirbyStarExplodeOnEnemy(bossRect->GetPosition());
+		effects[3]->StartTimer(0.2f);
+
+		effects[2]->StartTimer(0.1f);
+		//save current state of boss for later use
+		if (levels[kirbyLocation]->GetBossState() != 3) {
+			levels[kirbyLocation]->SaveBossState();
+			//save time when boss is hit by kirby
+			levels[kirbyLocation]->SetBossHitTimer();
+			//set boss state to 'hit' == 3
+			levels[kirbyLocation]->SetBossState(3);
+		}
 	}
 }
 
