@@ -711,6 +711,9 @@ void KirbyGame::BossAndKirby(int kirbyLocation, vector<class Level*> levels)
 	if (bossRect) {
 		bossBox = bossRect->GetBox();
 	}
+	else {
+		return;
+	}
 	float invulnerableTime = Time::Get()->Running() - kirby->GetHitEnemy();
 	
 	if (invulnerableTime > invincibleDuration &&

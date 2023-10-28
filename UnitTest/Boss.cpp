@@ -33,13 +33,16 @@ TreeBoss::~TreeBoss()
 
 void TreeBoss::Update()
 {
-    rect->Update();
+    if (rect) {
+        rect->Update();
+    }
 
     prevState = state;
 
     if (state != death && health == 0) {
         state = death;
         timer = Time::Get()->Running();
+        SAFE_DELETE(rect);
     }
 
     switch (state)
@@ -98,7 +101,10 @@ void TreeBoss::Update()
 void TreeBoss::Render()
 {
     __super::Render();
-    rect->Render();
+    if (rect) {
+        rect->Render();
+    }
+
 
 }
 
