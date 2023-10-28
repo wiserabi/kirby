@@ -49,7 +49,10 @@ void TreeBoss::Update()
     {
     case idle:
         position.y = defaultPos;
-        if (Time::Get()->Running() - timer > 2.0f) {
+        if (Time::Get()->Running() - timer > idleTime) {
+            if (idleTime > 2.0f) {
+                idleTime = 1.5f;
+            }
             state = atk;
             timer = Time::Get()->Running();
         }
@@ -112,10 +115,6 @@ void TreeBoss::Move()
 {
 }
 
-void TreeBoss::Idle()
-{
-}
-
 void TreeBoss::AppleAtk()
 {
     current = png[0];
@@ -163,6 +162,11 @@ int TreeBoss::GetPrevState()
 Rect* TreeBoss::GetRect()
 {
     return rect;
+}
+
+void TreeBoss::SetTimer()
+{
+    this->timer = Time::Get()->Running();
 }
 
 void TreeBoss::SetAnimator(class Animator* animator)

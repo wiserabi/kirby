@@ -65,4 +65,5 @@ private:
 	class TreeBoss* boss = nullptr;
 	float appleX[3];
 	class KirbyEffect bossBlowEffect;
+	bool startboss = false;
 };

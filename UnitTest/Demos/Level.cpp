@@ -111,7 +111,13 @@ void Level::Update()
 		}
 		bossBlowEffect.UpdateBossBlowEffect(Time::Delta());
 
-		boss->Update();
+		if (!startboss && kirbyPosition.y <= -210.0f) {
+			startboss = true;
+			boss->SetTimer();
+		}
+		if (startboss) {
+			boss->Update();
+		}
 	}
 	//check enemy death
 	for (int i = 0; i < enemies.size(); i++) {

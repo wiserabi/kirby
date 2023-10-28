@@ -21,7 +21,6 @@ public:
     virtual void Move();
     virtual void SetAnimator(class Animator* animator);
 
-    void Idle();
     void AppleAtk();//throw apple
     void Attack();//blow wind
 
@@ -32,6 +31,7 @@ public:
     void SetHitTimer();//set time when boss got hit
     int GetPrevState();
     class Rect* GetRect();
+    void SetTimer();
 
 private:
     int health = 6;
@@ -39,8 +39,8 @@ private:
     BossState prevState = idle;
     BossState saveState = idle;
     
-    float timer = Time::Get()->Running();
-    float hitTimer = Time::Get()->Running();
+    float timer = 0.0f;
+    float hitTimer = 0.0f;
 
 
     wstring png[BOSSPNGNUM] = {
@@ -56,4 +56,5 @@ private:
     wstring current = L"treebossidle.png";
     float hitPositionY;
     float defaultPos;
+    float idleTime = 4.0f;
 };
