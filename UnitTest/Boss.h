@@ -42,6 +42,7 @@ private:
     float timer = Time::Get()->Running();
     float hitTimer = Time::Get()->Running();
 
+
     wstring png[BOSSPNGNUM] = {
         L"treebossidle.png",
         L"treebossatk.png",
@@ -53,4 +54,6 @@ private:
     };
     class Rect* rect = nullptr;
     wstring current = L"treebossidle.png";
+    float hitPositionY;
+    float defaultPos;
 };

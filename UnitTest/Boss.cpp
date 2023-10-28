@@ -21,7 +21,8 @@ TreeBoss::TreeBoss(Vector3 position, Vector3 size) :
     }
     tempAnimator->SetCurrentAnimClip(png[0]);
     SetAnimator(tempAnimator);
-
+    hitPositionY = position.y + 21.0f;
+    defaultPos = position.y;
     //set bounding box for enemy
     rect = new Rect(position + Values::RightVec * 40, size, 0.0f);
 }
@@ -36,22 +37,30 @@ void TreeBoss::Update()
 
     prevState = state;
 
+    if (state != death && health == 0) {
+        state = death;
+        timer = Time::Get()->Running();
+    }
+
     switch (state)
     {
     case idle:
+        position.y = defaultPos;
         if (Time::Get()->Running() - timer > 2.0f) {
             state = atk;
             timer = Time::Get()->Running();
         }
         break;
     case atk:
+        position.y = defaultPos;
         Attack();
-        if (Time::Get()->Running() - timer > 2.0f) {
+        if (Time::Get()->Running() - timer > 1.5f) {
             state = appleatk;
             timer = Time::Get()->Running();
         }
         break;
     case appleatk:
+        position.y = defaultPos;
         AppleAtk();
         if (Time::Get()->Running() - timer > 11.0f) {
             state = idle;
@@ -60,21 +69,29 @@ void TreeBoss::Update()
         break;
     case hit:
         current = png[3];
+        position.y = hitPositionY;
         if (Time::Get()->Running() - hitTimer > 0.6f) {
             state = saveState;//recall the saved state
-            position.y -= 21;
             return;
         }
         break;
     case death:
+        position.y = defaultPos;
         current = png[2];
-
-        break;
+        if (Time::Get()->Running() - timer > 0.4f) {
+            ChangeAnimation(current, 0.0f, Values::ZeroVec3, 1, true);
+            __super::Update();
+            return;
+        }
+        else {
+            ChangeAnimation(current, 0.0f, Values::ZeroVec3, 0, true);
+            __super::Update();
+            return;
+        }
     default:
         break;
     }
     ChangeAnimation(current, 0.0f, Values::ZeroVec3, 0, false);
-
     __super::Update();
 }
 
@@ -130,7 +147,6 @@ void TreeBoss::SetHitTimer()
     if (health > 0) {
         health--;
     }
-    position.y += 21;
 }
 
 int TreeBoss::GetPrevState()

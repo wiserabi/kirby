@@ -789,6 +789,10 @@ void KirbyGame::CheckStarHitEnemy(vector<Enemy*> enemies, int idx)
 
 void KirbyGame::CheckStarHitBoss(Rect* bossRect, int kirbyLocation, vector<class Level*> levels)
 {
+	//if boss has hit or death state
+	if (levels[kirbyLocation]->GetBossState() >= 3) {
+		return;
+	}
 	effectBox = nullptr;
 	effectRect = effects[2]->GetRect();
 	if (effectRect) {
@@ -805,14 +809,13 @@ void KirbyGame::CheckStarHitBoss(Rect* bossRect, int kirbyLocation, vector<class
 		effects[3]->StartTimer(0.2f);
 
 		effects[2]->StartTimer(0.1f);
+
 		//save current state of boss for later use
-		if (levels[kirbyLocation]->GetBossState() != 3) {
-			levels[kirbyLocation]->SaveBossState();
-			//save time when boss is hit by kirby
-			levels[kirbyLocation]->SetBossHitTimer();
-			//set boss state to 'hit' == 3
-			levels[kirbyLocation]->SetBossState(3);
-		}
+		levels[kirbyLocation]->SaveBossState();
+		//save time when boss is hit by kirby
+		levels[kirbyLocation]->SetBossHitTimer();
+		//set boss state to 'hit' == 3
+		levels[kirbyLocation]->SetBossState(3);
 	}
 }
 
