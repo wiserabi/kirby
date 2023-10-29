@@ -107,8 +107,6 @@ void TreeBoss::Render()
     if (rect) {
         rect->Render();
     }
-
-
 }
 
 void TreeBoss::Move()

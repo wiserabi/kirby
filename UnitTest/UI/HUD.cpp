@@ -13,6 +13,7 @@ HUD::HUD()
 	LoadNumberImage();
 	LoadHealthImage();
 	LoadLifeImage();
+	LoadBossHpImage();
 	for (int i = 0; i < 7; i++) {
 		result.push_back(0);
 	}
@@ -85,27 +86,12 @@ void HUD::Update()
 
 	life[lifeAnimIdx]->Update();
 
-	if (score != enemyDeathCnt * 400) {
-		//update death cnt
-		score = enemyDeathCnt * 400;
-		CalcScoreDigits();
+	if (normalUI) {
+		UpdateScore();
 	}
-
-	//limit score
-	if (score > 9999999) {
-		score = 9999999;
+	else {
+		UpdateBossHealth();
 	}
-	/*
-	 	for (int i = 0; i < result.size(); i++) {
-		cout << result[i] << " ";
-		}
-		cout << "\n";
-	*/
-
-	for (int i = 0; i < 7; i++) {
-		number[i + 9 * result[i]]->Update();
-	}
-
 	number[7]->Update();
 	number[8 + 9 * lifeLeft]->Update();
 
@@ -144,14 +130,63 @@ void HUD::Render()
 		health[i]->Render();
 	}
 	life[lifeAnimIdx]->Render();
-	for (int i = 0; i < 7; i++) {
-		number[i + 9 * result[i]]->Render();
+
+	if (normalUI) {
+		RenderScore();
+	}
+	else {
+		RenderBossHealth();
 	}
 	
 	number[7]->Render();
-	
 	number[8 + 9 * lifeLeft]->Render();//life
 
+}
+
+void HUD::RenderScore()
+{
+	for (int i = 0; i < 7; i++) {
+		number[i + 9 * result[i]]->Render();
+	}
+}
+
+void HUD::RenderBossHealth()
+{
+	if (bossHealth < 1) {
+		return;
+	}
+	for (size_t i = 0; i < hpLevel[bossHealth - 1]; i++)
+	{
+		bossHp[i]->Render();
+	}
+}
+
+void HUD::UpdateScore()
+{
+	if (score != enemyDeathCnt * 400) {
+		//update death cnt
+		score = enemyDeathCnt * 400;
+		CalcScoreDigits();
+	}
+
+	//limit score
+	if (score > 9999999) {
+		score = 9999999;
+	}
+	for (int i = 0; i < 7; i++) {
+		number[i + 9 * result[i]]->Update();
+	}
+}
+
+void HUD::UpdateBossHealth()
+{
+	if (bossHealth < 1) {
+		return;
+	}
+	for (size_t i = 0; i < hpLevel[bossHealth - 1]; i++)
+	{
+		bossHp[i]->Update();
+	}
 }
 
 void HUD::LoadStateImage()
@@ -236,6 +271,15 @@ void HUD::LoadNumberImage()
 	}
 }
 
+void HUD::LoadBossHpImage()
+{
+	for (size_t i = 0; i < 28; i++) {
+		bossHp.push_back(new ProgressBar({ -105.0f + (i * 6.0f), -297.0f, 0.0f },
+			{ 6.0f, 18.0f, 0.0f }, 0.0f,
+			HudPath + bossHpPng, UI::LEFT_TO_RIGHT));
+	}
+}
+
 void HUD::SetCurrentAbility(int ability)
 {
 	this->ability = ability;
@@ -265,4 +309,25 @@ void HUD::CalcScoreDigits()
 		tmp /= 10;
 		i--;
 	}
+}
+
+void HUD::SetBossHealth(int bossHealth)
+{
+	this->bossHealth = bossHealth;
+}
+
+void HUD::ChangeToBossUI()
+{
+	SAFE_DELETE(frameUI);
+	frameUI = new ProgressBar({ -322.0f, -274.0f, 0.0f }, { 740.0f, 160.0f, 0.0f }, 0.0f,
+		HudPath + L"Boss.png", UI::LEFT_TO_RIGHT);
+	normalUI = false;
+}
+
+void HUD::ChangeToNormalUI()
+{
+	SAFE_DELETE(frameUI);
+	frameUI = new ProgressBar({ -322.0f, -274.0f, 0.0f }, { 740.0f, 160.0f, 0.0f }, 0.0f,
+		HudPath + L"Normal.png", UI::LEFT_TO_RIGHT);
+	normalUI = true;
 }

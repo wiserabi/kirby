@@ -35,6 +35,8 @@ public:
 	int GetBossState();
 	void CreateBlowAtk();
 	int BossBlowHitKirby(BoundingBox* kirbyBox);
+	int GetBossHealth();
+	int GetStartBoss();
 
 private:
 	Vector3 position;
@@ -63,7 +65,9 @@ private:
 	Vector3 grave = Vector3(-2000.0f, -2000.f, 0.0f);
 	int enemyDeathCnt = 0;
 	class TreeBoss* boss = nullptr;
-	float appleX[3];
+	float appleX[3] = { 0.0f, };
 	class KirbyEffect bossBlowEffect;
 	bool startboss = false;
+	int bossState = 0;
+	int bossPrevState = 0;
 };

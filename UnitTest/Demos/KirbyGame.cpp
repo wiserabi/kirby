@@ -108,8 +108,12 @@ void KirbyGame::Update()
 			invincibleDuration = 2.0f;
 		}
 	}
+
 	//if kirby is in the world
 	if (kirbyLocation == WORLD) {
+		startboss = false;//started boss fight
+		hud->ChangeToNormalUI();//change to boss ui
+
 		BoundingBox* kirbyBox = kirby->GetRect()->GetBox();
 		vector<Rect*> worldRects = world->GetRects();
 		for (size_t i = 0; i < worldRects.size(); i++) {
@@ -149,7 +153,18 @@ void KirbyGame::Update()
 		//interaction between boss and kirby
 		if (kirbyLocation == 4) {
 			BossAndKirby(kirbyLocation - 1, levels);
+
+			bool curStartBoss = levels[kirbyLocation - 1]->GetStartBoss();
+			if (!startboss && curStartBoss) {
+				startboss = true;//started boss fight
+				hud->ChangeToBossUI();//change to boss ui
+			}
+			//set boss health for hud if boss fight has started
+			if (curStartBoss) {
+				hud->SetBossHealth(levels[kirbyLocation - 1]->GetBossHealth());
+			}
 		}
+
 		//iterate level rects for kirby collision with level
 		for (size_t i = 0; i < levelRects.size(); i++) {
 			KirbyCollisionWithWorld(kirbyBox, levelRects[i]);

@@ -32,6 +32,7 @@ public:
     int GetPrevState();
     class Rect* GetRect();
     void SetTimer();
+    int GetHealth() { return health; };
 
 private:
     int health = 6;

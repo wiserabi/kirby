@@ -95,8 +95,8 @@ void Level::Update()
 {
 	//only apply for boss
 	if (boss) {
-		int bossPrevState = boss->GetPrevState();
-		int bossState = boss->GetState();
+		bossPrevState = boss->GetPrevState();
+		bossState = boss->GetState();
 		//atk => apple atk
 		if (bossPrevState == 1 && bossState == 2) {
 			CreateApples();
@@ -111,11 +111,11 @@ void Level::Update()
 		}
 		bossBlowEffect.UpdateBossBlowEffect(Time::Delta());
 
-		if (!startboss && kirbyPosition.y <= -210.0f) {
+		if (!startboss && kirbyPosition.y <= -210.0f && bossState < 4) {//boss fight start
 			startboss = true;
-			boss->SetTimer();
+			boss->SetTimer();//start boss pattern
 		}
-		if (startboss) {
+		else if (startboss) {//boss alive
 			boss->Update();
 		}
 	}
@@ -507,4 +507,17 @@ int Level::BossBlowHitKirby(BoundingBox* kirbyBox)
 	}
 
 	return -1;
+}
+
+int Level::GetBossHealth()
+{
+	if (boss) {
+		return boss->GetHealth();
+	}
+	return -1;
+}
+
+int Level::GetStartBoss()
+{
+	return startboss;
 }

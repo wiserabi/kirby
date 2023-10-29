@@ -9,10 +9,17 @@ public:
 
 	void Update();
 	void Render();
+	void RenderScore();
+	void RenderBossHealth();//show boss health
+
+	void UpdateScore();
+	void UpdateBossHealth();//show boss health
+
 	void LoadStateImage();
 	void LoadLifeImage();
 	void LoadHealthImage();
 	void LoadNumberImage();
+	void LoadBossHpImage();
 
 	void SetCurrentAbility(int ability);
 	void SetState(int state);
@@ -20,6 +27,9 @@ public:
 	void SetEnemyDeathCnt(int enemyDeathCnt);
 	void CalcScoreDigits();
 	void SetNothing(bool nothing) { this->nothing = nothing; }
+	void SetBossHealth(int bossHealth);
+	void ChangeToBossUI();
+	void ChangeToNormalUI();
 
 private:
 	class ProgressBar* frameUI = nullptr;
@@ -27,6 +37,7 @@ private:
 	vector<class ProgressBar*> number;
 	vector<class ProgressBar*> life;
 	vector<class ProgressBar*> stateImg;
+	vector<class ProgressBar*> bossHp;
 
 	int ability = 8;//none
 	int state = 0;//idle
@@ -42,6 +53,8 @@ private:
 	int enemyDeathCnt = 0;
 	vector<int> result;
 	bool nothing = false;
+	int bossHealth = 6;
+	bool normalUI = true;//change to false only on boss fight
 
 	wstring statePng[6] = {
 		L"stateOuch.png",
@@ -73,4 +86,6 @@ private:
 		L"kirbyLife2.png",
 		L"kirbyLife3.png",
 	};
+	wstring bossHpPng = L"bossHp.png";
+	size_t hpLevel[6] = { 5,10,14,19,24,28 };
 };
