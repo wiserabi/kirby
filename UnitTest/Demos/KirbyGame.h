@@ -11,7 +11,6 @@ public:
     virtual void GUI() override;
     void SetCameraBound();
     void FixKirbyPosition(class Rect* worldRect);
-    void CheckReset();
     void Sound();
     void UpdateEffect();
     void SetThrowStar();
@@ -34,6 +33,7 @@ public:
 
     void KillEnemyWithEffect(vector<Enemy*> enemies, int idx);
     BoundingBox* GetEnemyBox(vector<Enemy*> enemies, int idx);
+    void AddSounds();
 
 private:
     class KirbyCharacter* kirby = nullptr;
@@ -52,8 +52,36 @@ private:
     BoundingBox* enemyBox = nullptr;
     Rect* enemyRect = nullptr;
     int kirbyLocation = 0;
+    int kirbyPrevLocation = -1;
     int deathCnt = 0;
     bool nothing = false;
     float invincibleDuration = 2.0f;
     bool startboss = false;
+    int kirbyCurState;
+    int kirbyPrevState;
+    //sound durations
+    float jumpSoundTime = 0.0f;
+    float swallowSoundTime = 0.0f;
+    float throwStarSoundTime = 0.0f;
+    float sandwichedSoundTime = 0.0f;
+    float headdownSoundTime = 0.0f;
+    float hitSoundTime = 0.0f;
+    float volume = 0.2f;
+
+    vector<string> sounds = {
+        "Vegetable-Valley.mp3",
+        "29-Boss.mp3",
+        "15-Forest Trail ~Intro~.mp3",
+        "Level-Clear-Dance.mp3",
+        "jump.mp3",
+        "inhaling.mp3",
+        "hitwall.mp3",
+        "hit.mp3",
+        "floatup.mp3",
+        "exhale.mp3",
+        "dashEnd.mp3",
+        "squash.mp3",
+        "getAbility.mp3",
+        "throwStar.mp3"
+    };
 };

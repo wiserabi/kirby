@@ -15,12 +15,10 @@
 
 void KirbyGame::Init()
 {
+	AddSounds();
+
 	kirby = new KirbyCharacter({ 720, 360, 1.0 }, { 128, 128, 1 });
-	
-	Sounds::Get()->AddSound("Vegetable-Valley.mp3",
-		SoundPath + L"Vegetable-Valley.mp3", true);
-	Sounds::Get()->Play("Vegetable-Valley.mp3", 0.1f);
-	
+	Sounds::Get()->Play(sounds[0], volume);
 	slopeRange.push_back({ 10092.0f , 10232.0f });//up 45degree
 	slopeRange.push_back({ 10232.0f , 10502.0f });//up 27degree
 	slopeRange.push_back({ 10590.0f , 10854.0f });//down 27degree
@@ -47,6 +45,8 @@ void KirbyGame::Destroy()
 	}
 	effects.clear();
 
+	vector<string>().swap(sounds);
+
 	SAFE_DELETE(kirby);
 	SAFE_DELETE(hud);
 	SAFE_DELETE(world);
@@ -54,12 +54,14 @@ void KirbyGame::Destroy()
 
 void KirbyGame::Update()
 {
+	kirbyCurState = kirby->GetState();
+	kirbyPrevState = kirby->GetPrevState();
+
 	kirbyLocation = kirby->getKirbyLocation();
 	world->SetKirbyLocation(kirbyLocation);
-
-	CheckReset();
-
+	
 	Sound();
+	kirbyPrevLocation = kirbyLocation;
 	world->SetKirbyPos(kirby->GetPosition());
 
 	world->Update();
@@ -67,8 +69,6 @@ void KirbyGame::Update()
 	kirby->Move();
 	kirby->Update();
 	
-	State kirbyCurState = kirby->GetState();
-	State kirbyPrevState = kirby->GetPrevState();
 	//cout << kirbyPrevState << " : " << kirbyCurState << "\n";
 
 	//set blow air effect of kirby
@@ -351,26 +351,87 @@ void KirbyGame::FixKirbyPosition(class Rect* worldRect)
 	}
 }
 
-
-void KirbyGame::CheckReset()
-{
-	if (Keyboard::Get()->Down('R')) {
-		Sounds::Get()->Pause("Vegetable-Valley.mp3");
-
-		KirbyGame::Init();
-	}
-}
-
 void KirbyGame::Sound()
 {
-	if (Keyboard::Get()->Down(VK_F2)) {
-		if (Sounds::Get()->IsPaused("Vegetable-Valley.mp3")) {
-			Sounds::Get()->Play("Vegetable-Valley.mp3");
-		}
-		//else if (Sounds::Get()->IsPaused("Vegetable-Valley.mp3")) {
-		else {
-			Sounds::Get()->Pause("Vegetable-Valley.mp3");
-		}
+	if (kirbyPrevLocation == 3 && kirbyLocation == 4) {//boss stage
+		Sounds::Get()->Pause(sounds[2]);
+		Sounds::Get()->Play(sounds[1], volume);
+	}
+	else if (kirbyPrevLocation < 3 && kirbyLocation == 4) {//boss stage
+		Sounds::Get()->Pause(sounds[0]);
+		Sounds::Get()->Play(sounds[1], volume);
+	}
+	else if (kirbyPrevLocation == 4 && kirbyLocation < 3) {//world, level1, level2
+		Sounds::Get()->Pause(sounds[1]);
+		Sounds::Get()->Play(sounds[0], volume);
+	}
+	else if (kirbyPrevLocation == 3 && kirbyLocation < 3) {//world, level1, level2
+		Sounds::Get()->Pause(sounds[2]);
+		Sounds::Get()->Play(sounds[0], volume);
+	}
+	else if (kirbyPrevLocation == 2 && kirbyLocation == 3) {//level3
+		Sounds::Get()->Pause(sounds[0]);
+		Sounds::Get()->Play(sounds[2], volume);
+	}
+
+	if (kirbyPrevState != jump && kirbyCurState == jump) {
+		Sounds::Get()->Play(sounds[4], volume);
+		jumpSoundTime = Time::Get()->Running();
+	}
+	else if (Time::Get()->Running() - jumpSoundTime > 0.09f && 
+		kirbyPrevState == jump && kirbyCurState == jump && 
+		Sounds::Get()->IsPlaying(sounds[4])) {
+
+		Sounds::Get()->Pause(sounds[4]);
+	}
+	
+	if (kirbyPrevState == inhale && kirbyCurState == inhaling) {
+		Sounds::Get()->Play(sounds[5], volume);
+		swallowSoundTime = Time::Get()->Running();
+	}
+	else if (kirbyCurState != swallowing  && kirbyCurState != inhaling &&
+		Sounds::Get()->IsPlaying(sounds[5]) &&
+		Time::Get()->Running() - swallowSoundTime > 0.6f) {
+
+		Sounds::Get()->Pause(sounds[5]);
+	}
+	if ((kirbyPrevState == eatidle || kirbyPrevState == eatandwalk) && kirbyCurState == attacking) {
+		Sounds::Get()->Play(sounds[13], volume);
+		throwStarSoundTime = Time::Get()->Running();
+	}
+	else if (Sounds::Get()->IsPlaying(sounds[13]) &&
+		Time::Get()->Running() - throwStarSoundTime > 0.28f) {
+		Sounds::Get()->Pause(sounds[13]);
+	}
+
+	if (kirbyPrevState != sandwiched && kirbyCurState == sandwiched) {
+		Sounds::Get()->Play(sounds[6], volume);
+		sandwichedSoundTime = Time::Get()->Running();
+	}
+	else if (Sounds::Get()->IsPlaying(sounds[6]) &&
+		Time::Get()->Running() - sandwichedSoundTime > 0.12f) {
+		Sounds::Get()->Pause(sounds[6]);
+	}
+	bool hitGround = kirby->GetHitGround();
+
+	if (hitGround && kirbyCurState != inhaled &&
+		kirbyCurState != inhaling && kirbyCurState != eatidle &&
+		kirbyCurState != eatandwalk && Keyboard::Get()->Down(VK_DOWN)) {
+		Sounds::Get()->Play(sounds[11], volume);
+		headdownSoundTime = Time::Get()->Running();
+	}
+	else if (Sounds::Get()->IsPlaying(sounds[11]) &&
+		Time::Get()->Running() - headdownSoundTime > 0.071f) {
+		Sounds::Get()->Pause(sounds[11]);
+	}
+
+	if (kirbyPrevState!= hitEnemy && kirbyCurState == hitEnemy) {
+		Sounds::Get()->Play(sounds[7], volume);
+		hitSoundTime = Time::Get()->Running();
+	}
+	else if (Sounds::Get()->IsPlaying(sounds[7]) &&
+		Time::Get()->Running() - hitSoundTime > 0.4f) {
+		Sounds::Get()->Pause(sounds[7]);
 	}
 }
 
@@ -630,7 +691,9 @@ void KirbyGame::CheckHitByEnemy(vector<Enemy*> enemies, int idx)
 		//while kirby was hit while inhaling
 		if (kirby->GetState() == inhaling) {
 			effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
-			effects[1]->StartTimer(0.1f);//remove enemy pulling effect
+			if (effects[1]->isTimerSet()) {//if enemy was being pulled
+				effects[1]->StartTimer(0.1f);//remove enemy pulling effect
+			}
 		}
 
 		kirby->SetState(hitEnemy);
@@ -692,7 +755,9 @@ void KirbyGame::EnemyAttackCollideKirby(Rect* effect)
 	//while kirby was hit while inhaling
 	if (kirby->GetState() == inhaling) {
 		effects[0]->StartTimer(0.1f);//remove enemy inhaling effect
-		effects[1]->StartTimer(0.1f);//remove enemy pulling effect
+		if (effects[1]->isTimerSet()) {//if enemy was being pulled
+			effects[1]->StartTimer(0.1f);//remove enemy pulling effect
+		}
 	}
 	kirby->SetState(hitEnemy);
 	kirby->SetHitEnemy();
@@ -873,4 +938,13 @@ BoundingBox* KirbyGame::GetEnemyBox(vector<Enemy*> enemies, int idx)
 		enemyBox = enemyRect->GetBox();
 	}
 	return enemyBox;
+}
+
+void KirbyGame::AddSounds()
+{
+	for (size_t i = 0; i < sounds.size(); i++)
+	{
+		Sounds::Get()->AddSound(sounds[i], 
+			SoundPath + String::ToWString(sounds[i]), true);
+	}
 }

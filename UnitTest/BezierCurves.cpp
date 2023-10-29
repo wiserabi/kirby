@@ -60,7 +60,7 @@ void BezierCurves::Update(bool randomCreate) {
         for (int j = 0; j < line.water_drops.size(); ++j) {
             Vector3& drop = line.water_drops[j];
 
-            drop.z -= 0.04f;
+            drop.z -= 0.06f;
             Vector2 nextPoint = GetBezierPoint(line.p1, line.p2, line.p3, drop.z);
             drop.x = nextPoint.x;
             drop.y = nextPoint.y;

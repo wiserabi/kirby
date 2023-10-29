@@ -1460,4 +1460,3 @@ int KirbyCharacter::GetCurrentAbility()
 	}
 	return Ability::none;
 }
-

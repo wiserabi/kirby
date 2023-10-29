@@ -125,9 +125,6 @@ void TreeBoss::Attack()
 }
 
 
-void TreeBoss::SetDeath()
-{
-}
 
 int TreeBoss::GetState()
 {

@@ -142,6 +142,7 @@ public:
 	Vector3 GetDirection();//get direction vector of kirby
 	int GetCurrentAbility();//return kirby ability
 	int GetNothing() { return nothing; };//there was no ability on enemy
+	bool GetHitGround() { return hitGround; }
 
 private:
 	int health;
