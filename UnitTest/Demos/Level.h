@@ -36,6 +36,7 @@ public:
 	void CreateBlowAtk();
 	int BossBlowHitKirby(BoundingBox* kirbyBox);
 	int GetBossHealth();
+	void SetBossHealth(int health);
 	int GetStartBoss();
 
 private:

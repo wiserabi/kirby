@@ -634,7 +634,7 @@ bool KirbyCharacter::Flatten(float delta, Keyboard* key)
 	if (state == flatten) {
 		dir = Values::ZeroVec3;
 		current = L"slide";
-		if (Time::Get()->Running() - startSqueeze > 0.1) {
+		if (Time::Get()->Running() - startSqueeze > 0.1f) {
 			state = idle;
 		}
 		ChangeAnimation(current, VELOCITY * delta, dir, 0, true);

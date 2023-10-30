@@ -31,10 +31,11 @@ public:
     int GetPrevState();
     class Rect* GetRect();
     void SetTimer();
-    int GetHealth() { return health; };
+    int GetHealth() { return health; }
+    void SetHealth(int health);
 
 private:
-    int health = 6;
+    int health = 28;
     BossState state = idle;
     BossState prevState = idle;
     BossState saveState = idle;

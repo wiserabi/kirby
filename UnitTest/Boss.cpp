@@ -144,9 +144,6 @@ void TreeBoss::SaveState()
 void TreeBoss::SetHitTimer()
 {
     hitTimer = Time::Get()->Running();
-    if (health > 0) {
-        health--;
-    }
 }
 
 int TreeBoss::GetPrevState()
@@ -162,6 +159,14 @@ Rect* TreeBoss::GetRect()
 void TreeBoss::SetTimer()
 {
     this->timer = Time::Get()->Running();
+}
+
+void TreeBoss::SetHealth(int health)
+{
+    if (health < 0) {
+        health = 0;
+    }
+    this->health = health;
 }
 
 void TreeBoss::SetAnimator(class Animator* animator)

@@ -155,7 +155,7 @@ void HUD::RenderBossHealth()
 	if (bossHealth < 1) {
 		return;
 	}
-	for (size_t i = 0; i < hpLevel[bossHealth - 1]; i++)
+	for (size_t i = 0; i < bossHealth; i++)
 	{
 		bossHp[i]->Render();
 	}
@@ -183,7 +183,7 @@ void HUD::UpdateBossHealth()
 	if (bossHealth < 1) {
 		return;
 	}
-	for (size_t i = 0; i < hpLevel[bossHealth - 1]; i++)
+	for (size_t i = 0; i < bossHealth; i++)
 	{
 		bossHp[i]->Update();
 	}

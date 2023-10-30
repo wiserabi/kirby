@@ -946,6 +946,10 @@ void KirbyGame::CheckStarHitBoss(Rect* bossRect, int kirbyLocation, vector<class
 		levels[kirbyLocation]->SaveBossState();
 		//save time when boss is hit by kirby
 		levels[kirbyLocation]->SetBossHitTimer();
+		//get health of boss
+		int bossHealth = levels[kirbyLocation]->GetBossHealth();
+		//set health of boss
+		levels[kirbyLocation]->SetBossHealth(bossHealth - 5);
 		//set boss state to 'hit' == 3
 		levels[kirbyLocation]->SetBossState(3);
 	}

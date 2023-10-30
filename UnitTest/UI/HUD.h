@@ -87,5 +87,4 @@ private:
 		L"kirbyLife3.png",
 	};
 	wstring bossHpPng = L"bossHp.png";
-	size_t hpLevel[6] = { 5,10,14,19,24,28 };
 };

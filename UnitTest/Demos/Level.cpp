@@ -16,14 +16,14 @@ Level::Level(Vector3 pos, wstring pngName)
 	FileReader fr;
 	wstring txtName = pngName + L".txt";
 	vector<Vector3> tmp = fr.ReadFile(CoordPath + String::ToString(txtName));
-	for (int i = 0; i < tmp.size() / 2; i++) {
+	for (size_t i = 0; i < tmp.size() / 2; i++) {
 		Vector3 pos = tmp[2 * i];
 		Vector3 size = tmp[2 * i + 1];
 		float angle_in_degrees = (float)pos.z;
 		pos.z = 0.0f;
 		size.z = 0.0f;
 		//cout << pos.z << "\n";
-		float angle_in_radians = angle_in_degrees * (3.141592 / 180.0f);
+		float angle_in_radians = angle_in_degrees * (3.141592f / 180.0f);
 		rects.push_back(new Rect(pos, size, angle_in_radians));
 	}
 
@@ -57,7 +57,7 @@ Level::Level(Vector3 pos, Vector3 size, wstring pngName)
 	FileReader fr;
 	wstring txtName = pngName + L".txt";
 	vector<Vector3> tmp = fr.ReadFile(CoordPath + String::ToString(txtName));
-	for (int i = 0; i < tmp.size() / 2; i++) {
+	for (size_t i = 0; i < tmp.size() / 2; i++) {
 		Vector3 pos = tmp[2 * i];
 		Vector3 size = tmp[2 * i + 1];
 		float angle_in_degrees = (float)pos.z;
@@ -120,7 +120,7 @@ void Level::Update()
 		}
 	}
 	//check enemy death
-	for (int i = 0; i < enemies.size(); i++) {
+	for (size_t i = 0; i < enemies.size(); i++) {
 		if (enemies[i]->GetState() == 3) {//if enemy in death state
 			enemyDeathCnt++;
 			deathEffects.push_back(new KirbyEffect());
@@ -137,7 +137,7 @@ void Level::Update()
 	}
 
 	levelMap->Update();
-	for (int i = 0; i < rects.size(); i++) {
+	for (size_t i = 0; i < rects.size(); i++) {
 		rects[i]->Update();
 	}
 	for (size_t i = 0; i < limitEnemyMove.size(); i++)
@@ -167,7 +167,7 @@ void Level::Render()
 	for (class Enemy* enemy : enemies) {
 		enemy->Render();
 	}
-	for (int i = 0; i < rects.size(); i++) {
+	for (size_t i = 0; i < rects.size(); i++) {
 		rects[i]->Render();
 	}
 	for (size_t i = 0; i < limitEnemyMove.size(); i++)
@@ -248,7 +248,7 @@ void Level::EnemyCollisionLevel(Rect* enemyRect, int enemyIdx)
 		}
 	}
 	//iterate level rects
-	for (int i = 0; i < rects.size(); i++) {
+	for (size_t i = 0; i < rects.size(); i++) {
 		if (enemyBox && BoundingBox::OBB(enemyBox, rects[i]->GetBox())) {
 			float rotation = rects[i]->GetRotation();
 			Vector3 enemyPos = enemies[enemyIdx]->GetPosition();
@@ -350,7 +350,7 @@ vector<class Enemy*> Level::GetEnemies()
 
 int Level::CheckSlopeRange(float positionX)
 {
-	for (int i = 0; i < slopeRange.size(); i++) {
+	for (size_t i = 0; i < slopeRange.size(); i++) {
 		if (slopeRange[i].first <= positionX && positionX <= slopeRange[i].second) {
 			return i;
 		}
@@ -403,7 +403,7 @@ void Level::CreateRandomEnemies()
 {
 	for (int i = 0; i < 20; i++) {
 		choice = rand() % 3;
-		xDistance = rand() % 100 + 150;
+		xDistance = (float)(rand() % 100 + 150);
 		enemyName = enemyNames[choice];
 
 		enemies.push_back(new Enemy({ position.x - 1000.0f + xDistance * i, position.y + 200.0f, 0 }, { 128.0f, 128.0f, 0.0f }, enemyName, enemyInfo));
@@ -414,17 +414,17 @@ void Level::CreateApples()
 {
 	enemyName = "apple";
 
-	appleX[0] = rand() % 500 + 1;
-	appleX[1] = rand() % 500 + 1;
-	appleX[2] = rand() % 500 + 1;
+	appleX[0] = (float)(rand() % 500 + 1);
+	appleX[1] = (float)(rand() % 500 + 1);
+	appleX[2] = (float)(rand() % 500 + 1);
 
-	while (abs(appleX[0] - appleX[1]) < 150 ||
-		abs(appleX[0] - appleX[2]) < 150 ||
-		abs(appleX[1] - appleX[2]) < 150)
+	while (abs(appleX[0] - appleX[1]) < 150.0f ||
+		abs(appleX[0] - appleX[2]) < 150.0f ||
+		abs(appleX[1] - appleX[2]) < 150.0f)
 	{
-		appleX[0] = rand() % 500 + 1;
-		appleX[1] = rand() % 500 + 1;
-		appleX[2] = rand() % 500 + 1;
+		appleX[0] = (float)(rand() % 500 + 1);
+		appleX[1] = (float)(rand() % 500 + 1);
+		appleX[2] = (float)(rand() % 500 + 1);
 	}
 
 	for (size_t i = 0; i < 3; i++)
@@ -515,6 +515,11 @@ int Level::GetBossHealth()
 		return boss->GetHealth();
 	}
 	return -1;
+}
+
+void Level::SetBossHealth(int health)
+{
+	boss->SetHealth(health);
 }
 
 int Level::GetStartBoss()
