@@ -39,8 +39,8 @@ public:
 	void SetEnemyDeathEffect(Vector3 pos);//when enemy gets killed effect
 	void SetHitEffect();//when kirby is hit by enemy
 	void SetKirbyBlowAir();//kirby blow effect
-	void SetSparkEffect(Vector3 pos);
-	void SetBeamEffect(Vector3 pos, bool leftSide);
+	void SetSparkEffect(Vector3 pos, bool bigger = false);
+	void SetBeamEffect(Vector3 pos, bool leftSide, bool bigger = false);
 	void SetGetKirbyAbilityEffect();
 	void SetRemoveAbilityEffect();
 	void SetBossBlowEffect(Vector3 bossPos);

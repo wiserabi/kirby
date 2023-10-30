@@ -187,37 +187,52 @@ void KirbyEffect::SetKirbyBlowAir()
 	rectEffect0 = new Rect(effectStartPos, Vector3(52.0f, 52.0f, 0.0f), 0.0f);
 }
 
-void KirbyEffect::SetSparkEffect(Vector3 pos)
+void KirbyEffect::SetSparkEffect(Vector3 pos, bool bigger)
 {
 	currentEffect = Effect::spark;
 
 	effectStartPos = pos;
-	animations.push_back(new AnimationRect(effectStartPos, Vector3(270.0f, 270.0f, 0.0f), false));
+	if (bigger) {
+		animations.push_back(new AnimationRect(effectStartPos, Vector3(280.0f, 280.0f, 0.0f), false));
+	}
+	else {
+		animations.push_back(new AnimationRect(effectStartPos, Vector3(270.0f, 270.0f, 0.0f), false));
+	}
 	animations[0]->SetAnimator(animatorList[currentEffect]);
 	animatorList[currentEffect]->SetPlayRate(pngList[15],1.0f / 40.0f);
 
-	rectEffect0 = new Rect(effectStartPos, Vector3(160.0f, 160.0f, 0.0f), 0.0f);
+	if (bigger) {
+		rectEffect0 = new Rect(effectStartPos, Vector3(165.0f, 165.0f, 0.0f), 0.0f);
+	}
+	else {
+		rectEffect0 = new Rect(effectStartPos, Vector3(160.0f, 160.0f, 0.0f), 0.0f);
+	}
 }
 
-void KirbyEffect::SetBeamEffect(Vector3 pos, bool leftSide)
+void KirbyEffect::SetBeamEffect(Vector3 pos, bool leftSide, bool bigger)
 {
 	currentEffect = Effect::beam;
 
+	Vector3 effectSize = Vector3(128.0f, 128.0f, 0.0f);
+	if (bigger) {
+		effectSize = Vector3(135.0f, 135.0f, 0.0f);
+	}
+
 	if (leftSide) {
 		effectStartPos = pos + Values::LeftUpVec * 50 + Values::LeftVec * 20 ;//effect starting point
-		animations.push_back(new AnimationRect(effectStartPos, Vector3(128.0f, 128.0f, 0.0f), false));
+		animations.push_back(new AnimationRect(effectStartPos, effectSize, false));
 		animations[0]->SetAnimator(animatorList[currentEffect]);
 		animations[0]->SetLeft(leftSide);
 	}
 	else {
 		effectStartPos = pos + Values::RightUpVec * 50 + Values::RightVec * 20;//effect starting point
-		animations.push_back(new AnimationRect(effectStartPos, Vector3(128.0f, 128.0f, 0.0f), false));
+		animations.push_back(new AnimationRect(effectStartPos, effectSize, false));
 		animations[0]->SetAnimator(animatorList[currentEffect]);
 		animations[0]->SetLeft(leftSide);
 	}
 	animatorList[currentEffect]->SetPlayRate(pngList[0], 1.0f / 30.0f);
 
-	rectEffect0 = new Rect(effectStartPos, Vector3(128.0f, 128.0f, 0.0f), 0.0f);
+	rectEffect0 = new Rect(effectStartPos, effectSize, 0.0f);
 }
 
 void KirbyEffect::SetGetKirbyAbilityEffect()
@@ -567,6 +582,7 @@ void KirbyEffect::RenderBlowAir()
 void KirbyEffect::RenderSparkEffect()
 {
 	if (animations.size()) {
+		rectEffect0->SetColor({0.5f, 0.5f, 0.5f, 0.5f});
 		rectEffect0->Render();
 		animations[0]->Render();
 	}
@@ -575,6 +591,7 @@ void KirbyEffect::RenderSparkEffect()
 void KirbyEffect::RenderBeamEffect()
 {
 	if (animations.size() && rectEffect0) {
+		//rectEffect0->SetColor({ 0.5f, 0.5f, 0.5f, 0.5f });
 		rectEffect0->Render();
 		animations[0]->Render();
 	}
@@ -583,7 +600,7 @@ void KirbyEffect::RenderBeamEffect()
 void KirbyEffect::RenderKirbyAbilityEffect()
 {
 	if (animations.size() && rectEffect0) {
-		rectEffect0->SetColor(Color(0, 0, 0, 0.35f));
+		//rectEffect0->SetColor(Color(0, 0, 0, 0.35f));
 		rectEffect0->Render();
 		animations[0]->Render();
 	}

@@ -1223,7 +1223,7 @@ bool KirbyCharacter::UseAbility(float delta, Keyboard* key)
 			//cout << "use spark\n";
 			//if sparkEffect is not active activate
 			if (!sparkEffect->isTimerSet()) {
-				sparkEffect->SetSparkEffect(position);
+				sparkEffect->SetSparkEffect(position, true);
 				sparkEffect->StartTimer(0.2f);
 			}
 			else {

@@ -354,6 +354,7 @@ void KirbyGame::FixKirbyPosition(class Rect* worldRect)
 
 void KirbyGame::Sound()
 {
+	bool hitGround = kirby->GetHitGround();
 	if (kirbyPrevLocation == 3 && kirbyLocation == 4) {//boss stage
 		Sounds::Get()->Pause(sounds[2]);
 		Sounds::Get()->Play(sounds[1], volume);
@@ -375,7 +376,7 @@ void KirbyGame::Sound()
 		Sounds::Get()->Play(sounds[2], volume);
 	}
 
-	if (kirbyPrevState != jump && kirbyCurState == jump) {
+	if (kirbyPrevState != jump && kirbyCurState == jump && hitGround) {
 		Sounds::Get()->Play(sounds[4], volume);
 		jumpSoundTime = Time::Get()->Running();
 	}
@@ -415,7 +416,7 @@ void KirbyGame::Sound()
 		Time::Get()->Running() - sandwichedSoundTime > 0.12f) {
 		Sounds::Get()->Pause(sounds[6]);
 	}
-	bool hitGround = kirby->GetHitGround();
+
 
 	if (hitGround && kirbyCurState != inhaled &&
 		kirbyCurState != inhaling && kirbyCurState != eatidle &&
