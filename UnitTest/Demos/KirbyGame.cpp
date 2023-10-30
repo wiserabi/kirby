@@ -31,7 +31,7 @@ void KirbyGame::Init()
 
 	effects.push_back(new KirbyEffect());//used for kirby inhaling
 	effects.push_back(new KirbyEffect());//pulling enemy as effect
-	effects.push_back(new KirbyEffect());//attacking
+	effects.push_back(new KirbyEffect());//kirby blow star effect
 	effects.push_back(new KirbyEffect());//explode frame 1(explode when star hits enemy)
 	effects.push_back(new KirbyEffect());//kirby hit enemy effect
 	effects.push_back(new KirbyEffect());//kirby blow air effect
@@ -127,7 +127,10 @@ void KirbyGame::Update()
 			}
 			//check if big star thrown by kirby hits the wall
 			if (effectRect && effectBox && BoundingBox::OBB(effectBox, worldRects[i]->GetBox())) {
-				effects[2]->StopEffect();
+				//check if effect is alive
+				if (effects[2]->isTimerSet()) {
+					effects[2]->StartTimer(0.0f);
+				}
 			}
 		}
 		SetCameraBound();
@@ -177,7 +180,10 @@ void KirbyGame::Update()
 			}
 			//check if big star thrown by kirby hits the wall
 			if (effectRect && effectBox && BoundingBox::OBB(effectBox, levelRects[i]->GetBox())) {
-				effects[2]->StopEffect();
+				//check if effect is alive
+				if (effects[2]->isTimerSet()) {
+					effects[2]->StartTimer(0.0f);
+				}
 			}
 		}
 		Vector3 kirbyPos = kirby->GetPosition();
@@ -488,11 +494,10 @@ void KirbyGame::UpdateEffect()
 {
 	//start kirby Effect of inhaling
 	effects[0]->SetKirbyPos(kirby->GetPosition(), kirby->GetLeft());
-	effects[0]->UpdateEffect(Time::Get()->Delta());
-	effects[1]->UpdateEffect(Time::Get()->Delta());
-
-	effects[2]->UpdateEffect(Time::Get()->Delta());
-	effects[3]->UpdateEffect(Time::Get()->Delta());
+	effects[0]->UpdateEatEffect();
+	effects[1]->UpdateSwallowEffect();
+	effects[2]->UpdateBlowStarEffect(Time::Get()->Delta());
+	effects[3]->UpdateExplodeOnEnemy();
 	effects[4]->UpdateHitEffect(Time::Get()->Delta());
 	effects[5]->UpdateBlowAir(Time::Get()->Delta());
 }
@@ -863,6 +868,7 @@ void KirbyGame::BossAndKirby(int kirbyLocation, vector<class Level*> levels)
 		kirby->SetHitEnemy();
 	}
 	CheckStarHitBoss(bossRect, kirbyLocation, levels);
+	CheckAbilityHitBoss(bossRect, kirbyLocation, levels);
 
 	//if kirby collides with boss
 	if (invulnerableTime > invincibleDuration && 
@@ -914,7 +920,9 @@ void KirbyGame::CheckStarHitEnemy(vector<Enemy*> enemies, int idx)
 		effects[3]->SetKirbyStarExplodeOnEnemy(enemies[idx]->GetPosition());
 		effects[3]->StartTimer(0.2f);
 
-		effects[2]->StartTimer(0.1f);
+		if (effects[2]->isTimerSet()) {
+			effects[2]->StartTimer(0.0f);
+		}
 		enemies[idx]->SetDeathStart();//start enemy death timer
 	}
 }
@@ -922,7 +930,8 @@ void KirbyGame::CheckStarHitEnemy(vector<Enemy*> enemies, int idx)
 void KirbyGame::CheckStarHitBoss(Rect* bossRect, int kirbyLocation, vector<class Level*> levels)
 {
 	//if boss has hit or death state
-	if (levels[kirbyLocation]->GetBossState() >= 3) {
+	if (levels[kirbyLocation]->GetBossState() >= 3 ||
+		Time::Get()->Running() - bossHitTime < bossInvulnerableTime) {
 		return;
 	}
 	effectBox = nullptr;
@@ -939,7 +948,9 @@ void KirbyGame::CheckStarHitBoss(Rect* bossRect, int kirbyLocation, vector<class
 	if (effectBox && enemyBox && BoundingBox::OBB(effectBox, bossBox)) {
 		effects[3]->SetKirbyStarExplodeOnEnemy(bossRect->GetPosition());
 		effects[3]->StartTimer(0.2f);
-
+		if (effects[2]->isTimerSet()) {
+			effects[2]->StartTimer(0.0f);
+		}
 		effects[2]->StartTimer(0.1f);
 
 		//save current state of boss for later use
@@ -952,6 +963,58 @@ void KirbyGame::CheckStarHitBoss(Rect* bossRect, int kirbyLocation, vector<class
 		levels[kirbyLocation]->SetBossHealth(bossHealth - 5);
 		//set boss state to 'hit' == 3
 		levels[kirbyLocation]->SetBossState(3);
+		bossHitTime = Time::Get()->Running();
+	}
+}
+
+void KirbyGame::CheckAbilityHitBoss(Rect* bossRect, int kirbyLocation, vector<class Level*> levels)
+{
+	//if boss has hit or death state or invulnerable
+	if (levels[kirbyLocation]->GetBossState() >= 3 || 
+		Time::Get()->Running() - bossHitTime < bossInvulnerableTime) {
+		return;
+	}
+	KirbyEffect* sparkEffect = kirby->GetSparkEffect();
+	KirbyEffect* beamEffect = kirby->GetBeamEffect();
+	//if kirby is using spark or beam
+	if (sparkEffect->isTimerSet()) {
+		effectRect = sparkEffect->GetRect();
+	}
+	else if (beamEffect->isTimerSet()) {
+		effectRect = beamEffect->GetRect();
+	}
+	else {
+		return;
+	}
+
+	effectBox = nullptr;
+	if (effectRect) {
+		effectBox = effectRect->GetBox();
+	}
+
+	BoundingBox* bossBox = nullptr;
+	if (bossRect) {
+		bossBox = bossRect->GetBox();
+	}
+	//check if beam or spark hit boss
+	if (effectBox && enemyBox && BoundingBox::OBB(effectBox, bossBox)) {
+		effects[3]->SetKirbyStarExplodeOnEnemy(bossRect->GetPosition());
+		effects[3]->StartTimer(0.2f);
+		if (effects[2]->isTimerSet()) {
+			effects[2]->StartTimer(0.1f);
+		}
+		
+		//save current state of boss for later use
+		levels[kirbyLocation]->SaveBossState();
+		//save time when boss is hit by kirby
+		levels[kirbyLocation]->SetBossHitTimer();
+		//get health of boss
+		int bossHealth = levels[kirbyLocation]->GetBossHealth();
+		//set health of boss
+		levels[kirbyLocation]->SetBossHealth(bossHealth - 2);
+		//set boss state to 'hit' == 3
+		levels[kirbyLocation]->SetBossState(3);
+		bossHitTime = Time::Get()->Running();
 	}
 }
 

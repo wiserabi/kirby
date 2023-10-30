@@ -53,7 +53,7 @@ private:
 	int enemyDeathCnt = 0;
 	vector<int> result;
 	bool nothing = false;
-	int bossHealth = 6;
+	int bossHealth = 28;
 	bool normalUI = true;//change to false only on boss fight
 
 	wstring statePng[6] = {

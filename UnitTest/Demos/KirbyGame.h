@@ -28,8 +28,10 @@ public:
     void BossAndKirby(int kirbyLocation, vector<class Level*> levels);//interaction between boss and kirby
     void CheckBlowAirHitEnemy(vector<Enemy*> enemies, int idx);
     void CheckStarHitEnemy(vector<Enemy*> enemies, int idx);
-    void CheckStarHitBoss(Rect* bossRect, int kirbyLocation,
-        vector<class Level*> levels);
+    void CheckStarHitBoss(Rect* bossRect, int kirbyLocation, 
+        vector<class Level*> levels);//check if kirby star hit boss
+    void CheckAbilityHitBoss(Rect* bossRect, int kirbyLocation, 
+        vector<class Level*> levels);//check if kirby ability hit boss
 
     void KillEnemyWithEffect(vector<Enemy*> enemies, int idx);
     BoundingBox* GetEnemyBox(vector<Enemy*> enemies, int idx);
@@ -76,6 +78,9 @@ private:
     float volume = 0.5f;
     bool prevAbilityUse = false;//kirby ability use previous
     bool abilityUse = false;//kirby ability use
+
+    float bossInvulnerableTime = 1.6f;//boss invulnerable for 1.6f
+    float bossHitTime = 0.0f;
 
     vector<string> sounds = {
         "Vegetable-Valley.mp3",

@@ -269,6 +269,9 @@ void KirbyEffect::SetBossBlowEffect(Vector3 bossPos)
 
 void KirbyEffect::UpdateEatEffect()
 {
+	if (!setTimer) {
+		return;
+	}
 	if (time + duration < Time::Get()->Running()) {
 		count = 0;
 		for (auto& it : animations) {
@@ -303,6 +306,9 @@ void KirbyEffect::UpdateEatEffect()
 
 void KirbyEffect::UpdateSwallowEffect()
 {
+	if (!setTimer) {
+		return;
+	}
 	if (time + duration < Time::Get()->Running()) {
 		curves->Clear();
 		SAFE_DELETE(curves);
@@ -334,13 +340,16 @@ void KirbyEffect::UpdateSwallowEffect()
 	}
 }
 //blow star effect
-bool KirbyEffect::UpdateBlowEffect(float deltaTime)
+void KirbyEffect::UpdateBlowStarEffect(float deltaTime)
 {
+	if (!setTimer) {
+		return;
+	}
 	if (time + duration < Time::Get()->Running()) {
 		SAFE_DELETE(rectEffect0);
 		vector<AnimationRect*>().swap(animations);
 		setTimer = false;
-		return true;
+		return;
 	}
 	//move effect left
 	if (effectLeft) {
@@ -355,14 +364,16 @@ bool KirbyEffect::UpdateBlowEffect(float deltaTime)
 
 	animations[0]->SetPosition(effectStartPos);
 	animations[0]->Update(animatorList[currentEffect]);
-
-	return false;
 }
 
 void KirbyEffect::UpdateExplodeOnEnemy()
 {
+	if (!setTimer) {
+		return;
+	}
 	if (time + duration < Time::Get()->Running()) {
-		StopEffect();
+		vector<AnimationRect*>().swap(animations);
+		setTimer = false;
 		return;
 	}
 	animations[0]->ChangeAnimation(L"", 0.0f, Values::ZeroVec3, 1, true);
@@ -408,7 +419,9 @@ void KirbyEffect::UpdateHitEffect(float delta)
 void KirbyEffect::UpdateBlowAir(float delta)
 {
 	if (time + duration < Time::Get()->Running()) {
-		StopEffect();
+		vector<AnimationRect*>().swap(animations);
+		SAFE_DELETE(rectEffect0);
+		setTimer = false;
 		return;
 	}
 	if (left) {
@@ -531,27 +544,6 @@ void KirbyEffect::StartTimer(float duration)
 	time = Time::Get()->Running();
 }
 
-
-void KirbyEffect::UpdateEffect(float deltaTime)
-{
-	if (currentEffect == Effect::eat && setTimer) {
-		UpdateEatEffect();
-		return;
-	}
-	if (currentEffect == Effect::bigstars && setTimer) {
-		UpdateBlowEffect(deltaTime);
-		return;
-	}
-	if (currentEffect == Effect::explode && setTimer) {
-		UpdateExplodeOnEnemy();
-		return;
-	}
-	if (currentEffect == Effect::swallowing && setTimer) {
-		UpdateSwallowEffect();
-		return;
-	}
-}
-
 void KirbyEffect::RenderSwallowEffect() {
 	for (int i = 0; i < enemySwallow.size(); i++) {
 		enemySwallow[i]->Render();
@@ -645,27 +637,4 @@ void KirbyEffect::RenderEffect()
 	else if (currentEffect == Effect::blow) {
 		RenderBlowAir();
 	}
-}
-
-void KirbyEffect::StopEffect()
-{
-	if (currentEffect == Effect::bigstars) {
-		vector<AnimationRect*>().swap(animations);
-
-		SAFE_DELETE(rectEffect0);
-		setTimer = false;
-		return;
-	}
-	if (currentEffect == Effect::explode) {
-		vector<AnimationRect*>().swap(animations);
-		setTimer = false;
-		return;
-	}
-	if (currentEffect == Effect::blow) {
-		vector<AnimationRect*>().swap(animations);
-		SAFE_DELETE(rectEffect0);
-		setTimer = false;
-		return;
-	}
-
 }

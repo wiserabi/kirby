@@ -47,7 +47,7 @@ public:
 
 	void UpdateEatEffect();
 	void UpdateSwallowEffect();
-	bool UpdateBlowEffect(float UpdateBlowEffect);//return true if enemy has been hit
+	void UpdateBlowStarEffect(float UpdateBlowEffect);
 	void UpdateExplodeOnEnemy();
 	void UpdateDeathEffect(float delta);
 	void UpdateHitEffect(float delta);
@@ -60,7 +60,6 @@ public:
 
 	bool isTimerSet() { return setTimer; };
 	void StartTimer(float duration);
-	void UpdateEffect(float deltaTime);
 	void RenderSwallowEffect();
 	void RenderDeathEffect();
 	void RenderHitEffect();
@@ -73,7 +72,6 @@ public:
 
 
 	void RenderEffect();
-	void StopEffect();
 	class Rect* GetRect() { return rectEffect0; }
 	vector<class Rect*> GetRects() { return rectEffects; }
 	
