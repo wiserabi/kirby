@@ -143,6 +143,7 @@ public:
 	int GetCurrentAbility();//return kirby ability
 	int GetNothing() { return nothing; };//there was no ability on enemy
 	bool GetHitGround() { return hitGround; }
+	bool GetAbilityUse() { return abilityUse; }
 
 private:
 	int health;

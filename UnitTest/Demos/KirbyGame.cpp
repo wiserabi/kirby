@@ -94,6 +94,7 @@ void KirbyGame::Update()
 
 	//get levels from world
 	vector<Level*> levels = world->GetLevels();
+	prevDeathCnt = deathCnt;
 	deathCnt = 0;
 	for (size_t i = 0; i < levels.size(); i++)
 	{
@@ -404,7 +405,9 @@ void KirbyGame::Sound()
 		Sounds::Get()->Pause(sounds[13]);
 	}
 
-	if (kirbyPrevState != sandwiched && kirbyCurState == sandwiched) {
+	if ((kirbyPrevState != sandwiched && kirbyCurState == sandwiched) ||
+		((kirbyPrevState == jumpdown || kirbyPrevState == falldown) && 
+		kirbyCurState == flatten)) {
 		Sounds::Get()->Play(sounds[6], volume);
 		sandwichedSoundTime = Time::Get()->Running();
 	}
@@ -432,6 +435,43 @@ void KirbyGame::Sound()
 	else if (Sounds::Get()->IsPlaying(sounds[7]) &&
 		Time::Get()->Running() - hitSoundTime > 0.4f) {
 		Sounds::Get()->Pause(sounds[7]);
+	}
+
+	if (kirbyPrevState != flyup && kirbyCurState == flyup) {
+		Sounds::Get()->Play(sounds[8], volume);
+		flyupSoundTime = Time::Get()->Running();
+	}
+	else if (Sounds::Get()->IsPlaying(sounds[8]) &&
+		Time::Get()->Running() - flyupSoundTime > 0.16f) {
+		Sounds::Get()->Pause(sounds[8]);
+	}
+
+	if (kirbyPrevState != exhaling && kirbyCurState == exhaling) {
+		Sounds::Get()->Play(sounds[9], volume);
+		exhaleSoundTime = Time::Get()->Running();
+	}
+	else if (Sounds::Get()->IsPlaying(sounds[9]) &&
+		Time::Get()->Running() - exhaleSoundTime > 0.16f) {
+		Sounds::Get()->Pause(sounds[9]);
+	}
+
+	prevAbilityUse = abilityUse;
+	abilityUse = kirby->GetAbilityUse();//get ability
+	if (!prevAbilityUse && abilityUse) {
+		Sounds::Get()->Play(sounds[12], volume);
+		getAbilitySoundTime = Time::Get()->Running();
+	}
+	else if (Sounds::Get()->IsPlaying(sounds[12]) &&
+		Time::Get()->Running() - getAbilitySoundTime > 0.98f) {
+		Sounds::Get()->Pause(sounds[12]);
+	}
+
+	if (deathCnt > prevDeathCnt && kirbyCurState != swallowing) {
+		Sounds::Get()->Play(sounds[14], volume);
+		enemykillSoundTime = Time::Get()->Running();
+	}
+	else if(Time::Get()->Running() - enemykillSoundTime > 0.17f){
+		Sounds::Get()->Pause(sounds[14]);
 	}
 }
 

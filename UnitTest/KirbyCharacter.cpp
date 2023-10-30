@@ -701,7 +701,6 @@ bool KirbyCharacter::FlyUp(float delta, Keyboard* key)
 	if (state == flyup) {
 		dir += Values::UpVec;
 		current = L"flyUp";
-		state = flyup;
 		auto curframe = __super::GetAnimator()->GetCurrentFrameIndex();
 		if (curframe == 3) {
 			state = inhaled;

@@ -53,7 +53,8 @@ private:
     Rect* enemyRect = nullptr;
     int kirbyLocation = 0;
     int kirbyPrevLocation = -1;
-    int deathCnt = 0;
+    int deathCnt = 0;//enemy death count
+    int prevDeathCnt = 0;
     bool nothing = false;
     float invincibleDuration = 2.0f;
     bool startboss = false;
@@ -66,7 +67,14 @@ private:
     float sandwichedSoundTime = 0.0f;
     float headdownSoundTime = 0.0f;
     float hitSoundTime = 0.0f;
-    float volume = 0.2f;
+    float flyupSoundTime = 0.0f;
+    float exhaleSoundTime = 0.0f;
+    float getAbilitySoundTime = 0.0f;
+    float enemykillSoundTime = 0.0f;
+   
+    float volume = 0.5f;
+    bool prevAbilityUse = false;//kirby ability use previous
+    bool abilityUse = false;//kirby ability use
 
     vector<string> sounds = {
         "Vegetable-Valley.mp3",
@@ -82,6 +90,7 @@ private:
         "dashEnd.mp3",
         "squash.mp3",
         "getAbility.mp3",
-        "throwStar.mp3"
+        "throwStar.mp3",
+        "enemykill.mp3"
     };
 };
