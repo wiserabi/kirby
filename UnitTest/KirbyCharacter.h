@@ -190,6 +190,10 @@ private:
 	int doorIdx = -1;
 	bool nothing = false;
 	float nothingTimer = 0.0f;
+	float sparkSoundTimer = 0.0f;
+	float beamSoundTimer = 0.0f;
+	bool sparkTimerSet = false;
+	bool beamTimerSet = false;
 
 	wstring animationPng[PNGNUM] = {
 		L"kirbywalkright.png",

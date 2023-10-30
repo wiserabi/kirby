@@ -1194,9 +1194,23 @@ bool KirbyCharacter::HitEnemy(float delta, Keyboard* key)
 
 bool KirbyCharacter::UseAbility(float delta, Keyboard* key)
 {
+	if (sparkTimerSet && Time::Get()->Running() - sparkSoundTimer > 0.7f) {
+		Sounds::Get()->Pause("spark.mp3");
+		sparkTimerSet = false;
+	}
+	if (beamTimerSet && Time::Get()->Running() - beamSoundTimer > 0.16f) {
+		Sounds::Get()->Pause("beam.mp3");
+		beamTimerSet = false;
+	}
 	if (abilityUse && (state == walking || state == idle || state == jumpdown)
 		&& key->Press('S')) {
 		if (ability == Ability::spark) {
+			if (!sparkTimerSet && Time::Get()->Running() - sparkSoundTimer > 0.7f) {
+				Sounds::Get()->Play("spark.mp3", 0.5f);
+				sparkSoundTimer = Time::Get()->Running();
+				sparkTimerSet = true;
+			}
+
 			if (hitGround) {
 				dir.x = 0;
 			}
@@ -1219,6 +1233,12 @@ bool KirbyCharacter::UseAbility(float delta, Keyboard* key)
 
 		}
 		else if (ability == Ability::beam) {
+			if (!beamTimerSet && Time::Get()->Running() - beamSoundTimer > 0.16f) {
+				Sounds::Get()->Play("beam.mp3", 0.5f);
+				beamSoundTimer = Time::Get()->Running();
+				beamTimerSet = true;
+			}
+
 			if (hitGround) {
 				dir.x = 0;
 			}

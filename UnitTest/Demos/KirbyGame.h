@@ -91,6 +91,8 @@ private:
         "squash.mp3",
         "getAbility.mp3",
         "throwStar.mp3",
-        "enemykill.mp3"
+        "enemykill.mp3",
+        "spark.mp3",
+        "beam.mp3",
     };
 };
