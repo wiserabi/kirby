@@ -582,7 +582,7 @@ void KirbyEffect::RenderBlowAir()
 void KirbyEffect::RenderSparkEffect()
 {
 	if (animations.size()) {
-		rectEffect0->SetColor({0.5f, 0.5f, 0.5f, 0.5f});
+		//rectEffect0->SetColor({0.5f, 0.5f, 0.5f, 0.5f});
 		rectEffect0->Render();
 		animations[0]->Render();
 	}
@@ -600,7 +600,7 @@ void KirbyEffect::RenderBeamEffect()
 void KirbyEffect::RenderKirbyAbilityEffect()
 {
 	if (animations.size() && rectEffect0) {
-		//rectEffect0->SetColor(Color(0, 0, 0, 0.35f));
+		rectEffect0->SetColor(Color(0, 0, 0, 0.35f));
 		rectEffect0->Render();
 		animations[0]->Render();
 	}

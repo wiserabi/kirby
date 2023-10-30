@@ -1251,7 +1251,7 @@ bool KirbyCharacter::UseAbility(float delta, Keyboard* key)
 
 			//cout << "use beam\n";
 			if (!beamEffect->isTimerSet()) {
-				beamEffect->SetBeamEffect(position, __super::GetLeft());
+				beamEffect->SetBeamEffect(position, __super::GetLeft(), true);
 				beamEffect->StartTimer(0.2f);
 			}
 			else {
