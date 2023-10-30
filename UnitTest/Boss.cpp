@@ -29,6 +29,7 @@ TreeBoss::TreeBoss(Vector3 position, Vector3 size) :
 
 TreeBoss::~TreeBoss()
 {
+    SAFE_DELETE(rect);
 }
 
 void TreeBoss::Update()

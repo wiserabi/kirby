@@ -43,4 +43,5 @@ protected:
 
     ID3D11ShaderResourceView* srv = nullptr;
     D3D11_MAPPED_SUBRESOURCE subResource;
+    string path;
 };

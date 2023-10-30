@@ -49,6 +49,8 @@ TextureRect::TextureRect(Vector3 position, Vector3 size, float rotation, wstring
         nullptr
     );
     CHECK(hr);
+    this->path = String::ToString(path);
+    SRV::Get()->AddSRV(this->path, srv);
 }
 
 TextureRect::TextureRect(Vector3 position, Vector3 size, float rotation)
@@ -87,7 +89,7 @@ TextureRect::TextureRect(Vector3 position, Vector3 size, float rotation)
 
 TextureRect::~TextureRect()
 {
-    SAFE_RELEASE(srv);
+    //SAFE_RELEASE(srv);
     SAFE_DELETE(wb);
     SAFE_DELETE(il);
     SAFE_DELETE(ps);
@@ -108,6 +110,7 @@ void TextureRect::Update()
 
 void TextureRect::Render()
 {
+    //srv = SRV::Get()->GetSRV(this->path);
     vb->SetIA();
     ib->SetIA();
     il->SetIA();

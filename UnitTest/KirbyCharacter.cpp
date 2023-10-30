@@ -60,7 +60,10 @@ KirbyCharacter::KirbyCharacter(Vector3 position, Vector3 size)
 
 KirbyCharacter::~KirbyCharacter()
 {
-	vector<Rect*>().swap(doors);
+	for (auto& ptr : doors) {
+		delete ptr;
+	}
+	doors.clear();
 
 	SAFE_DELETE(removeAbilityEffect);
 	SAFE_DELETE(getAbilityEffect);

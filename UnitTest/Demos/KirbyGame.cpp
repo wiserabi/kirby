@@ -44,8 +44,8 @@ void KirbyGame::Destroy()
 		SAFE_DELETE(effects[i]);
 	}
 	effects.clear();
-
-	vector<string>().swap(sounds);
+	slopeRange.clear();
+	sounds.clear();
 
 	SAFE_DELETE(kirby);
 	SAFE_DELETE(hud);

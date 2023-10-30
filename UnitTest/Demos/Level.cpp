@@ -75,11 +75,17 @@ Level::Level(Vector3 pos, Vector3 size, wstring pngName)
 
 Level::~Level()
 {
-	vector<pair<float, float>>().swap(slopeRange);
+	slopeRange.clear();
 	SAFE_DELETE(enemyInfo);
-	vector<Enemy*>().swap(enemies);
+	for (auto& ptr : enemies) {
+		delete ptr;
+	}
+	enemies.clear();
 	SAFE_DELETE(levelMap);
-	vector<Rect*>().swap(rects);
+	for (auto& ptr : rects) {
+		delete ptr;
+	}
+	rects.clear();
 	SAFE_DELETE(boss);
 }
 
@@ -103,7 +109,10 @@ void Level::Update()
 		}
 		//clear apple
 		else if (bossPrevState == 2 && bossState == 0) {
-			vector<Enemy*>().swap(enemies);
+			for (auto& ptr : enemies) {
+				delete ptr;
+			}
+			enemies.clear();
 		}
 		//boss blow air
 		else if (bossPrevState == 0 && bossState == 1) {

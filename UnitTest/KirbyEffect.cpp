@@ -133,7 +133,12 @@ void KirbyEffect::SetKirbyStarExplodeOnEnemy(Vector3 pos)
 void KirbyEffect::SetEnemyDeathEffect(Vector3 pos)
 {
 	currentEffect = Effect::bigstars;
-	vector<AnimationRect*>().swap(animations);
+	
+	for (auto& ptr : animations)
+	{
+		delete ptr;
+	}
+	animations.clear();
 	for (int i = 0; i < 4; i++) {
 		animations.push_back(new AnimationRect(pos, Vector3(52.0f, 52.0f, 0.0f), false));
 		animations[i]->SetAnimator(animatorList[currentEffect]);
@@ -278,7 +283,11 @@ void KirbyEffect::UpdateEatEffect()
 			SAFE_DELETE(it);
 		}
 		//clear the previous effect animations
-		vector<AnimationRect*>().swap(animations);
+		for (auto& ptr : animations)
+		{
+			delete ptr;
+		}
+		animations.clear();
 		curves->Clear();
 		SAFE_DELETE(curves);
 		setTimer = false;
@@ -312,7 +321,11 @@ void KirbyEffect::UpdateSwallowEffect()
 	if (time + duration < Time::Get()->Running()) {
 		curves->Clear();
 		SAFE_DELETE(curves);
-		vector<TextureRect*>().swap(enemySwallow);
+		for (auto& ptr : enemySwallow)
+		{
+			delete ptr;
+		}
+		enemySwallow.clear();
 		setTimer = false;
 		return;
 	}
@@ -347,7 +360,11 @@ void KirbyEffect::UpdateBlowStarEffect(float deltaTime)
 	}
 	if (time + duration < Time::Get()->Running()) {
 		SAFE_DELETE(rectEffect0);
-		vector<AnimationRect*>().swap(animations);
+		for (auto& ptr : animations)
+		{
+			delete ptr;
+		}
+		animations.clear();
 		setTimer = false;
 		return;
 	}
@@ -372,7 +389,11 @@ void KirbyEffect::UpdateExplodeOnEnemy()
 		return;
 	}
 	if (time + duration < Time::Get()->Running()) {
-		vector<AnimationRect*>().swap(animations);
+		for (auto& ptr : animations)
+		{
+			delete ptr;
+		}
+		animations.clear();
 		setTimer = false;
 		return;
 	}
@@ -382,8 +403,15 @@ void KirbyEffect::UpdateExplodeOnEnemy()
 
 void KirbyEffect::UpdateDeathEffect(float delta)
 {
+	if (!setTimer) {
+		return;
+	}
 	if (time + duration < Time::Get()->Running()) {
-		vector<AnimationRect*>().swap(animations);
+		for (auto& ptr : animations)
+		{
+			delete ptr;
+		}
+		animations.clear();
 		setTimer = false;
 		return;
 	}
@@ -405,8 +433,15 @@ void KirbyEffect::UpdateDeathEffect(float delta)
 
 void KirbyEffect::UpdateHitEffect(float delta)
 {
+	if (!setTimer) {
+		return;
+	}
 	if (time + duration < Time::Get()->Running()) {
-		vector<AnimationRect*>().swap(animations);
+		for (auto& ptr : animations)
+		{
+			delete ptr;
+		}
+		animations.clear();
 		setTimer = false;
 		return;
 	}
@@ -418,8 +453,15 @@ void KirbyEffect::UpdateHitEffect(float delta)
 
 void KirbyEffect::UpdateBlowAir(float delta)
 {
+	if (!setTimer) {
+		return;
+	}
 	if (time + duration < Time::Get()->Running()) {
-		vector<AnimationRect*>().swap(animations);
+		for (auto& ptr : animations)
+		{
+			delete ptr;
+		}
+		animations.clear();
 		SAFE_DELETE(rectEffect0);
 		setTimer = false;
 		return;
@@ -442,8 +484,15 @@ void KirbyEffect::UpdateBlowAir(float delta)
 
 void KirbyEffect::UpdateSparkEffect(float delta)
 {
+	if (!setTimer) {
+		return;
+	}
 	if (time + duration < Time::Get()->Running()) {
-		vector<AnimationRect*>().swap(animations);
+		for (auto& ptr : animations)
+		{
+			delete ptr;
+		}
+		animations.clear();
 		SAFE_DELETE(rectEffect0);
 		setTimer = false;
 		return;
@@ -457,8 +506,15 @@ void KirbyEffect::UpdateSparkEffect(float delta)
 
 void KirbyEffect::UpdateBeamEffect(float delta, float leftSide)
 {
+	if (!setTimer) {
+		return;
+	}
 	if (time + duration < Time::Get()->Running()) {
-		vector<AnimationRect*>().swap(animations);
+		for (auto& ptr : animations)
+		{
+			delete ptr;
+		}
+		animations.clear();
 		SAFE_DELETE(rectEffect0);
 		setTimer = false;
 		return;
@@ -473,8 +529,14 @@ void KirbyEffect::UpdateBeamEffect(float delta, float leftSide)
 
 void KirbyEffect::UpdateKirbyAbilityEffect()
 {
+	if (!setTimer) {
+		return;
+	}
 	if (time + duration < Time::Get()->Running()) {
-		vector<AnimationRect*>().swap(animations);
+		for (auto& ptr : animations) {
+			delete ptr;
+		}
+		animations.clear();
 		SAFE_DELETE(rectEffect0);
 		setTimer = false;
 		return;
@@ -492,7 +554,11 @@ void KirbyEffect::UpdateKirbyAbilityEffect()
 void KirbyEffect::UpdateRemoveAbilityEffect(float delta)
 {
 	if (time + duration < Time::Get()->Running()) {
-		vector<AnimationRect*>().swap(animations);
+		for (auto& ptr : animations)
+		{
+			delete ptr;
+		}
+		animations.clear();
 		setTimer = false;
 		return;
 	}
@@ -516,8 +582,16 @@ void KirbyEffect::UpdateBossBlowEffect(float delta)
 	}
 
 	if (time + duration < Time::Get()->Running()) {
-		vector<AnimationRect*>().swap(animations);
-		vector<Rect*>().swap(rectEffects);
+		for (auto& ptr : animations)
+		{
+			delete ptr;
+		}
+		animations.clear();
+		for (auto& ptr : rectEffects)
+		{
+			delete ptr;
+		}
+		rectEffects.clear();
 		blowStart.clear();
 		effectStartPositions.clear();
 		setTimer = false;

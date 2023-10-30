@@ -33,8 +33,15 @@ World::World()
 
 World::~World()
 {
-	vector<Level*>().swap(levels);
-	vector<Rect*>().swap(rects);
+	for (auto& ptr : levels) {
+		delete ptr;
+	}
+	levels.clear();
+	for (auto& ptr : rects) {
+		delete ptr;
+	}
+	rects.clear();
+
 	SAFE_DELETE(worldMap);
 }
 
