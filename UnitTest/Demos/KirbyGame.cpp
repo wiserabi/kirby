@@ -381,7 +381,7 @@ void KirbyGame::Sound()
 		jumpSoundTime = Time::Get()->Running();
 	}
 	else if (Time::Get()->Running() - jumpSoundTime > 0.09f && 
-		kirbyPrevState == jump && kirbyCurState == jump && 
+		kirbyCurState == jump && 
 		Sounds::Get()->IsPlaying(sounds[4])) {
 
 		Sounds::Get()->Pause(sounds[4]);
@@ -473,6 +473,14 @@ void KirbyGame::Sound()
 	}
 	else if(Time::Get()->Running() - enemykillSoundTime > 0.17f){
 		Sounds::Get()->Pause(sounds[14]);
+	}
+
+	if (kirbyPrevState != drift && kirbyCurState == drift) {
+		Sounds::Get()->Play(sounds[10], volume);
+		endDashSoundTime = Time::Get()->Running();
+	}
+	else if (Time::Get()->Running() - endDashSoundTime > 0.25f) {
+		Sounds::Get()->Pause(sounds[10]);
 	}
 }
 
