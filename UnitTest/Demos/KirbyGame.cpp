@@ -386,10 +386,7 @@ void KirbyGame::Sound()
 		Sounds::Get()->Play(sounds[4], volume);
 		jumpSoundTime = Time::Get()->Running();
 	}
-	else if (Time::Get()->Running() - jumpSoundTime > 0.09f && 
-		kirbyCurState == jump && 
-		Sounds::Get()->IsPlaying(sounds[4])) {
-
+	else if (Time::Get()->Running() - jumpSoundTime > 0.09f) {
 		Sounds::Get()->Pause(sounds[4]);
 	}
 	

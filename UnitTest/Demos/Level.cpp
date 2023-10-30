@@ -64,7 +64,7 @@ Level::Level(Vector3 pos, Vector3 size, wstring pngName)
 		pos.z = 0.0f;
 		size.z = 0.0f;
 		//cout << pos.z << "\n";
-		float angle_in_radians = angle_in_degrees * (3.141592 / 180.0f);
+		float angle_in_radians = angle_in_degrees * (3.141592f / 180.0f);
 		rects.push_back(new Rect(pos, size, angle_in_radians));
 	}
 	enemyInfo = new EnemyInfo();
@@ -502,7 +502,7 @@ int Level::BossBlowHitKirby(BoundingBox* kirbyBox)
 {
 	if (bossBlowEffect.isTimerSet()) {
 		vector<Rect*> blowRects = bossBlowEffect.GetRects();
-		for (int i = 0; i < blowRects.size(); i++) {
+		for (size_t i = 0; i < blowRects.size(); i++) {
 			BoundingBox* blowBox = nullptr;
 			if (blowRects[i]) {
 				blowBox = blowRects[i]->GetBox();
