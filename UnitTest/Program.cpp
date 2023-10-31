@@ -44,6 +44,10 @@ void Program::Update()
 			curObj = 1;
 			Camera::Get()->SetAutoMove();
 			Camera::Get()->SetPosition(Values::ZeroVec3);
+			Sounds::Get()->Pause("29-Boss.mp3");
+			Sounds::Get()->AddSound("ending.mp3",
+				SoundPath + String::ToWString("ending.mp3"), false);
+			Sounds::Get()->Play("ending.mp3");
 		}
 	}
 

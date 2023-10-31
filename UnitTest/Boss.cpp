@@ -144,9 +144,6 @@ void TreeBoss::Render()
     }
     if (ending) {
         endingItem->Render();
-        endingRect->SetColor({0.5f, 0.5f, 0.5f, 0.5f});
-
-        endingRect->Render();
     }
 }
 
