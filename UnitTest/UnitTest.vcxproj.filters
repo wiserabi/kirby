@@ -9,12 +9,12 @@
     <ClInclude Include="Demos\Level.h" />
     <ClInclude Include="KirbyCharacter.h" />
     <ClInclude Include="ReadCoordinate.h" />
-    <ClInclude Include="Demos\05_CollisionDemo.h" />
     <ClInclude Include="BezierCurves.h" />
     <ClInclude Include="KirbyEffect.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="EnemyInfo.h" />
     <ClInclude Include="Boss.h" />
+    <ClInclude Include="Demos\Ending.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Program.cpp" />
@@ -24,11 +24,11 @@
     <ClCompile Include="Demos\Level.cpp" />
     <ClCompile Include="KirbyCharacter.cpp" />
     <ClCompile Include="ReadCoordinate.cpp" />
-    <ClCompile Include="Demos\05_CollisionDemo.cpp" />
     <ClCompile Include="BezierCurves.cpp" />
     <ClCompile Include="KirbyEffect.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EnemyInfo.cpp" />
     <ClCompile Include="Boss.cpp" />
+    <ClCompile Include="Demos\Ending.cpp" />
   </ItemGroup>
 </Project>

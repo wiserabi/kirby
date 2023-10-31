@@ -20,8 +20,6 @@ public:
     class Rect* GetRect();
     void SetEnemyInfo(class EnemyInfo* infos);
     void Walk();
-    void Jump();
-    void Fly();
     void MoveIdle();
     void AppleMove();
     void AppleBounce();

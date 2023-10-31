@@ -36,6 +36,7 @@ public:
     void KillEnemyWithEffect(vector<Enemy*> enemies, int idx);
     BoundingBox* GetEnemyBox(vector<Enemy*> enemies, int idx);
     void AddSounds();
+    bool GetShowEnding() { return showEnding; }
 
 private:
     class KirbyCharacter* kirby = nullptr;
@@ -75,12 +76,14 @@ private:
     float enemykillSoundTime = 0.0f;
     float endDashSoundTime = 0.0f;
    
-    float volume = 0.5f;
+    float volume = 0.01f;
     bool prevAbilityUse = false;//kirby ability use previous
     bool abilityUse = false;//kirby ability use
 
     float bossInvulnerableTime = 1.6f;//boss invulnerable for 1.6f
     float bossHitTime = 0.0f;
+    int dmg = 5;
+    bool showEnding = false;
 
     vector<string> sounds = {
         "Vegetable-Valley.mp3",

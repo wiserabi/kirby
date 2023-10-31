@@ -535,3 +535,11 @@ int Level::GetStartBoss()
 {
 	return startboss;
 }
+
+Rect* Level::GetEndingRect()
+{
+	if (boss) {//boss dead
+		return boss->GetEndingRect();
+	}
+	return nullptr;
+}

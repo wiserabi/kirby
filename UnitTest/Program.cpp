@@ -13,19 +13,14 @@
 */
 
 #include "Demos/KirbyGame.h"
+#include "Demos/Ending.h"
 
 void Program::Init()
 {
 	Camera::Create();
-
-	//Push(new RectDemo);
-	//Push(new TextureDemo);
-	//Push(new ShadedDemo);
-	//Push(new RenderTargetDemo);
-	//Push(new CollisionDemo);
-	//Push(new AnimationDemo);
 	
 	Push(new KirbyGame);
+	Push(new Ending);
 }
 
 void Program::Destroy()
@@ -37,21 +32,33 @@ void Program::Destroy()
 		SAFE_DELETE(obj);
 	}
 
-
 }
 
 void Program::Update()
 {
-	for (IObject* obj : objs)
-		obj->Update();
+	if (curObj == 0 && !showEnding) {
+		KirbyGame* kirbyGame = dynamic_cast<KirbyGame*>(objs[curObj]);
+		showEnding = kirbyGame->GetShowEnding();
+		if(kirbyGame->GetShowEnding()){
+			showEnding = true;
+			curObj = 1;
+			Camera::Get()->SetAutoMove();
+			Camera::Get()->SetPosition(Values::ZeroVec3);
+		}
+	}
 
+	objs[curObj]->Update();
+	
 	Camera::Get()->Update();
 }
 
 void Program::Render()
 {
-	for (IObject* obj : objs)
-		obj->Render();
+	if (showEnding) {
+		curObj = 1;
+	}
+	objs[curObj]->Render();
+
 	Camera::Get()->Render();
 }
 

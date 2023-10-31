@@ -104,9 +104,11 @@ void KirbyGame::Update()
 	if (Keyboard::Get()->Down(VK_F5)) {
 		if (invincibleDuration < 3.0f) {
 			invincibleDuration = 100000.0f;
+			dmg = 50;
 		}
 		else {
 			invincibleDuration = 2.0f;
+			dmg = 5;
 		}
 	}
 
@@ -835,6 +837,16 @@ void KirbyGame::EnemyAndKirby(int kirbyLocation, vector<class Level*> levels)
 
 void KirbyGame::BossAndKirby(int kirbyLocation, vector<class Level*> levels)
 {
+	//check ending box collision
+	BoundingBox* endingBox = nullptr;
+	Rect* endingRect = levels[kirbyLocation]->GetEndingRect();
+	if (endingRect) {
+		endingBox = endingRect->GetBox();
+	}
+	if (endingBox && BoundingBox::OBB(endingBox, kirby->GetRect()->GetBox())) {
+		showEnding = true;
+	}
+
 	//get apples in current level
 	vector<Enemy*> apples = levels[kirbyLocation]->GetEnemies();
 	Rect* bossRect = levels[kirbyLocation]->GetBossRect();
@@ -864,6 +876,7 @@ void KirbyGame::BossAndKirby(int kirbyLocation, vector<class Level*> levels)
 		kirby->SetState(hitEnemy);
 		kirby->SetHitEnemy();
 	}
+
 	CheckStarHitBoss(bossRect, kirbyLocation, levels);
 	CheckAbilityHitBoss(bossRect, kirbyLocation, levels);
 
@@ -957,7 +970,7 @@ void KirbyGame::CheckStarHitBoss(Rect* bossRect, int kirbyLocation, vector<class
 		//get health of boss
 		int bossHealth = levels[kirbyLocation]->GetBossHealth();
 		//set health of boss
-		levels[kirbyLocation]->SetBossHealth(bossHealth - 5);
+		levels[kirbyLocation]->SetBossHealth(bossHealth - dmg);
 		//set boss state to 'hit' == 3
 		levels[kirbyLocation]->SetBossState(3);
 		bossHitTime = Time::Get()->Running();

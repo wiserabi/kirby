@@ -25,11 +25,32 @@ TreeBoss::TreeBoss(Vector3 position, Vector3 size) :
     defaultPos = position.y;
     //set bounding box for enemy
     rect = new Rect(position + Values::RightVec * 40, size, 0.0f);
+
+    endingItem = new AnimationRect({position.x, endingPosY, 0.0f}, 
+                                    Vector3(96.0f, 96.0f, 0.0f), 0.0f);
+    endingRect = new Rect({ position.x, endingPosY, 0.0f },
+        Vector3(96.0f, 96.0f, 0.0f), 0.0f);
+    Animator* tempAnimator1 = new Animator();
+    //create ending item
+    {
+        Texture2D* srcTex = new Texture2D(BossPath + L"endingItem.png");
+        AnimationClip* tmpClip = new AnimationClip(L"endingItem.png", srcTex, 48,
+            Vector2(0, srcTex->GetHeight() * 0.0f),
+            Vector2(srcTex->GetWidth(), srcTex->GetHeight() * 1.0f), false, 0.01f);
+        //add clip for each animator
+        tempAnimator1->AddAnimClip(tmpClip);
+        tempAnimator1->SetCurrentAnimClip(L"endingItem.png");
+        SAFE_DELETE(srcTex);
+    }
+    endingItem->SetAnimator(tempAnimator1);
+    endingPos = endingItem->GetPosition();
 }
 
 TreeBoss::~TreeBoss()
 {
     SAFE_DELETE(rect);
+    SAFE_DELETE(endingItem);
+    SAFE_DELETE(endingRect);
 }
 
 void TreeBoss::Update()
@@ -44,6 +65,7 @@ void TreeBoss::Update()
         state = death;
         timer = Time::Get()->Running();
         SAFE_DELETE(rect);
+        ending = true;
     }
 
     switch (state)
@@ -83,6 +105,18 @@ void TreeBoss::Update()
         }
         break;
     case death:
+        if (ending) {
+            if (endingPos.x > endingPosX) {
+                endingPos.x -= 2.0f;
+            }
+            endingItem->SetPosition(endingPos);
+            endingItem->ChangeAnimation(L"", 0.0f, Values::ZeroVec3, 0, false);
+            endingItem->Update();
+
+            endingRect->SetPosition(endingPos);
+            endingRect->Update();
+        }
+
         position.y = defaultPos;
         current = png[2];
         if (Time::Get()->Running() - timer > 0.4f) {
@@ -107,6 +141,12 @@ void TreeBoss::Render()
     __super::Render();
     if (rect) {
         rect->Render();
+    }
+    if (ending) {
+        endingItem->Render();
+        endingRect->SetColor({0.5f, 0.5f, 0.5f, 0.5f});
+
+        endingRect->Render();
     }
 }
 

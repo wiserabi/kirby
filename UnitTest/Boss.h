@@ -33,6 +33,7 @@ public:
     void SetTimer();
     int GetHealth() { return health; }
     void SetHealth(int health);
+    class Rect* GetEndingRect() { return endingRect; }
 
 private:
     int health = 28;
@@ -42,6 +43,11 @@ private:
     
     float timer = 0.0f;
     float hitTimer = 0.0f;
+    bool ending = false;
+    float endingPosX = 21150.0f;
+    float endingPosY = -10.0f;
+    Vector3 endingPos;
+    Rect* endingRect = nullptr;
 
 
     wstring png[BOSSPNGNUM] = {
@@ -58,4 +64,5 @@ private:
     float hitPositionY;
     float defaultPos;
     float idleTime = 4.0f;
+    class AnimationRect* endingItem = nullptr;
 };

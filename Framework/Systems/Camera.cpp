@@ -126,3 +126,13 @@ void Camera::Unprojection(Vector3* out, Vector3 source, Matrix world)
 	D3DXVec3TransformCoord(out, out, &wvp);
 }
 
+void Camera::SetAutoMove()
+{
+	this->cameraAutoMove = !this->cameraAutoMove;
+}
+
+void Camera::SetPosition(Vector3 position)
+{
+	this->position = position;
+}
+

@@ -38,6 +38,7 @@ public:
 	int GetBossHealth();
 	void SetBossHealth(int health);
 	int GetStartBoss();
+	class Rect* GetEndingRect();
 
 private:
 	Vector3 position;

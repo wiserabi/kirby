@@ -16,4 +16,6 @@ private:
 	VPBuffer* vpb = nullptr;
 
 	vector<IObject*> objs;
+	int curObj = 0;
+	bool showEnding = false;
 };

@@ -233,14 +233,6 @@ void Enemy::Walk()
     ChangeAnimation(this->clipname, velocity, dir, 0, false);
 }
 
-void Enemy::Jump()
-{
-}
-
-void Enemy::Fly()
-{
-}
-
 void Enemy::MoveIdle()
 {
     if (hitLeft) {
