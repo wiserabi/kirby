@@ -76,7 +76,7 @@ private:
     float enemykillSoundTime = 0.0f;
     float endDashSoundTime = 0.0f;
    
-    float volume = 0.1f;
+    float volume = 0.5f;
     bool prevAbilityUse = false;//kirby ability use previous
     bool abilityUse = false;//kirby ability use
 

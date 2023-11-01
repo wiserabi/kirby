@@ -40,18 +40,18 @@ void Ending::Update()
 	if (curFrame > 0) {
 		endingAnimation[curFrame - 1]->Update();
 	}
-	else if (curFrame == 0 && speed < 100) {
+	else if (curFrame == 0 && speed < 200) {
 		endingAnimation[0]->Update();
 		return;
 	}
-	else if (curFrame == 0 && speed >= 100) {
+	else if (curFrame == 0 && speed >= 200) {
 		speed = 0;
 		curFrame = 1;
 	}
 
 	endingAnimation[curFrame]->Update();
 	if (curFrame < frames - 1) {
-		if (speed > 6) {
+		if (speed > 12) {
 			speed = 0;
 			curFrame++;
 		}
