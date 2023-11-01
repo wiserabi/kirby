@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="Boss.h" />
     <ClInclude Include="Demos\Ending.h" />
+    <ClInclude Include="Demos\Intro.h" />
     <ClInclude Include="Demos\KirbyGame.h" />
     <ClInclude Include="Demos\Level.h" />
     <ClInclude Include="Demos\World.h" />
@@ -165,6 +166,7 @@
     <ClCompile Include="BezierCurves.cpp" />
     <ClCompile Include="Boss.cpp" />
     <ClCompile Include="Demos\Ending.cpp" />
+    <ClCompile Include="Demos\Intro.cpp" />
     <ClCompile Include="Demos\KirbyGame.cpp" />
     <ClCompile Include="Demos\Level.cpp" />
     <ClCompile Include="Demos\World.cpp" />

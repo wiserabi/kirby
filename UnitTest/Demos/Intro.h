@@ -1,5 +1,5 @@
 #pragma once
-class Ending : public IObject
+class Intro : public IObject
 {
 public:
     virtual void Init() override;
@@ -9,13 +9,8 @@ public:
     virtual void PostRender() override;
     virtual void GUI() override;
 private:
-    vector<class TextureRect*> endingAnimation;
-    class TextureRect* endingCredit;
-    wstring path;
+    class AnimationRect* animation;
     Vector3 position = { WinMaxWidth / 2.0f, WinMaxHeight / 2.0f, 0.0f };
-    Vector3 size = { WinMaxWidth, WinMaxHeight, 0.0f };
-    size_t frames = 100;
-    size_t curFrame = 0;
-    size_t speed = 0;
-    bool end = false;
+    Vector3 size = { 500.0f, 500.0f, 0.0f };
+    int idx = 0;
 };

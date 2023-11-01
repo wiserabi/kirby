@@ -14,6 +14,7 @@
 
 #include "Demos/KirbyGame.h"
 #include "Demos/Ending.h"
+#include "Demos/Intro.h"
 
 void Program::Init()
 {
@@ -21,6 +22,7 @@ void Program::Init()
 	
 	Push(new KirbyGame);
 	Push(new Ending);
+	//Push(new Intro);
 }
 
 void Program::Destroy()

@@ -6,11 +6,11 @@ void Ending::Init()
 {
 	for (size_t i = 0; i < frames; i++)
 	{
-		if(i > 22){
-			path = TexturePath + L"ending/00" + String::ToWString(to_string(i + 77)) + L".png";
+		if(i > 73){
+			path = TexturePath + L"ending/" + String::ToWString(to_string(i + 26)) + L".png";
 		}
 		else {
-			path = TexturePath + L"ending/000" + String::ToWString(to_string(i + 77)) + L".png";
+			path = TexturePath + L"ending/0" + String::ToWString(to_string(i + 26)) + L".png";
 		}
 		endingAnimation.push_back(new TextureRect(position, size, 0.0f, path));
 	}
@@ -51,7 +51,7 @@ void Ending::Update()
 
 	endingAnimation[curFrame]->Update();
 	if (curFrame < frames - 1) {
-		if (speed > 2) {
+		if (speed > 6) {
 			speed = 0;
 			curFrame++;
 		}

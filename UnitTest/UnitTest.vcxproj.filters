@@ -15,6 +15,7 @@
     <ClInclude Include="EnemyInfo.h" />
     <ClInclude Include="Boss.h" />
     <ClInclude Include="Demos\Ending.h" />
+    <ClInclude Include="Demos\Intro.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Program.cpp" />
@@ -30,5 +31,6 @@
     <ClCompile Include="EnemyInfo.cpp" />
     <ClCompile Include="Boss.cpp" />
     <ClCompile Include="Demos\Ending.cpp" />
+    <ClCompile Include="Demos\Intro.cpp" />
   </ItemGroup>
 </Project>
