@@ -1,74 +1,82 @@
 #include "stdafx.h"
 #include "Ending.h"
+#include "Geomatries/AnimationRect.h"
 #include "Geomatries/TextureRect.h"
 
 void Ending::Init()
 {
-	for (size_t i = 0; i < frames; i++)
+	endingAnimation = new AnimationRect(position, size, false);
+	Animator* tempAnimator = new Animator();
+
 	{
-		if(i > 73){
-			path = TexturePath + L"ending/" + String::ToWString(to_string(i + 26)) + L".png";
+		for (size_t i = 0; i < 10; i++)
+		{
+			wstring num = String::ToWString(to_string(i));
+			path = TexturePath + L"ending/" + num + L".png";
+			Texture2D* srcTex = new Texture2D(path);
+			AnimationClip* tmpClip = new AnimationClip(L"end" + num, srcTex, 10,
+				Values::ZeroVec2,
+				Vector2(srcTex->GetWidth(), srcTex->GetHeight()), false, 0.1f, true);
+			tempAnimator->AddAnimClip(tmpClip);
+			SAFE_DELETE(srcTex);
 		}
-		else {
-			path = TexturePath + L"ending/0" + String::ToWString(to_string(i + 26)) + L".png";
-		}
-		endingAnimation.push_back(new TextureRect(position, size, 0.0f, path));
+
+		tempAnimator->SetCurrentAnimClip(L"end0");
+		endingAnimation->SetAnimator(tempAnimator);
 	}
 	path = TexturePath + L"ending/endingCredit.png";
-	endingCredit = new TextureRect(position, {481.0f,114.0f,0.0f}, 0.0f, path);
+	endingCredit = new TextureRect(position, { 481.0f,114.0f,0.0f }, 0.0f, path);
 }
 
 void Ending::Destroy()
 {
-	for (size_t i = 0; i < endingAnimation.size(); i++)
-	{
-		SAFE_DELETE(endingAnimation[i]);
-	}
-	endingAnimation.clear();
+	SAFE_DELETE(endingAnimation);
 	SAFE_DELETE(endingCredit);
 }
 
 void Ending::Update()
 {
 	if (end) {
-		endingAnimation[0]->Update();
+		endingAnimation->ChangeAnimation(L"end0",0.0f,Values::ZeroVec3,0, true);
+		endingAnimation->Update();
 		endingCredit->Update();
 		return;
 	}
 	speed++;
 
-	if (curFrame > 0) {
-		endingAnimation[curFrame - 1]->Update();
-	}
-	else if (curFrame == 0 && speed < 200) {
-		endingAnimation[0]->Update();
+	if (curClipIdx == 0 && speed < 200) {
+		endingAnimation->ChangeAnimation(L"end0", 0.0f, Values::ZeroVec3, 0, true);
+		endingAnimation->Update();
 		return;
 	}
-	else if (curFrame == 0 && speed >= 200) {
+	else if (curClipIdx == 0 && speed >= 200) {
 		speed = 0;
-		curFrame = 1;
+		curClipIdx = 1;
+		//timer = Time::Get()->Running();
 	}
-
-	endingAnimation[curFrame]->Update();
-	if (curFrame < frames - 1) {
-		if (speed > 12) {
-			speed = 0;
-			curFrame++;
-		}
-	}
-	else {
+	clipName = L"end" + String::ToWString(to_string(curClipIdx - 1));
+	endingAnimation->ChangeAnimation(clipName, 0.0f, Values::ZeroVec3, 0, false);
+	endingAnimation->Update();
+	curFrame = endingAnimation->GetAnimator()->GetCurrentFrameIndex();
+	if (curFrame == 9 && curClipIdx < clipTotal) {
+		curClipIdx++;
 		curFrame = 0;
+		//timer = Time::Get()->Running();
+	}
+	if (curFrame == 9 && curClipIdx == clipTotal) {
 		end = true;
 	}
 }
 
 void Ending::Render()
 {
-	if (curFrame > 0) {
-		endingAnimation[curFrame - 1]->Render();
+	if (end) {
+		endingAnimation->Render();
+		endingCredit->Render();
+		return;
 	}
-	endingAnimation[curFrame]->Render();
-	endingCredit->Render();
+
+	endingAnimation->Render();
 }
 
 void Ending::PostRender()

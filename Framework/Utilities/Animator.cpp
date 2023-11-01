@@ -3,7 +3,7 @@
 
 AnimationClip::AnimationClip(wstring clipName, Texture2D* srcTex,
 	uint frameCount, Vector2 startPos, Vector2 endPos,
-	bool bReversed, float playRate) :
+	bool bReversed, float playRate, bool vertical) :
 	clipName(clipName), frameCount(frameCount), playRate(playRate), bReversed(bReversed)
 {
 	srv = srcTex->GetSRV();
@@ -13,6 +13,28 @@ AnimationClip::AnimationClip(wstring clipName, Texture2D* srcTex,
 
 	Vector2 clipSize = endPos - startPos;
 
+	if (vertical) {
+		Vector2 frameSize;
+		frameSize.x = clipSize.x;
+		frameSize.y = clipSize.y / frameCount;
+
+		texelFrameSize.x = frameSize.x / imageWidth;
+		texelFrameSize.y = frameSize.y / imageHeight;
+
+		Vector2 texelStartPos;
+		texelStartPos.x = startPos.x / imageWidth;
+		texelStartPos.y = startPos.y / imageHeight;
+
+		Vector2 keyframe;
+		for (uint i = 0; i < frameCount; i++) {
+			keyframe.x = texelStartPos.x;
+			keyframe.y = texelStartPos.y + (texelFrameSize.y * i);
+
+			keyFrames.push_back(keyframe);
+		}
+
+		return;
+	}
 	Vector2 frameSize;
 	frameSize.x = clipSize.x / frameCount;
 	frameSize.y = clipSize.y;
