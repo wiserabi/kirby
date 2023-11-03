@@ -52,7 +52,6 @@ void Ending::Update()
 	else if (curClipIdx == 0 && speed >= 200) {
 		speed = 0;
 		curClipIdx = 1;
-		//timer = Time::Get()->Running();
 	}
 	clipName = L"end" + String::ToWString(to_string(curClipIdx - 1));
 	endingAnimation->ChangeAnimation(clipName, 0.0f, Values::ZeroVec3, 0, false);
@@ -61,7 +60,6 @@ void Ending::Update()
 	if (curFrame == 9 && curClipIdx < clipTotal) {
 		curClipIdx++;
 		curFrame = 0;
-		//timer = Time::Get()->Running();
 	}
 	if (curFrame == 9 && curClipIdx == clipTotal) {
 		end = true;

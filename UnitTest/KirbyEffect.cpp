@@ -613,7 +613,11 @@ void KirbyEffect::UpdateBossBlowEffect(float delta)
 
 void KirbyEffect::StartTimer(float duration)
 {
-	setTimer = true;
+	setTimer = false;
+	if (duration > 0.1f) {
+		setTimer = true;
+	}
+
 	this->duration = duration;
 	time = Time::Get()->Running();
 }

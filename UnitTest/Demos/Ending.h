@@ -20,5 +20,4 @@ private:
     wstring clipName;
     size_t speed = 0;
     bool end = false;
-    float timer = 0.0f;
 };

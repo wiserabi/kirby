@@ -207,7 +207,9 @@ void KirbyGame::Render()
 
 	for (size_t i = 0; i < effects.size(); i++)
 	{
-		effects[i]->RenderEffect();
+		if (effects[i]->isTimerSet()) {
+			effects[i]->RenderEffect();
+		}
 	}
 	effects[1]->RenderSwallowEffect();
 	effects[4]->RenderHitEffect();
@@ -961,7 +963,6 @@ void KirbyGame::CheckStarHitBoss(Rect* bossRect, int kirbyLocation, vector<class
 		if (effects[2]->isTimerSet()) {
 			effects[2]->StartTimer(0.0f);
 		}
-		effects[2]->StartTimer(0.1f);
 
 		//save current state of boss for later use
 		levels[kirbyLocation]->SaveBossState();
